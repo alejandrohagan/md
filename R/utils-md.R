@@ -759,6 +759,10 @@ list_db_fns <- function(.con){
 }
 
 
+summarise <- function(x, ...) {
+  UseMethod("summarise")
+}
+
 #' Summarize for DBI objects
 #'
 #' @param .data dbi object
