@@ -17,5 +17,5 @@ Lists available DuckDB extensions, their description, load / installed status an
 }
 \examples{
 con <- DBI::dbConnect(duckdb::duckdb())
-list_md_extensions(con)
+list_extensions(con)
 }

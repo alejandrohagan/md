@@ -19,5 +19,5 @@ Validate Mother Duck Connection Status
 }
 \examples{
 con <- DBI::dbConnect(duckdb::duckdb())
-validate_md_connection_status(con)
+validate_connection_status(con)
 }
