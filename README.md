@@ -1,6 +1,8 @@
 # My Project
 
 
+![](md_logo.png)
+
 # My Project
 
 This is WIP collection of utilities to help with the management,
