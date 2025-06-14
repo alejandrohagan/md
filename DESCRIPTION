@@ -1,0 +1,30 @@
+Package: md
+Type: Package
+Title: Motherduck Utilities
+Version: 0.1.0
+Authors@R: c(
+    person(
+      "Alejandro", "Hagan",
+      email = "alejandro.hagan@outlook.com",
+      role = c("aut", "cre")
+    )
+  )
+Description: Collection of database utilites for Motherduck platform
+    This provides utilites and metadata function support to simplify the management, connection,
+    uploading and management of a motherduck database platform.
+    This package requires an account www.motherduck.com to apply its functions.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.2
+Imports:
+    DBI,
+    assertthat,
+    cli,
+    dbplyr,
+    dplyr,
+    duckdb,
+    glue,
+    purrr,
+    stringr,
+    tibble
