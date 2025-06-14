@@ -43,7 +43,7 @@ validate_duckdb_con <- function(.con){
 #'
 #' @examples
 #' con <- DBI::dbConnect(duckdb::duckdb())
-#' list_md_extensions(con)
+#' list_extensions(con)
 list_extensions <- function(.con){
 
   validate_duckdb_con(.con)
@@ -272,7 +272,7 @@ validate_extension_install_status <- function(.con,extension_names,return_type="
 
 
 #' @title Install motherduck extensions
-#' @name install_md_extensions
+#' @name install_extensions
 #' @description
 #' Installs and loads valid DuckDB extensions
 #'
@@ -285,7 +285,7 @@ validate_extension_install_status <- function(.con,extension_names,return_type="
 #'
 #' @examples
 #' con <- DBI::dbConnect(duckdb::duckdb())
-#' install_md_extensions(con,'motherduck',silent_msg=TRUE)
+#' install_extensions(con,'motherduck',silent_msg=TRUE)
 #'
 install_extensions <- function(.con,extension_names,silent_msg=TRUE){
 
@@ -346,7 +346,7 @@ install_extensions <- function(.con,extension_names,silent_msg=TRUE){
     )
     cli::cli_end()
     cli::cli_par()
-    cli::cli_text("Use {.fn list_md_extensions} to list extensions, status and their descriptions")
+    cli::cli_text("Use {.fn list_extensions} to list extensions, status and their descriptions")
     cli::cli_text("Use {.fn install_extensions} to install new {cli::col_red('duckdb')} extensions")
     cli::cli_text("See {.url https://duckdb.org/docs/stable/extensions/overview.html} for more information")
     cli::cli_end()
@@ -369,7 +369,7 @@ if(!silent_msg){
 #'
 #' @examples
 #' con <- DBI::dbConnect(duckdb::duckdb())
-#' validate_md_connection_status(con)
+#' validate_connection_status(con)
 validate_connection_status <- function(.con,return_type="msg"){
 
   # return_type <- "arg"
@@ -449,7 +449,7 @@ connect_to_motherduck <- function(motherduck_token){
 
     .con <-pool::dbPool(duckdb::duckdb(dbdir = tempfile()),...=list(motherduck_token=motherduck_token))
 
-    # if(!validate_md_extension_install_status(.con,"motherduck",return_type="arg")){
+    # if(!validate_extension_install_status(.con,"motherduck",return_type="arg")){
 
       install_extensions(.con,"motherduck")
 
@@ -459,7 +459,7 @@ connect_to_motherduck <- function(motherduck_token){
 
     # connect to motherduck
 
-    # if(!validate_md_connection_status(.con,return_type = "arg")){
+    # if(!validate_connection_status(.con,return_type = "arg")){
 
 
     DBI::dbExecute(.con, "PRAGMA MD_CONNECT")
