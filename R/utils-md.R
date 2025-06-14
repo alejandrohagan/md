@@ -471,26 +471,6 @@ connect_to_motherduck <- function(motherduck_token){
 }
 
 
-#' @title Show md databes
-#' @name lsd
-#' @param .con connection
-#'
-#' @returns Creates a tibble of your local or motherduck databases
-#' @export
-lsd <- function(.con){
-
-  validate_duckdb_con(.con)
-
- out <- suppressWarnings(
-   DBI::dbGetQuery(.con,"PRAGMA database_list;") |>
-    tibble::as_tibble(.name_repair = janitor::make_clean_names)
- )
-
-  return(out)
-
-}
-
-
 #' @title Show your motherduck token
 #' @name show_motherduck_token
 #'
@@ -555,9 +535,9 @@ create_or_replace_database <- function(.data,.con,database_name,schema_name,tabl
 
     # create database
 
-    DBI::dbExecute(con,create_db_query)
-    DBI::dbExecute(con,create_schema_query)
-    DBI::dbExecute(con,create_table_query)
+    DBI::dbExecute(.con,create_db_query)
+    DBI::dbExecute(.con,create_schema_query)
+    DBI::dbExecute(.con,create_table_query)
 
 
     #add upload date
