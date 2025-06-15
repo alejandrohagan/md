@@ -740,10 +740,11 @@ list_db_fns <- function(.con){
     as_tibble()
 }
 
-#' @export
-summarise <- function(x, ...) {
 
-  UseMethod("summarise")
+#' @export
+summary <- function(x, ...) {
+
+  UseMethod("summary")
 }
 
 #' Summarize for DBI objects
@@ -753,30 +754,7 @@ summarise <- function(x, ...) {
 #' @returns DBI object
 #' @export
 #'
-summarise.tbl_lazy <- function(.data){
-
-  con <- dbplyr::remote_con(.data)
-  query <- dbplyr::remote_query(.data)
-  summary_query <- paste0("summarize (",query,")")
-
-  out <- tbl(con,sql(summary_query))
-  return(out)
-}
-
-#' @export
-summarize <- function(x, ...) {
-
-  UseMethod("summarize")
-}
-
-#' Summarize for DBI objects
-#'
-#' @param .data dbi object
-#'
-#' @returns DBI object
-#' @export
-#'
-summarize.tbl_lazy <- function(.data){
+summary.tbl_lazy <- function(.data){
 
   con <- dbplyr::remote_con(.data)
   query <- dbplyr::remote_query(.data)
