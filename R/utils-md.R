@@ -247,7 +247,7 @@ validate_extension_install_status <- function(.con,extension_names,return_type="
 
   # check
 
-  if(all(ext_lst$success_ext %in% extension_names)){
+  if(!length(ext_lst$fail_ext)>0){
 
     status <- TRUE
 
@@ -289,8 +289,9 @@ validate_extension_install_status <- function(.con,extension_names,return_type="
 #'
 install_extensions <- function(.con,extension_names,silent_msg=TRUE){
 
-  # extension_names <- c("excel")
+  # extension_names <- c("fts")
   # silent_msg <- TRUE
+  # .con <- con
 
   assertthat::assert_that(is.logical(silent_msg),msg = "silent_msg must be TRUE or FALSE")
 
@@ -306,6 +307,8 @@ install_extensions <- function(.con,extension_names,silent_msg=TRUE){
  ext_lst$valid_ext <- extension_names[extension_names%in%valid_ext_vec ]
 
   # install packages
+
+ # validate_extension_install_status(.con,ext_lst$valid_ext,return_type = "arg")
 
  if(!validate_extension_install_status(.con,ext_lst$valid_ext,return_type = "arg")){
 
@@ -738,8 +741,9 @@ list_db_fns <- function(.con){
     as_tibble()
 }
 
-
+#' @export
 summarise <- function(x, ...) {
+
   UseMethod("summarise")
 }
 
