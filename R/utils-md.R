@@ -692,7 +692,7 @@ cd <- function(.con,database){
 
   validate_duckdb_con(.con)
 
-  database_valid_vec <- lsd(.con) |>
+  database_valid_vec <- ls(.con) |>
     pull(name)
 
   if(database %in% database_valid_vec){
@@ -708,7 +708,7 @@ cd <- function(.con,database){
 
     cli::cli_abort("
                    {.pkg {database}} is not valid,
-                   Use {.fn lsd} to list valid databases:
+                   Use {.fn ls} to list valid databases:
                    {.or {database_valid_vec}}
                    ")
   }
