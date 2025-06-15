@@ -549,7 +549,7 @@ create_or_replace_database <- function(.data,.con,database_name,schema_name,tabl
       dplyr::mutate(
         upload_date=Sys.Date()
         ,upload_time=format(Sys.time(), "%H:%M:%S")
-      )
+      ) |> tibble::as_tibble()
    # upload data
 
 
@@ -559,7 +559,7 @@ create_or_replace_database <- function(.data,.con,database_name,schema_name,tabl
 
     if(write_type_vec=="overwrite"){
 
-        DBI::dbWriteTable(.con,table_name,out,overwrite=TRUE)
+        DBI::dbWriteTable(conn = .con,name = table_name,value = out,overwrite=TRUE)
 
     message("succesfully upload query")
 
@@ -567,7 +567,7 @@ create_or_replace_database <- function(.data,.con,database_name,schema_name,tabl
 
     if(write_type_vec=="append"){
 
-        DBI::dbWriteTable(.con,table_name,out,append=TRUE)
+        DBI::dbWriteTable(conn = .con,name = table_name,value = out,append=TRUE)
 
     message("succesfully upload query")
 
@@ -690,7 +690,6 @@ pwd <- function(.con){
 #' @returns message
 #' @export
 #'
-#' @examples
 cd <- function(.con,database){
 
   validate_duckdb_con(.con)
@@ -723,7 +722,7 @@ cd <- function(.con,database){
 #'
 #' @param .con connection
 #'
-#' @returns
+#' @returns tibble
 #' @export
 #'
 #' @examples
@@ -755,6 +754,29 @@ summarise <- function(x, ...) {
 #' @export
 #'
 summarise.tbl_lazy <- function(.data){
+
+  con <- dbplyr::remote_con(.data)
+  query <- dbplyr::remote_query(.data)
+  summary_query <- paste0("summarize (",query,")")
+
+  out <- tbl(con,sql(summary_query))
+  return(out)
+}
+
+#' @export
+summarize <- function(x, ...) {
+
+  UseMethod("summarize")
+}
+
+#' Summarize for DBI objects
+#'
+#' @param .data dbi object
+#'
+#' @returns DBI object
+#' @export
+#'
+summarize.tbl_lazy <- function(.data){
 
   con <- dbplyr::remote_con(.data)
   query <- dbplyr::remote_query(.data)

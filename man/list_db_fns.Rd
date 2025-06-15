@@ -9,6 +9,9 @@ list_db_fns(.con)
 \arguments{
 \item{.con}{connection}
 }
+\value{
+tibble
+}
 \description{
 List database functions
 }
