@@ -73,9 +73,9 @@ list_extensions <- function(.con){
 validate_extension_load_status <- function(.con,extension_names,return_type="msg"){
 
 
-  return_type <- match.arg(
+  return_type <- rlang::arg_match(
     return_type
-    ,choices = c("msg","ext")
+    ,values = c("msg","ext")
   )
 
   # validate duckdb connection
@@ -172,9 +172,12 @@ validate_extension_install_status <- function(.con,extension_names,return_type="
   ## Then filter against the vector for those that aren't in table
   # extension_names <- c("arrow","excel","Adsfd","motherduck")
 
-  return_type <- match.arg(
+
+  return_type <- rlang::arg_match(
     return_type
-    ,choices = c("msg","ext","arg")
+    ,values = c("msg","ext","arg")
+    ,multiple = FALSE
+    ,error_arg = "Please only select 'msg', 'ext' or 'arg'"
   )
 
   validate_duckdb_con(.con)
@@ -251,7 +254,9 @@ validate_extension_install_status <- function(.con,extension_names,return_type="
   }
 
   if(return_type=="msg"){
+
     cli_ext_status_msg()
+
   }
 
   if(return_type=="ext"){
@@ -371,9 +376,9 @@ if(!silent_msg){
 validate_connection_status <- function(.con,return_type="msg"){
 
   # return_type <- "arg"
-  return_type <- match.arg(
+  return_type <- rlang::arg_match(
     return_type
-    ,choices = c("msg","arg")
+    ,values  = c("msg","arg")
   )
   validate_duckdb_con(.con)
 
@@ -544,13 +549,14 @@ create_or_replace_database <- function(.data,.con,database_name,schema_name,tabl
       dplyr::mutate(
         upload_date=Sys.Date()
         ,upload_time=format(Sys.time(), "%H:%M:%S")
-      ) |> tibble::as_tibble()
+      ) |>
+     tibble::as_tibble()
    # upload data
 
 
 
     # type <- "append"
-    write_type_vec <- match.arg(write_type,c("overwrite","append"))
+    write_type_vec <- rlang::arg_match(write_type,values=c("overwrite","append"))
 
     if(write_type_vec=="overwrite"){
 
@@ -670,7 +676,8 @@ pwd <- function(.con){
 
   validate_duckdb_con(.con)
 
-  out <- DBI::dbGetQuery(.con,"select current_database();") |>
+  out <-
+    DBI::dbGetQuery(.con,"select current_database();") |>
     tibble::as_tibble(.name_repair = janitor::make_clean_names)
 
   return(out)
@@ -689,15 +696,15 @@ cd <- function(.con,database){
 
   validate_duckdb_con(.con)
 
-  database_valid_vec <- lsmd(.con,type="database") |>
-    pull(table_catalog)
+  database_valid_vec <- ll(.con,type="database") |>
+    dplyr::pull(table_catalog)
 
   if(database %in% database_valid_vec){
 
     DBI::dbExecute(.con,glue::glue("USE {database};"))
 
     current_database_vec <- pwd(.con) |>
-      pull(current_database)
+      dplyr::pull(current_database)
 
     cli::cli_text("Current database: {.pkg {current_database_vec}}")
 
@@ -732,15 +739,10 @@ list_db_fns <- function(.con){
         FROM duckdb_functions()
         ORDER BY function_name;"
   ) |>
-    as_tibble()
+    tibble::as_tibble()
 }
 
 
-#' @export
-summary <- function(x, ...) {
-
-  UseMethod("summary")
-}
 
 #' Summarize for DBI objects
 #'
@@ -778,11 +780,11 @@ glimpse_md <- function(.data){
 #' @examples
 #' #' con <- DBI::dbConnect(duckdb::duckdb())
 #' lmd(con,type='database')
-lsmd <- function(.con,type="database"){
+ll <- function(.con,type="database"){
   # .con <- con
   # type <- "database"
 
-  type <- match.arg(type,choices=c("database","schema","views"))
+  type <- rlang::arg_match(type,values =c("database","schema","views"))
 
   assertthat::assert_that(
     validate_duckdb_con(.con)
@@ -850,16 +852,10 @@ views_tbl <-
 ") |>
   tibble::as_tibble()
 suppressWarnings(
-return(views_tbl)
+  return(views_tbl)
 )
-
 }
 
 }
-
-
-
-
-
 
 utils::globalVariables(c("con", "extension_name", "installed", "loaded"))
