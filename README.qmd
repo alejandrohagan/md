@@ -38,32 +38,80 @@ This is very much work in progress -- I'll eventually transition to the R7 objec
 
 -   Most functions are generalized and can work without local duckDB database
 
-## lets create a few examples
+## let's review 
 
 # Connect to mother duck
 
+-   First you will need a motherduck account, which has both free and paid tiers
+-   Once you've created an account, simply, go to your settings and click 'Access Tokens' under your 'Integrations'
+-   Keep this secure and safe as this lets you connect to your online database to read or write data
+-   Open R and use the `usethis::edit_r_environ()` function to put your motherduck token as a variable in your enviornment profile
+
+    -   MOTHERDUCK_TOKEN='tokenID'
+-   From there you can use the `connect_to_motherduck("MOTHERDUCK_TOKEN")`
+-   This will use the [pool](https://solutions.posit.co/connections/db/r-packages/pool/) library to create a connection to your mother duck instance
+
 ```{r}
+#| label: connection-example
+#| echo: true
+#| eval: false
+#| warning: false
+#| message: false
+#| include: true
 
 con <- connect_to_motherduck("MOTHERDUCK_TOKEN")
 
 
+```
+
+-   these functions validate your connect status to motherduck 
+
+```{r}
+#| label: validate-examples
+#| echo: true
+#| eval: false
+#| warning: false
+#| message: true
+#| include: true
+
+
 
 ```
 
 
-# validate connection
+# Database adminstrative functions
 
--   these functions validate your connect status
+- list_extensions()
+- install_extensions()
+- load_extensions
+- validate_install_status
+- validate_load_status
+- show_duckdb_settings()
+
+-   These are a collection of motherduck specific database utilities to help you list, install and load duckdb extensions
+-   the full list of extensions is available via duckdb community store are listed [here](https://duckdb.org/docs/stable/core_extensions/overview.html)
+-   the `list_extensions()` will list duckdb extension from the community store and list their status, install or loaded
+-   you can use `install_extensions()` to install a new exnsion -- this will also automatically load the extension
+-   If the extension is already install you can use xx
 
 
 ```{r}
+#| label: meta-example1
+#| echo: true
+#| eval: false
+#| warning: false
+#| message: false
+#| include: true
+md::list_extensions(con)
 
-validate_connection_status(con)
-validate_duckdb_con(con)
 
 ```
 
+```{r}
+md::install_extensions(con,"fts")
+validate_extension_load_status(con,extension_names = "motherduck")
+validate_extension_install_status(con,c("excel","arrow"),return_type = "msg")
 
-# validate extensions
+```
 
 
