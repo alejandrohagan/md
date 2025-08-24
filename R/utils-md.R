@@ -4,11 +4,9 @@
 #' @description
 #' Validates that your connection object is a DuckDB connection
 #'
-#'
 #' @param .con connection
 #
 #' @returns logical value or error message
-#' @export
 #'
 #' @examples
 #' con <- DBI::dbConnect(duckdb::duckdb())
@@ -26,9 +24,6 @@ validate_duckdb_con <- function(.con){
   }else{
     return(TRUE)
   }
-
-
-
 }
 
 
@@ -561,7 +556,7 @@ create_or_replace_database <- function(.data,.con,database_name,schema_name,tabl
 
         DBI::dbWriteTable(conn = .con,name = table_name,value = out,overwrite=TRUE)
 
-    message("succesfully upload query")
+    cli::cli_alert_info("succesfully upload query")
 
     }
 
@@ -569,7 +564,7 @@ create_or_replace_database <- function(.data,.con,database_name,schema_name,tabl
 
         DBI::dbWriteTable(conn = .con,name = table_name,value = out,append=TRUE)
 
-    message("succesfully upload query")
+      cli::cli_alert_info("succesfully upload query")
 
     }
 
@@ -694,8 +689,8 @@ cd <- function(.con,database){
 
   validate_duckdb_con(.con)
 
-  database_valid_vec <- ls(.con) |>
-    pull(name)
+  database_valid_vec <- lsmd(.con,type="database") |>
+    pull(table_catalog)
 
   if(database %in% database_valid_vec){
 
@@ -753,43 +748,112 @@ summary <- function(x, ...) {
 #'
 #' @returns DBI object
 #' @export
-#'
-summary.tbl_lazy <- function(.data){
+
+glimpse_md <- function(.data){
 
   con <- dbplyr::remote_con(.data)
+
+  ## assert connection
+
+  assertthat::assert_that(
+  validate_duckdb_con(con)
+  )
+
   query <- dbplyr::remote_query(.data)
   summary_query <- paste0("summarize (",query,")")
 
-  out <- tbl(con,sql(summary_query))
+  out <- dplyr::tbl(con,sql(summary_query))
   return(out)
-}
-
-
-ls <- function(x, ...) {
-  UseMethod("ls")
 }
 
 
 #' list database objects
 #'
 #' @param .con connection
+#' @param type 'database', 'schema' or 'views'
 #'
 #' @returns tibble
 #' @export
 #'
 #' @examples
 #' #' con <- DBI::dbConnect(duckdb::duckdb())
-#' list_db_fns(con)
-ls.Pool <- function(.con){
+#' lmd(con,type='database')
+lsmd <- function(.con,type="database"){
+  # .con <- con
+  # type <- "database"
 
-  validate_duckdb_con(.con)
+  type <- match.arg(type,choices=c("database","schema","views"))
 
-  out <- suppressWarnings(
-    DBI::dbGetQuery(.con,"PRAGMA database_list;") |>
-      tibble::as_tibble(.name_repair = janitor::make_clean_names)
+  assertthat::assert_that(
+    validate_duckdb_con(.con)
   )
 
-  return(out)
+  if(type=="database"){
+
+  database_tbl <-
+    DBI::dbGetQuery(
+      .con
+      ,"
+      SELECT DISTINCT
+      table_catalog
+      FROM  information_schema.tables;
+      "
+    ) |> as_tibble()
+
+  suppressWarnings(
+    return(database_tbl)
+  )
+
+}
+
+
+  if(type=="schema"){
+
+ schema_tbl <-
+   DBI::dbGetQuery(
+  .con
+  ,"
+  SELECT DISTINCT
+  table_catalog
+  ,table_schema
+  FROM  information_schema.tables
+  WHERE
+  TRUE
+  AND table_catalog = current_database()
+  ;"
+  ) |> as_tibble()
+
+ suppressWarnings(
+   return(schema_tbl)
+ )
+
+  }
+
+
+  if(type=="views"){
+
+views_tbl <-
+  DBI::dbGetQuery(
+    .con
+    ,"
+    SELECT DISTINCT
+    table_catalog
+    ,table_schema
+    ,table_name
+    FROM
+    information_schema.tables
+    WHERE
+    TRUE
+    AND table_catalog = current_database()
+    AND table_schema =  current_schema();
+
+") |>
+  tibble::as_tibble()
+suppressWarnings(
+return(views_tbl)
+)
+
+}
 
 }
 

@@ -21,11 +21,11 @@ This is very much work in progress -- I'll eventually transition to the R7 objec
 
 ## Features
 
+-   `connect_to_md()` will leverage your motherduck token to connect you to your motherduck instance (it will install motherduck extension if not created)
 -   `pwd()` prints your current database that you are "in"
 -   `ls()` lists the databases that you have access to
 -   `cd()` will change your database
 -   `summarize()` will summarize your database table's data
--   `connect_to_md()` will leverage your motherduck token to connect you to your motherduck instance (it will install motherduck extension if not created)
 -   `install_extensions()` will install various duckdb extensions
 -   `validate_*()` collection of functions will just validate your connection and extension status
 -   `read_httpfs()` helps with reading httpfs formats
@@ -34,9 +34,36 @@ This is very much work in progress -- I'll eventually transition to the R7 objec
 
 ## What do I need to use this?
 
--    You need your own motherduck account and an access token which can be saved to your R environ file with `usethis::edit_r_environ()`
+-   You need your own motherduck account and an access token which can be saved to your R environ file with `usethis::edit_r_environ()`
 
 -   Most functions are generalized and can work without local duckDB database
 
+## lets create a few examples
+
+# Connect to mother duck
+
+```{r}
+
+con <- connect_to_motherduck("MOTHERDUCK_TOKEN")
+
+
+
+```
+
+
+# validate connection
+
+-   these functions validate your connect status
+
+
+```{r}
+
+validate_connection_status(con)
+validate_duckdb_con(con)
+
+```
+
+
+# validate extensions
 
 
