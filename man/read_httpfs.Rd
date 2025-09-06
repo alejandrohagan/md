@@ -2,8 +2,11 @@
 % Please edit documentation in R/utils-md.R
 \name{read_httpfs}
 \alias{read_httpfs}
+\alias{read_csv_auto}
 \title{read httpfs files}
 \usage{
+read_csv_auto(.con, file_path, ...)
+
 read_httpfs(.con, file_path)
 }
 \arguments{
@@ -13,7 +16,11 @@ read_httpfs(.con, file_path)
 }
 \value{
 message
+
+message
 }
 \description{
+Enables reading of httpfs files
+
 Enables reading of httpfs files
 }

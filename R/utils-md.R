@@ -1,6 +1,6 @@
 
 #' @title Validate connection is DuckDB
-#' @name validate_duckdb_con
+#' @name validate_con
 #' @description
 #' Validates that your connection object is a DuckDB connection
 #'
@@ -11,7 +11,7 @@
 #' @examples
 #' con <- DBI::dbConnect(duckdb::duckdb())
 #' validate_duckdb_con(con)
-validate_duckdb_con <- function(.con){
+validate_con <- function(.con){
 
   dbIsValid_poss <- purrr::possibly(DBI::dbIsValid)
 
@@ -22,7 +22,9 @@ validate_duckdb_con <- function(.con){
     cli::cli_abort("Connection string is not valid, please try again")
 
   }else{
+
     return(TRUE)
+
   }
 }
 
@@ -41,7 +43,7 @@ validate_duckdb_con <- function(.con){
 #' list_extensions(con)
 list_extensions <- function(.con){
 
-  validate_duckdb_con(.con)
+  validate_con(.con)
 
   out <- DBI::dbGetQuery(
     .con,
@@ -54,8 +56,6 @@ list_extensions <- function(.con){
   return(out)
 
 }
-
-
 
 #' @title Validate  Motherduck extensions are correctly loaded
 #' @name validate_extension_load_status
@@ -73,13 +73,18 @@ list_extensions <- function(.con){
 validate_extension_load_status <- function(.con,extension_names,return_type="msg"){
 
 
+  # extension_names <- "motherduck"
+
   return_type <- rlang::arg_match(
     return_type
-    ,values = c("msg","ext")
+    ,values = c("msg","ext","arg")
+    ,multiple = FALSE
+    ,error_arg = "Please only select 'msg', 'ext' or 'arg'"
   )
 
+
   # validate duckdb connection
-  validate_duckdb_con(.con)
+  validate_con(.con)
 
   # validate valid extensions
 
@@ -143,10 +148,27 @@ validate_extension_load_status <- function(.con,extension_names,return_type="msg
     cli::cli_end()
   }
 
-  if(return_type=="msg"){
-    cli_ext_status_msg()
+
+  if(!length(ext_lst$fail_ext)>0){
+
+    status <- TRUE
+
   }else{
+    status <- FALSE
+  }
+
+  if(return_type=="msg"){
+
+    cli_ext_status_msg()
+
+  }
+
+  if(return_type=="ext"){
     return(ext_lst)
+  }
+
+  if(return_type=="arg"){
+    return(status)
   }
 
 }
@@ -180,7 +202,7 @@ validate_extension_install_status <- function(.con,extension_names,return_type="
     ,error_arg = "Please only select 'msg', 'ext' or 'arg'"
   )
 
-  validate_duckdb_con(.con)
+  validate_con(.con)
 
   valid_ext_vec <- list_extensions(.con) |> dplyr::pull(extension_name)
 
@@ -206,10 +228,6 @@ validate_extension_install_status <- function(.con,extension_names,return_type="
       installed==FALSE
     ) |>
     dplyr::pull(extension_name)
-
-
-
-
 
   msg_lst <- list()
 
@@ -287,15 +305,15 @@ validate_extension_install_status <- function(.con,extension_names,return_type="
 #' con <- DBI::dbConnect(duckdb::duckdb())
 #' install_extensions(con,'motherduck',silent_msg=TRUE)
 #'
-install_extensions <- function(.con,extension_names,silent_msg=TRUE){
+install_extensions <- function(.con,extension_names){
 
   # extension_names <- c("fts")
   # silent_msg <- TRUE
   # .con <- con
 
-  assertthat::assert_that(is.logical(silent_msg),msg = "silent_msg must be TRUE or FALSE")
+  # assertthat::assert_that(is.logical(silent_msg),msg = "silent_msg must be TRUE or FALSE")
 
-  validate_duckdb_con(.con)
+  validate_con(.con)
 
   valid_ext_vec <- list_extensions(.con) |>
     dplyr::pull(extension_name)
@@ -318,6 +336,90 @@ install_extensions <- function(.con,extension_names,silent_msg=TRUE){
    )
 
  }
+
+  msg_lst <- list()
+
+  if(length(ext_lst$valid_ext)>0){
+    n_ext <- length(ext_lst$valid_ext)
+    msg_lst$valid_msg <- "Installed {cli::col_yellow({cli::no(n_ext)})} extension{?s}: {.pkg {ext_lst$valid_ext}}"
+
+  }
+
+  if(length(ext_lst$invalid_ext)>0){
+    n_ext <- length(ext_lst$invalid_ext)
+    msg_lst$invalid_msg <- "Failed to install {cli::col_yellow({cli::no(n_ext)})} extension{?s}: {.pkg {ext_lst$invalid_ext}} are not valid"
+
+  }
+
+
+  cli_ext_status_msg <- function() {
+    cli::cli_par()
+    cli::cli_h1("Extension Install Report")
+    purrr::map(
+      msg_lst
+      ,.f = \(x) cli::cli_text(x)
+    )
+    cli::cli_end()
+    cli::cli_par()
+    cli::cli_text("Use {.fn list_extensions} to list extensions, status and their descriptions")
+    cli::cli_text("Use {.fn install_extensions} to install new {cli::col_red('duckdb')} extensions")
+    cli::cli_text("See {.url https://duckdb.org/docs/stable/extensions/overview.html} for more information")
+    cli::cli_end()
+  }
+# if(!silent_msg){
+  cli_ext_status_msg()
+# }
+
+}
+
+
+#' @title Loand (and install) motherduck extensions
+#' @name load_extensions
+#' @description
+#' Installs and loads valid DuckDB extensions
+#'
+#' @param .con duckdb connection
+#' @param extension_names DuckDB extension names
+#' @param silent_msg indicate if you want a success / failure report after installation and loading
+#'
+#' @returns message
+#' @export
+#'
+#' @examples
+#' con <- DBI::dbConnect(duckdb::duckdb())
+#' install_extensions(con,'motherduck',silent_msg=TRUE)
+#'
+load_extensions <- function(.con,extension_names){
+
+  # extension_names <- c("fts")
+  # silent_msg <- TRUE
+  # .con
+
+  # assertthat::assert_that(is.logical(silent_msg),msg = "silent_msg must be TRUE or FALSE")
+
+  validate_con(.con)
+
+  valid_ext_vec <- list_extensions(.con) |>
+    dplyr::pull(extension_name)
+
+  ext_lst <- list()
+
+  ext_lst$invalid_ext <-  extension_names[!extension_names%in%valid_ext_vec ]
+
+  ext_lst$valid_ext <- extension_names[extension_names%in%valid_ext_vec ]
+
+  # install packages
+
+  # validate_extension_install_status(.con,ext_lst$valid_ext,return_type = "arg")
+
+  if(!validate_extension_install_status(.con,ext_lst$valid_ext,return_type = "arg")){
+
+    purrr::map(
+      ext_lst$valid_ext
+      ,\(x)  DBI::dbExecute(.con, glue::glue("INSTALL {x};"))
+    )
+
+  }
 
   # load packages
   purrr::map(
@@ -342,7 +444,7 @@ install_extensions <- function(.con,extension_names,silent_msg=TRUE){
 
   cli_ext_status_msg <- function() {
     cli::cli_par()
-    cli::cli_h1("Extension Install Report")
+    cli::cli_h1("Extension Load & Install Report")
     purrr::map(
       msg_lst
       ,.f = \(x) cli::cli_text(x)
@@ -354,15 +456,16 @@ install_extensions <- function(.con,extension_names,silent_msg=TRUE){
     cli::cli_text("See {.url https://duckdb.org/docs/stable/extensions/overview.html} for more information")
     cli::cli_end()
   }
-if(!silent_msg){
-  cli_ext_status_msg()
-}
+  # if(!silent_msg){
+    cli_ext_status_msg()
+  # }
 
 }
+
 
 
 #' @title Validate Mother Duck Connection Status
-#' @name validate_connection_status
+#' @name validate_md_connection_status
 #'
 #' @param .con connection
 #' @param return_type return message or logical value of connection status
@@ -372,19 +475,20 @@ if(!silent_msg){
 #'
 #' @examples
 #' con <- DBI::dbConnect(duckdb::duckdb())
-#' validate_connection_status(con)
-validate_connection_status <- function(.con,return_type="msg"){
+#' validate_md_connection_status(con)
+validate_md_connection_status <- function(.con,return_type="msg"){
 
-  # return_type <- "arg"
+  # return_type <- "msg"
   return_type <- rlang::arg_match(
     return_type
     ,values  = c("msg","arg")
   )
-  validate_duckdb_con(.con)
+
+  validate_con(.con)
 
   dbExectue_safe <- purrr::safely(DBI::dbExecute)
 
-  out <- dbExectue_safe(.con, "PRAGMA md_connect")
+  out <- dbExectue_safe(.con, "PRAGMA MD_CONNECT")
 
   status_lst <- list()
 
@@ -425,11 +529,11 @@ validate_connection_status <- function(.con,return_type="msg"){
 #'
 connect_to_motherduck <- function(motherduck_token){
 
-    # motherduck_token="MOTHERDUCK_TOKEN"
+    motherduck_token="MOTHERDUCK_TOKEN"
 
     # pull your token from your R environment page
 
-    motherduck_token <- Sys.getenv(motherduck_token)
+    motherduck_token_code <- Sys.getenv(motherduck_token)
 
     cli_msg <- function() {
       cli::cli_par()
@@ -450,24 +554,23 @@ connect_to_motherduck <- function(motherduck_token){
       ,msg=cli_msg()
       )
 
-    .con <-pool::dbPool(duckdb::duckdb(dbdir = tempfile()),...=list(motherduck_token=motherduck_token))
+    .con <-pool::dbPool(duckdb::duckdb(dbdir = tempfile()),...=list(motherduck_token=motherduck_token_code))
 
-    # if(!validate_extension_install_status(.con,"motherduck",return_type="arg")){
+    if(!validate_extension_load_status(.con,"motherduck",return_type="arg")){
 
-      install_extensions(.con,"motherduck")
+      load_extensions(.con,"motherduck")
 
-    # }
-
+    }
 
 
     # connect to motherduck
 
-    # if(!validate_connection_status(.con,return_type = "arg")){
+    if(!validate_md_connection_status(.con,return_type = "arg")){
 
 
     DBI::dbExecute(.con, "PRAGMA MD_CONNECT")
 
-    # }
+    }
 
       return(.con)
 
@@ -484,7 +587,7 @@ connect_to_motherduck <- function(motherduck_token){
 #'
 show_motherduck_token <- function(.con){
 
-  validate_duckdb_con(.con)
+  validate_con(.con)
   validate_connection_status(.con)
 
   DBI::dbGetQuery(.con, 'PRAGMA print_md_token;')
@@ -518,9 +621,9 @@ create_or_replace_database <- function(.data,.con,database_name,schema_name,tabl
 
 
     # check that existing has loaded correctly
-  validate_duckdb_con(.con)
+  validate_con(.con)
 
-  validate_connection_status(.con,return_type = "arg")
+  validate_md_connection_status(.con,return_type = "arg")
 
     # database_name <- "tsa"
     create_db_query <- paste0("CREATE DATABASE IF NOT EXISTS ",database_name)
@@ -590,7 +693,7 @@ create_or_replace_database <- function(.data,.con,database_name,schema_name,tabl
 #' show_duckdb_settings(con)
 show_duckdb_settings <- function(.con){
 
-  validate_duckdb_con(.con)
+  validate_con(.con)
 
  out <-  DBI::dbGetQuery(.con,"SELECT * from duckdb_settings();") |> tibble::as_tibble()
 
@@ -598,7 +701,34 @@ show_duckdb_settings <- function(.con){
 
 }
 
+#' @title read httpfs files
+#' @name read_httpfs
+#' @description
+#' Enables reading of httpfs files
+#'
+#' @param .con DuckDB connection
+#' @param file_path to httpfs files
+#'
+#' @returns message
+#' @export
+#'
+read_csv_auto <- function(.con,file_path,...){
 
+  validate_con(.con)
+
+  validate_md_connection_status(.con)
+
+  .con <- con
+  DBI::dbExecute(
+    .con,
+    paste0(
+      "
+     SELECT *
+     FROM read_csv_auto('",file_path,"');"
+    )
+  )
+
+}
 
 
 #' @title read httpfs files
@@ -614,9 +744,9 @@ show_duckdb_settings <- function(.con){
 #'
 read_httpfs <- function(.con,file_path){
 
-  validate_duckdb_con(.con)
+  validate_con(.con)
 
-  validate_connection_status(.con)
+  validate_md_connection_status(.con)
 
 .con <- con
   DBI::dbGetQuery(
@@ -626,7 +756,7 @@ read_httpfs <- function(.con,file_path){
      LOAD httpfs;
 
      SELECT *
-     FROM read_csv_auto('",file_path,"');"
+     FROM read_parquet('",file_path,"');"
     )
   )
 
@@ -642,8 +772,8 @@ read_httpfs <- function(.con,file_path){
 #'
 read_parquet <- function(.con,file_path){
 
-  validate_duckdb_con(.con)
-  validate_connection_status(.con)
+  validate_con(.con)
+  validate_md_connection_status(.con)
 
   DBI::dbExecute(
     .con,
@@ -674,11 +804,23 @@ SELECT * FROM read_parquet('",file_path,"');"
 #' pwd(con)
 pwd <- function(.con){
 
-  validate_duckdb_con(.con)
+  validate_con(.con)
 
-  out <-
+  database_tbl <-
     DBI::dbGetQuery(.con,"select current_database();") |>
     tibble::as_tibble(.name_repair = janitor::make_clean_names)
+
+  schema_tbl <- DBI::dbGetQuery(.con,"select current_schema();") |>
+    tibble::as_tibble(.name_repair = janitor::make_clean_names)
+
+  role_vec <- DBI::dbGetQuery(.con,"select current_role();") |>
+    tibble::as_tibble(.name_repair = janitor::make_clean_names) |>
+    pull(current_role)
+
+
+  out <- bind_cols(database_tbl,schema_tbl)
+
+  cli::cli_alert("Current role: {.envvar {role_vec}}")
 
   return(out)
 }
@@ -692,11 +834,11 @@ pwd <- function(.con){
 #' @returns message
 #' @export
 #'
-cd <- function(.con,database){
+cd <- function(.con,database,schema){
 
-  validate_duckdb_con(.con)
+  validate_con(.con)
 
-  database_valid_vec <- ll(.con,type="database") |>
+  database_valid_vec <- list_database(.con) |>
     dplyr::pull(table_catalog)
 
   if(database %in% database_valid_vec){
@@ -717,11 +859,40 @@ cd <- function(.con,database){
                    ")
   }
 
+  if(!missing(schema)){
+
+  schema_valid_vec <- list_schema(.con) |>
+    dplyr::pull(table_schema)
+
+
+
+
+  if(schema %in% schema_valid_vec){
+
+    DBI::dbExecute(.con,glue::glue("USE {schema};"))
+
+    current_schema_vec <-   suppressMessages(pwd(.con) |>
+      dplyr::pull(current_schema)
+    )
+
+    cli::cli_text("Current schema: {.pkg {current_schema_vec}}")
+
+  }else{
+
+    cli::cli_abort("
+                   {.pkg {schema}} is not valid,
+                   Use {.fn list_schema} to list valid schemas:
+                   {.or {schema_valid_vec}}
+                   ")
+  }
+}
+
+
 }
 
 
 #' List database functions
-#'
+#' @name list_fns
 #' @param .con connection
 #'
 #' @returns tibble
@@ -730,7 +901,10 @@ cd <- function(.con,database){
 #' @examples
 #' con <- DBI::dbConnect(duckdb::duckdb())
 #' list_db_fns(con)
-list_db_fns <- function(.con){
+list_fns <- function(.con){
+
+  validate_con(.con)
+  validate_md_connection_status(.con)
 
 
   out    <- DBI::dbGetQuery(
@@ -740,6 +914,8 @@ list_db_fns <- function(.con){
         ORDER BY function_name;"
   ) |>
     tibble::as_tibble()
+
+  return(out)
 }
 
 
@@ -751,17 +927,17 @@ list_db_fns <- function(.con){
 #' @returns DBI object
 #' @export
 
-glimpse_md <- function(.data){
+summary.pool <- function(object,...){
 
-  con <- dbplyr::remote_con(.data)
+  con <- dbplyr::remote_con(object)
 
   ## assert connection
 
   assertthat::assert_that(
-  validate_duckdb_con(con)
+  validate_con(con)
   )
 
-  query <- dbplyr::remote_query(.data)
+  query <- dbplyr::remote_query(object)
   summary_query <- paste0("summarize (",query,")")
 
   out <- dplyr::tbl(con,sql(summary_query))
@@ -780,17 +956,13 @@ glimpse_md <- function(.data){
 #' @examples
 #' #' con <- DBI::dbConnect(duckdb::duckdb())
 #' lmd(con,type='database')
-ll <- function(.con,type="database"){
-  # .con <- con
-  # type <- "database"
+list_database<- function(.con){
 
-  type <- rlang::arg_match(type,values =c("database","schema","views"))
+
 
   assertthat::assert_that(
-    validate_duckdb_con(.con)
+    validate_con(.con)
   )
-
-  if(type=="database"){
 
   database_tbl <-
     DBI::dbGetQuery(
@@ -809,12 +981,34 @@ ll <- function(.con,type="database"){
 }
 
 
-  if(type=="schema"){
+#' list database objects
+#'
+#' @param .con connection
+#' @param type 'database', 'schema' or 'views'
+#'
+#' @returns tibble
+#' @export
+#'
+#' @examples
+#' #' con <- DBI::dbConnect(duckdb::duckdb())
+#' lmd(con,type='database')
+list_schema<- function(.con){
 
- schema_tbl <-
-   DBI::dbGetQuery(
-  .con
-  ,"
+
+
+  assertthat::assert_that(
+    validate_con(.con)
+  )
+
+  assertthat::assert_that(
+    validate_md_connection_status(.con,return_type = "arg")
+  )
+
+
+    schema_tbl <-
+      DBI::dbGetQuery(
+        .con
+        ,"
   SELECT DISTINCT
   table_catalog
   ,table_schema
@@ -823,21 +1017,37 @@ ll <- function(.con,type="database"){
   TRUE
   AND table_catalog = current_database()
   ;"
-  ) |> as_tibble()
+      ) |> as_tibble()
 
- suppressWarnings(
-   return(schema_tbl)
- )
+    suppressWarnings(
+      return(schema_tbl)
+    )
 
-  }
+}
+#' list database objects
+#'
+#' @param .con connection
+#' @param type 'database', 'schema' or 'views'
+#'
+#' @returns tibble
+#' @export
+#'
+#' @examples
+#' #' con <- DBI::dbConnect(duckdb::duckdb())
+#' lmd(con,type='database')
+list_table<- function(.con){
 
 
-  if(type=="views"){
+  assertthat::assert_that(
+    validate_con(.con)
+  )
 
-views_tbl <-
-  DBI::dbGetQuery(
-    .con
-    ,"
+
+
+    tables_tbl <-
+      DBI::dbGetQuery(
+        .con
+        ,"
     SELECT DISTINCT
     table_catalog
     ,table_schema
@@ -850,12 +1060,32 @@ views_tbl <-
     AND table_schema =  current_schema();
 
 ") |>
-  tibble::as_tibble()
-suppressWarnings(
-  return(views_tbl)
-)
-}
+      tibble::as_tibble()
 
-}
+    suppressWarnings(
+      return(tables_tbl)
+    )
+
+
+    DBI::dbGetQuery(
+      .con
+      ,"
+    SELECT DISTINCT
+    table_catalog
+    ,table_schema
+    ,table_name
+    FROM
+    information_schema.tables
+    WHERE
+    TRUE
+    AND table_catalog = current_database()
+    -- table_schema =  current_schema();
+
+")
+
+
+
+      }
+
 
 utils::globalVariables(c("con", "extension_name", "installed", "loaded"))

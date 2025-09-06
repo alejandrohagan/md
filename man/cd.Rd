@@ -4,7 +4,7 @@
 \alias{cd}
 \title{Change Database}
 \usage{
-cd(.con, database)
+cd(.con, database, schema)
 }
 \arguments{
 \item{.con}{connection}
