@@ -15,6 +15,7 @@ format: gfm
     -   need to change from dbExecute to tbl
 -   create tests with describes
 -   update documentation with more examples
+-   Attach helper to attach a local databases back and forth
 
 # My Project
 
@@ -26,7 +27,7 @@ MD aims to simplify those utilities and common database administration task with
 
 Eventually, I'll use the learning here to create a meta DB utilities package so that regardless if you're in snowflake, DuckDB, redshift, etc you will have generalized functions that work across your database types.
 
-This is very much work in progress -- I'll eventually transition to the R7 object system but just want to get some usage first before deciding on the architecture and structure
+This is very much work in progress -- I'll eventually transition to the R7 object system but just want to get some usage first before deciding on the architecture and structure.
 
 Please create an issue if you have any comments or requests or reach out if you have any feedback.
 

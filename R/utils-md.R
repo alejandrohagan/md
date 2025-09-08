@@ -19,6 +19,7 @@ validate_con <- function(.con){
   valid_test <- is.null(dbIsValid_poss(.con))
 
   if(valid_test){
+
     cli::cli_abort("Connection string is not valid, please try again")
 
   }else{
@@ -35,7 +36,7 @@ validate_con <- function(.con){
 #' @description
 #' Lists available DuckDB extensions, their description, load / installed status and more
 #'
-#' @returns tibble
+#' @returns tbi
 #' @export
 #'
 #' @examples
@@ -492,7 +493,7 @@ validate_md_connection_status <- function(.con,return_type="msg"){
 
   status_lst <- list()
 
-  if(stringr::str_detect(out$error$message,"Error: already connected")==TRUE){
+  if(any(stringr::str_detect(out$error$message,"Error: already connected")==TRUE)){
 
     status_lst$msg <-  \(x) cli::cli_alert_success("You are connected to MotherDuck")
     status_lst$arg <- TRUE
@@ -529,7 +530,7 @@ validate_md_connection_status <- function(.con,return_type="msg"){
 #'
 connect_to_motherduck <- function(motherduck_token){
 
-    motherduck_token="MOTHERDUCK_TOKEN"
+    # motherduck_token="MOTHERDUCK_TOKEN"
 
     # pull your token from your R environment page
 
@@ -554,7 +555,17 @@ connect_to_motherduck <- function(motherduck_token){
       ,msg=cli_msg()
       )
 
-    .con <-pool::dbPool(duckdb::duckdb(dbdir = tempfile()),...=list(motherduck_token=motherduck_token_code))
+    .con <-DBI::dbConnect(
+      duckdb::duckdb(
+        dbdir = tempfile()
+        ,config=list(
+          allow_unsigned_extensions = 'true'
+          ,allow_extensions_metadata_mismatch='true'
+          ,allow_unredacted_secrets='true'
+          )
+      )
+      # ,...=list(motherduck_token=motherduck_token_code)
+    )
 
     if(!validate_extension_load_status(.con,"motherduck",return_type="arg")){
 
@@ -562,17 +573,23 @@ connect_to_motherduck <- function(motherduck_token){
 
     }
 
-
     # connect to motherduck
 
-    if(!validate_md_connection_status(.con,return_type = "arg")){
+    dbExectue_safe <- purrr::safely(DBI::dbExecute)
+
+    dbExectue_safe(.con, "PRAGMA MD_CONNECT")
+
+    validate_md_connection_status(.con,return_type = "msg")
+
+#
+#     reg.finalizer(.con, function(.con) {
+#       cli::cli("Finalizer: closing DBI connection")
+#       DBI::dbDisconnect(.con)
+#     }, onexit = TRUE)
+#
 
 
-    DBI::dbExecute(.con, "PRAGMA MD_CONNECT")
-
-    }
-
-      return(.con)
+    return(.con)
 
 }
 
@@ -714,19 +731,20 @@ show_duckdb_settings <- function(.con){
 #'
 read_csv_auto <- function(.con,file_path,...){
 
-  validate_con(.con)
+  assertthat::assert_that(
+  validate_md_connection_status(.con,return_type = "arg")
+  )
 
-  validate_md_connection_status(.con)
 
-  .con <- con
-  DBI::dbExecute(
+  out <- dplyr::tbl(
     .con,
-    paste0(
+    sql(
       "
      SELECT *
-     FROM read_csv_auto('",file_path,"');"
+     FROM read_csv_auto('",file_path,"')"
     )
   )
+  return(out)
 
 }
 
@@ -871,7 +889,8 @@ cd <- function(.con,database,schema){
 
     DBI::dbExecute(.con,glue::glue("USE {schema};"))
 
-    current_schema_vec <-   suppressMessages(pwd(.con) |>
+    current_schema_vec <-   suppressMessages(
+      pwd(.con) |>
       dplyr::pull(current_schema)
     )
 
@@ -907,13 +926,12 @@ list_fns <- function(.con){
   validate_md_connection_status(.con)
 
 
-  out    <- DBI::dbGetQuery(
+  out    <- dplyr::tbl(
     .con
     ," SELECT *
         FROM duckdb_functions()
-        ORDER BY function_name;"
-  ) |>
-    tibble::as_tibble()
+        ORDER BY function_name"
+  )
 
   return(out)
 }
@@ -927,9 +945,9 @@ list_fns <- function(.con){
 #' @returns DBI object
 #' @export
 
-summary.pool <- function(object,...){
+summary.tbl_lazy <- function(.data){
 
-  con <- dbplyr::remote_con(object)
+  con <- dbplyr::remote_con(.data)
 
   ## assert connection
 
@@ -937,10 +955,10 @@ summary.pool <- function(object,...){
   validate_con(con)
   )
 
-  query <- dbplyr::remote_query(object)
+  query <- dbplyr::remote_query(.data)
   summary_query <- paste0("summarize (",query,")")
 
-  out <- dplyr::tbl(con,sql(summary_query))
+  out <- dplyr::tbl(con,dplyr::sql(summary_query))
   return(out)
 }
 
@@ -964,18 +982,18 @@ list_database<- function(.con){
     validate_con(.con)
   )
 
-  database_tbl <-
-    DBI::dbGetQuery(
+  database_dbi <-
+    dplyr::tbl(
       .con
-      ,"
+      ,sql("
       SELECT DISTINCT
       table_catalog
-      FROM  information_schema.tables;
-      "
-    ) |> as_tibble()
+      FROM  information_schema.tables
+      ")
+    )
 
   suppressWarnings(
-    return(database_tbl)
+    return(database_dbi)
   )
 
 }
@@ -1005,22 +1023,22 @@ list_schema<- function(.con){
   )
 
 
-    schema_tbl <-
-      DBI::dbGetQuery(
+    schema_dbi <-
+      dplyr::tbl(
         .con
-        ,"
-  SELECT DISTINCT
-  table_catalog
-  ,table_schema
-  FROM  information_schema.tables
-  WHERE
-  TRUE
-  AND table_catalog = current_database()
-  ;"
-      ) |> as_tibble()
+        ,dplyr::sql("
+          SELECT DISTINCT
+          table_catalog
+          ,table_schema
+          FROM  information_schema.tables
+          WHERE
+          TRUE
+          AND table_catalog = current_database()
+          ")
+      )
 
     suppressWarnings(
-      return(schema_tbl)
+      return(schema_dbi)
     )
 
 }
@@ -1044,10 +1062,10 @@ list_table<- function(.con){
 
 
 
-    tables_tbl <-
-      DBI::dbGetQuery(
+    tables_dbi <-
+      dplyr::tbl(
         .con
-        ,"
+        ,dplyr::sql("
     SELECT DISTINCT
     table_catalog
     ,table_schema
@@ -1057,35 +1075,135 @@ list_table<- function(.con){
     WHERE
     TRUE
     AND table_catalog = current_database()
-    AND table_schema =  current_schema();
-
-") |>
-      tibble::as_tibble()
-
-    suppressWarnings(
-      return(tables_tbl)
-    )
-
-
-    DBI::dbGetQuery(
-      .con
-      ,"
-    SELECT DISTINCT
-    table_catalog
-    ,table_schema
-    ,table_name
-    FROM
-    information_schema.tables
-    WHERE
-    TRUE
-    AND table_catalog = current_database()
-    -- table_schema =  current_schema();
+    AND table_schema =  current_schema()
 
 ")
+      )
+
+    suppressWarnings(
+      return(tables_dbi)
+    )
+
+}
+
+
+#' Title
+#'
+#' @param .con
+#' @param from_db_name
+#' @param to_db_name
+#'
+#' @returns
+#' @export
+#'
+#' @examples
+upload_database_to_md <- function(.con,from_db_name,to_db_name){
+
+  DBI::dbExecute(
+    .con
+    ,dplyr::sql(
+      paste0(
+        "CREATE DATABASE",to_db_name,";","COPY FROM DATABASE ",from_db_name,"TO ",to_db_name,";"
+      )
+    )
+  )
+
+}
 
 
 
-      }
 
+#' Title
+#'
+#' @param .con
+#'
+#' @returns
+#' @export
+#'
+#' @examples
+list_setting <- function(.con){
+
+  out <- DBI::dbGetQuery(
+    .con
+    ,"
+  SELECT *
+  FROM duckdb_settings()
+  "
+  ) |>
+    dplyr::as_tibble()
+
+  return(out)
+
+}
+
+
+
+
+# sample_frac.tbl_lazy <- function(.con,table_name,frac_prop){
+#
+#   # table_name <- "orders"
+#   # frac_prop <- 10
+#
+#   validate_md_connection_status(.con,return_type = "msg")
+#
+#   out <-  dplyr::tbl(
+#     .con
+#     ,dplyr::sql(
+#       paste0("
+#            SELECT * FROM ",table_name," USING SAMPLE ",frac_prop,"%"
+#       )
+#     )
+#   )
+#
+#   return(out)
+#
+# }
+
+
+create_share <- function(.con,database_name,share_name,access,visibility,update){
+
+
+  cd(.con,database = database_name)
+
+  out <-  DBI::dbGetQuery(
+
+    validate_md_connection_status(.con)
+    ,paste0(
+      "USE ",database_name,";"
+      ,"CREATE OR REPLACE SHARE;"
+    )
+  )
+
+  # CREATE SHARE birds_share FROM birds (
+    # ACCESS RESTRICTED,  -- Only the share owner has initial access
+    # VISIBILITY HIDDEN,    -- Not listed; requires direct URL access
+    # UPDATE AUTOMATIC      -- Automatically updates with source DB changes
+  # );
+
+  # -- If ducks_share exists, it will be replaced with a new share.
+  # --A new share URL is returned.
+  # CREATE OR REPLACE SHARE ducks_share;
+
+  # -- If ducks_share exists, nothing is done. Its existing share URL is returned.
+  # --Otherwise, a new share is created and its share URL is returned.
+  # CREATE SHARE IF NOT EXISTS ducks_share;
+
+
+  return(out)
+
+}
+
+
+list_shares <- function(.con){
+
+  out <- DBI::dbGetQuery(
+    .con
+    ,"LIST SHARES;"
+  ) |>
+    tibble::as_tibble()
+
+  return(out)
+
+}
 
 utils::globalVariables(c("con", "extension_name", "installed", "loaded"))
