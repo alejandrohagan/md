@@ -5,10 +5,35 @@
 
 # Developer notes
 
-- finish apis
-- create the new create\_\* family of functions
+- create_or_replace_database doesn’t work if its local or temp database
+  only mother duck – need to generalize logic
+  - create subfunctions so we can use cli to showcase what is going on
+    - need a function that returns a connection type eg local vs. md
+    - If MD then do create or replace function
+    - if not MD then simply do create schema, create table function
+    - perhaps work backwards from create table?
+- update and complete function documentation
 - create tests with describes
 - update documentation with more examples
+  - how to create a database
+  - how to upload existing data
+  - how to move data around in a database
+  - database admin options
+  - how to upload data from source files w/o reading it locally
+    - how to install extensions
+    - csv
+    - parquet
+    - excel
+    - another database
+  - How to manage a database (MD only)
+    - add a user
+    - manager user instance
+    - create access tokens
+    - delete a user
+    - xxx
+  - [case study 1](motherduck.com/blog/semantic-layer-duckdb-tutorial/)
+  - [case study 2](contoso%20package)
+  - [case study 3](something%20machine%20learning)
 
 # My Project
 
@@ -133,26 +158,15 @@ If you want to set up a local instance you can easily do that with the
 md package or you can you just DBI and duckdb package as well, there’s
 no real advantage to the md package
 
-Simply clarify the type argument: - `temp` for a temporary file - `file`
-location to a new or existing database file - `md` for your motherduck
-account
+Simply clarify the type argument:
 
-``` r
-library(epoxy)
-```
-
-It cost \$123,456.
-
-If you select then you need to either manually pass along your
-motherduck token or if saved in your environment file pass the
-environment variable
+- `temp` for a temporary file
+- `file` location to a new or existing database file
+- `md` for your motherduck account
 
 ``` r
 con <- connect_to_motherduck("MOTHERDUCK_TOKEN")
 ```
-
-You can validate if you are connected to motherduck vs. creating a local
-duckdb instance through the validate_md_connection_status
 
 ``` r
 validate_md_connection_status(.con)
@@ -165,6 +179,9 @@ pull a list of the default values
 To change these, simply edit the configuration options you want and then
 pass this as an argument
 
+You can see the full list of duckdb configuration options
+[here](https://duckdb.org/docs/stable/configuration/overview.html)
+
 ``` r
 config <- md_config
 
@@ -175,7 +192,128 @@ con <- connect_to_motherduck("MOTHERDUCK_TOKEN")
 
 Congratulations, you’ve set up your duckdb database!
 
-Now let’s learn some duckdb specific adminstration functions
+Now let’s load some data into it so we can play around with the options.
+
+If you’re new to databases, it will be helpful to have a basic
+understanding of database management - don’t worry the basics are
+straight forward and won’t overwhelm you, below are a list of resources
+I found helpful.
+
+- resource 1
+- resource 2
+
+I’m not going to cover data engineering or database management in any
+real depth mostly because I don’t know anything about it.
+
+For most of your workflow, you would follow a typical pattern:
+
+1.  Create a database, schema or table
+2.  Upload, update or amend data to your table
+3.  Query the data to do calculations, analytics or reference in
+    dashboards
+
+If you’re running a database that multiple users have access to (either
+through cloud or on a local server) then a typical workflow may be
+
+1.  Create a users with certain set of permissions and roles to a
+    database
+2.  Assign tokens / secrets to users so that they can access databaes
+    remotely
+3.  Manage database utilities such as scaling
+4.  Run analytics on your database metadata
+
+Let’s see these in action
+
+> [!NOTE]
+>
+> ### DBI vs. md
+>
+> These functions are mainly sugar syntax wrappers around the fabulous
+> DBI packages to stream and simplify common database queries.
+
+## Create a database
+
+Later on we will show examples of how to read data from a source file,
+eg. csv, parquet, excel, or even a different database, directly into
+duckdb but for now let’s assume its some data that you already have
+loaded.
+
+Before we get into that lets review quickly the three things you need to
+load data into a database: - database name - This is object that will
+hold your schemas, tables, functions, roles, permissions, etc - somtimes
+this may be called a catalog - schema name - This of this as fancy name
+to classify and organize your tables, functions, procedures, etc - By
+default, duckdb will use “main” as a schema name - table or view name -
+This is the name of the actual table or view that holds your data
+
+To save or reference data, you need to fully qualify with
+`database_name.schema_name.table_name`
+
+If you uploaded data without creating a table or schema first then
+duckdb will assign “temp” and “main” as the default names for your
+database and schema respectively.
+
+The quickest and easiest way to get data into duckdb is either use:
+
+- duckdb::register_duckdb()
+- md::create_or_replace_database()
+
+The different is create_or_replace_database() gives you more control on
+the database name and schema name
+
+``` r
+diamonds_tbl <- data(diamonds)
+
+con_tmp <- create_local_temp_db()
+
+diamonds_tbl |>
+    md::create_or_replace_database(
+        .con = con_tmp
+        ,database_name = "temp"
+        ,schema_name = "main"
+        ,table_name = "diamonds"
+        ,overwrite=FALSE
+        )
+```
+
+Notice that we don’t assing this object to anything, this just silently
+writes our data to our database, to validate the data is in our dtabase,
+we can do the following:
+
+DBI::xxxx
+
+MD::list_tables()
+
+After running these functions, we can see our table - ready for us to
+query it.
+
+to query, you can simply leverage dplyr::tbl() function to pull it and
+from there leverage the fantastic dbplyr package to use tidy verbs to
+perform additional functions
+
+Let’s say we want to filter and summarize this table and save it to a
+new schema with a new name – no problem, we can repeat the steps above
+this time with a new schema and reference name.
+
+``` r
+duckdb::duckdb_register(con_tmp,name = "diamonds",diamonds_tbl)
+
+tbl(con_tmp,"diamonds")
+
+tbl(con_tmp,sql("select * from file1dbc839ef04b6.raw.diamonds"))
+
+DBI::dbGetQuery(con_tmp,"select * from file1dbc839ef04b6.raw.diamonds")
+
+
+create_or_replace_schema()
+
+
+create_or_replace_table()
+```
+
+What if we want to delete or move a database, schema or table?
+
+Now that the basics are covered, let us explore
 
 # Database adminstrative functions
 
@@ -210,12 +348,6 @@ Now let’s learn some duckdb specific adminstration functions
 list_extensions(con)
 ```
 
-``` r
-# md::install_extensions(con,"fts")
-# validate_extension_load_status(con,extension_names = "motherduck")
-# validate_extension_install_status(con,c("excel","arrow"),return_type = "msg")
-```
-
 > [!NOTE]
 >
 > ### how to create a motherduck account and access token?
@@ -229,9 +361,9 @@ list_extensions(con)
 > 4.  You will need this token to access your account
 > 5.  If you want to access it via R then simplest way is to save your
 >     access code as a variable in your r environment
-> 6.  Simply leverage the {usethis} function `edit_r_environ()` to set
->     your access code to a variable and save it – this is one time
->     activity
+> 6.  Simply leverage the [usethis](https://usethis.r-lib.org/) function
+>     `edit_r_environ()` to set your access code to a variable and save
+>     it – this is one time activity
 > 7.  To check if your correctly saved your variable then you can use
 >     the Sys.getenv(“var_name”) with “var_name” the named you assigned
 >     your access token to
@@ -255,8 +387,7 @@ list_extensions(con)
 > - From there you can use the
 >   `connect_to_motherduck("MOTHERDUCK_TOKEN")`
 >
-> - This will use the
->   [pool](https://solutions.posit.co/connections/db/r-packages/pool/)
->   library to create a connection to your mother duck instance
+> - This will use the [DBI](https://dbi.r-dbi.org/) library to create a
+>   connection to your mother duck instance
 >
 > ![](access_token_md.png)

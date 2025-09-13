@@ -1,6 +1,6 @@
 ---
 title: "My Project"
-# format: gfm
+format: gfm
 ---
 
 
@@ -252,7 +252,7 @@ The different is create_or_replace_database() gives you more control on the data
 ```{r}
 #| label: create-or-replace-example
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 #| include: true
@@ -289,7 +289,7 @@ to query, you can simply leverage dplyr::tbl() function to pull it and from ther
 Let's say we want to filter and summarize this table and save it to a new schema with a new name -- no problem, we can repeat the steps above this time with a new schema and reference name.
 
 ```{r}
-
+#| eval: false
 duckdb::duckdb_register(con_tmp,name = "diamonds",diamonds_tbl)
 
 tbl(con_tmp,"diamonds")
