@@ -5,9 +5,8 @@
 
 # Developer notes
 
+- finish apis
 - create the new create\_\* family of functions
-- create the new read\_\* family of functions
-  - need to change from dbExecute to tbl
 - create tests with describes
 - update documentation with more examples
 
@@ -15,27 +14,30 @@
 
 This is WIP collection of utilities to help with the management,
 administration and navigation of [duckdb](https://duckdb.org/) database
-either locally on your computer or on the cloud via
+either locally on your computer or in the cloud via
 [motherduck](https://motherduck.com/)
 
 Database management is incredibly easy in R with fantastic packages such
-as {DBI} and {dbplyr}, however some databases have specific extensions
-or utilities that are commonly referenced that only aren’t readiliy
-accessible.
+as [DBI](https://dbplyr.tidyverse.org/) and
+[dbplyr](https://dbplyr.tidyverse.org/), however some databases have
+specific extensions or utilities that are only aren’t readily accessible
+via this packages
 
-MD aims to simplify those utilities and common database administration
-task with a simplify and easy to understand syntax. MD is built upon DBI
-and returns a lazy DBI object so that you can further fully integrate
-your data with {dbplyr}
+MD simplifies these utilities and common database administration task
+with easy to understand syntax. MD is built upon
+[DBI](https://dbplyr.tidyverse.org/) and returns a lazy DBI object so
+that you can further fully integrate your data with
+[dbplyr](https://dbplyr.tidyverse.org/)
 
-Eventually, I’ll use the learning here to create a meta DB utilities
-package so that regardless if you’re in snowflake, DuckDB, redshift, etc
-you will have generalized functions that work across your database
-types.
+Eventually, I’ll use the learnings from this package to create a meta DB
+utilities package so that regardless if you’re in snowflake, DuckDB,
+redshift, etc you will have generalized functions that work across your
+database types
 
 This is very much work in progress – I’ll eventually transition to the
-R7 object system but just want to get some usage first before deciding
-on the architecture and structure
+[R7](https://rconsortium.github.io/S7/articles/S7.html) object system
+but just want to get some usage first before deciding on the
+architecture and structure.
 
 Please create an issue if you have any comments or requests or reach out
 if you have any feedback.
@@ -47,14 +49,16 @@ if you have any feedback.
 - `connect_to_motherduck()` will leverage your motherduck token to
   connect you to your motherduck instance (it will install motherduck
   extension if not created)
-- `load_extensions()` will load various duckdb extensions
-- `install_extensions()` will install various duckdb extensions
+- `load_extensions()` will load a duckdb extensions either from an
+  official repository or if you set the flag, a community repository
+- `install_extensions()` will install various duckdb extensions from the
+  official repository
 - `validate_*()` collection of functions will just validate your
   connection and extension status
 
 ## functions that help you see what is in your databases
 
-- `pwd()` prints your current database that you are “in”
+- `pwd()` prints the current database that you are “in”
 - `cd()` will change your “root” database so that the list\_\* familiy
   of functions are relative to that root
 - `list_database()` list the databases and their metadata
@@ -66,7 +70,6 @@ if you have any feedback.
 
 - `read_httpfs()` will read httpfs file formats directly into duckdb
 - `read_parquet()` will read parquet file formats directly into duckdb
-- `read_csv()` will read csv files directly into your database
 - `read_excel()` will read excel files directly to your database
 
 ## functions that will help you create or replace databases, scehems, tables or views
@@ -95,10 +98,8 @@ if you have any feedback.
 - Optional: If you want to store your data in
   [motherduck](https://motherduck.com/), then you need your own
   motherduck account and an access token which can be saved to your R
-  environ file with `usethis::edit_r_environ()`
+  environment file with `usethis::edit_r_environ()`
 - data that you want to upload to
-- Most functions are generalized and can work without local duckDB
-  database
 
 > [!NOTE]
 >
@@ -118,21 +119,63 @@ if you have any feedback.
 >   on your computer or if you want to be able to access it remotely via
 >   the cloud
 
-## let’s review
-
 # Lets see the package in action
 
-1.  connect to mother duck
-2.  load some extensions
-3.  Explore whats in your database
-4.  interact with your data
-5.  create new databases and save data
+## Create a duckdb instance and Connect to your motherduck account
+
+When creating a duckdb database, you have three options
+
+1.  A temporary instance that exists in your local computer
+2.  A permenant instance that exists in your local computer
+3.  A cloud-based instance through [motherduck](https://motherduck.com/)
+
+If you want to set up a local instance you can easily do that with the
+md package or you can you just DBI and duckdb package as well, there’s
+no real advantage to the md package
+
+Simply clarify the type argument: - `temp` for a temporary file - `file`
+location to a new or existing database file - `md` for your motherduck
+account
+
+``` r
+library(epoxy)
+```
+
+It cost \$123,456.
+
+If you select then you need to either manually pass along your
+motherduck token or if saved in your environment file pass the
+environment variable
 
 ``` r
 con <- connect_to_motherduck("MOTHERDUCK_TOKEN")
 ```
 
-- these functions validate your connect status to motherduck
+You can validate if you are connected to motherduck vs. creating a local
+duckdb instance through the validate_md_connection_status
+
+``` r
+validate_md_connection_status(.con)
+```
+
+When connecting to motherduck there are a number of configuration
+options available, you can reference them via the md::config which will
+pull a list of the default values
+
+To change these, simply edit the configuration options you want and then
+pass this as an argument
+
+``` r
+config <- md_config
+
+config$allow_community_extensions <- "true"
+
+con <- connect_to_motherduck("MOTHERDUCK_TOKEN")
+```
+
+Congratulations, you’ve set up your duckdb database!
+
+Now let’s learn some duckdb specific adminstration functions
 
 # Database adminstrative functions
 
