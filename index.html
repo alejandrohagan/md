@@ -56,7 +56,7 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="my-project">My Project<a class="anchor" aria-label="anchor" href="#my-project"></a>
 </h1></div>
-<p><img src="md_logo.png" style="width:40.0%"></p>
+<p><img src="reference/figures/md_logo.png" style="width:40.0%" alt="A logo of mother duck with her child"></p>
 </div>
 <div class="section level1">
 <h1 id="developer-notes">Developer notes<a class="anchor" aria-label="anchor" href="#developer-notes"></a>
@@ -106,13 +106,13 @@
 </ul>
 </li>
 </ul>
-</div>
-<div class="section level1">
-<h1 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
-</h1>
+<div class="section level2">
+<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+</h2>
 <p>This is a collection of utilities to help with the management, administration and navigation of <a href="https://duckdb.org/" class="external-link">duckdb</a> database either locally on your computer or in the cloud via <a href="https://motherduck.com/" class="external-link">motherduck</a></p>
 <p>Database management is incredibly easy in R with fantastic packages such as <a href="https://dbplyr.tidyverse.org/" class="external-link">DBI</a> and <a href="https://dbplyr.tidyverse.org/" class="external-link">dbplyr</a>, however some databases have specific extensions or utilities that are aren’t readily accessible via this packages</p>
 <p>{md} pack simplifies these common database administration task with easy to understand syntax. {md} is built upon <a href="https://dbplyr.tidyverse.org/" class="external-link">DBI</a> and returns a lazy DBI object so that you can further fully integrate your data with <a href="https://dbplyr.tidyverse.org/" class="external-link">dbplyr</a></p>
+</div>
 <div class="section level2">
 <h2 id="future-ambition">future ambition<a class="anchor" aria-label="anchor" href="#future-ambition"></a>
 </h2>
@@ -120,13 +120,13 @@
 <p>This is very much work in progress – I’ll eventually transition to the <a href="https://rconsortium.github.io/S7/articles/S7.html" class="external-link">R7</a> object system but just want to get some usage first before deciding on the architecture and structure.</p>
 <p>Please create an issue if you have any comments or requests or reach out if you have any feedback.</p>
 </div>
-</div>
-<div class="section level1">
-<h1 id="overview-of-functions">Overview of functions<a class="anchor" aria-label="anchor" href="#overview-of-functions"></a>
-</h1>
 <div class="section level2">
-<h2 id="functions-that-help-you-manage-your-connection-and-database-metadata">functions that help you manage your connection and database metadata<a class="anchor" aria-label="anchor" href="#functions-that-help-you-manage-your-connection-and-database-metadata"></a>
+<h2 id="overview-of-functions">Overview of functions<a class="anchor" aria-label="anchor" href="#overview-of-functions"></a>
 </h2>
+<p>Below is a quick overview of the functions available in the package.</p>
+<div class="section level3">
+<h3 id="functions-that-help-you-manage-your-connection-and-database-metadata">functions that help you manage your connection and database metadata<a class="anchor" aria-label="anchor" href="#functions-that-help-you-manage-your-connection-and-database-metadata"></a>
+</h3>
 <ul>
 <li>
 <code><a href="reference/connect_to_motherduck.html">connect_to_motherduck()</a></code> will leverage your motherduck token to connect you to your motherduck instance (it will install the motherduck extension if not already present)</li>
@@ -142,9 +142,9 @@
 <code><a href="reference/validate_extension_load_status.html">validate_extension_load_status()</a></code> will validate if an extension has been successfully loaded</li>
 </ul>
 </div>
-<div class="section level2">
-<h2 id="functions-that-help-you-see-what-is-in-your-databases">functions that help you see what is in your databases<a class="anchor" aria-label="anchor" href="#functions-that-help-you-see-what-is-in-your-databases"></a>
-</h2>
+<div class="section level3">
+<h3 id="functions-that-help-you-see-what-is-in-your-databases">functions that help you see what is in your databases<a class="anchor" aria-label="anchor" href="#functions-that-help-you-see-what-is-in-your-databases"></a>
+</h3>
 <ul>
 <li>
 <code><a href="reference/pwd.html">pwd()</a></code> prints the current database that you are “in”</li>
@@ -160,9 +160,9 @@
 <code>list_view()</code>list the views and their metadata</li>
 </ul>
 </div>
-<div class="section level2">
-<h2 id="functions-that-will-help-you-read-data-into-duckdb-or-motherduck">functions that will help you read data into duckdb or motherduck<a class="anchor" aria-label="anchor" href="#functions-that-will-help-you-read-data-into-duckdb-or-motherduck"></a>
-</h2>
+<div class="section level3">
+<h3 id="functions-that-will-help-you-read-data-into-duckdb-or-motherduck">functions that will help you read data into duckdb or motherduck<a class="anchor" aria-label="anchor" href="#functions-that-will-help-you-read-data-into-duckdb-or-motherduck"></a>
+</h3>
 <ul>
 <li>
 <code><a href="reference/read_httpfs.html">read_httpfs()</a></code> will read httpfs file formats</li>
@@ -172,9 +172,9 @@
 <code>read_excel()</code> will read excel files formats</li>
 </ul>
 </div>
-<div class="section level2">
-<h2 id="functions-that-will-help-you-create-or-replace-databases-scehems-tables-or-views">functions that will help you create or replace databases, scehems, tables or views<a class="anchor" aria-label="anchor" href="#functions-that-will-help-you-create-or-replace-databases-scehems-tables-or-views"></a>
-</h2>
+<div class="section level3">
+<h3 id="functions-that-will-help-you-create-or-replace-databases-scehems-tables-or-views">functions that will help you create or replace databases, scehems, tables or views<a class="anchor" aria-label="anchor" href="#functions-that-will-help-you-create-or-replace-databases-scehems-tables-or-views"></a>
+</h3>
 <ul>
 <li>
 <code><a href="reference/create_or_replace_database.html">create_or_replace_database()</a></code> will take R data and create a database with your data</li>
@@ -189,6 +189,7 @@
 <li>
 <code>drop_database()</code> will delete a database</li>
 </ul>
+</div>
 </div>
 <div class="section level2">
 <h2 id="functions-to-help-you-manage-motherduck-users-tokens-and-instance-settings">functions to help you manage motherduck users, tokens, and instance settings<a class="anchor" aria-label="anchor" href="#functions-to-help-you-manage-motherduck-users-tokens-and-instance-settings"></a>
@@ -256,600 +257,11 @@
 <p>At any time you can validate your connection status with <code><a href="reference/validate_md_connection_status.html">validate_md_connection_status()</a></code></p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/validate_md_connection_status.html">validate_md_connection_status</a></span><span class="op">(</span><span class="va">con_md</span><span class="op">)</span></span></code></pre></div>
-<p>When connecting to motherduck there are a number of configuration options available, you can reference them via the <code>md::db_config</code> which will pull a list of options and their default values</p>
-<p>To change these, simply edit the configuration options you want and then pass this as an argument</p>
-<p>You can see the full list of duckdb configuration options <a href="https://duckdb.org/docs/stable/configuration/overview.html" class="external-link">here</a> or alternatively you can use <code><a href="reference/list_settings.html">list_settings()</a></code> to see your current configuration options.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">config</span> <span class="op">&lt;-</span> <span class="fu">md</span><span class="fu">::</span><span class="va">db_config</span> <span class="co">#&lt;1&gt; get list of default configuration options</span></span>
-<span></span>
-<span><span class="va">config</span><span class="op">$</span><span class="va">allow_community_extensions</span> <span class="op">&lt;-</span> <span class="st">"true"</span> <span class="co">#&lt;2&gt; change a default option</span></span>
-<span></span>
-<span><span class="va">con_md</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/connect_to_motherduck.html">connect_to_motherduck</a></span><span class="op">(</span><span class="st">"MOTHERDUCK_TOKEN"</span>,config <span class="op">=</span> <span class="va">config</span><span class="op">)</span> <span class="co">#&lt;3&gt; pass the modified list to your connection</span></span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/list_settings.html">list_setting</a></span><span class="op">(</span><span class="va">con_md</span><span class="op">)</span></span></code></pre></div>
-<div>
-<div id="xnklnhmigy" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#xnklnhmigy table {
-  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-&#10;#xnklnhmigy thead, #xnklnhmigy tbody, #xnklnhmigy tfoot, #xnklnhmigy tr, #xnklnhmigy td, #xnklnhmigy th {
-  border-style: none;
-}
-&#10;#xnklnhmigy p {
-  margin: 0;
-  padding: 0;
-}
-&#10;#xnklnhmigy .gt_table {
-  display: table;
-  border-collapse: collapse;
-  line-height: normal;
-  margin-left: auto;
-  margin-right: auto;
-  color: #333333;
-  font-size: 16px;
-  font-weight: normal;
-  font-style: normal;
-  background-color: #FFFFFF;
-  width: auto;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #A8A8A8;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #A8A8A8;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-}
-&#10;#xnklnhmigy .gt_caption {
-  padding-top: 4px;
-  padding-bottom: 4px;
-}
-&#10;#xnklnhmigy .gt_title {
-  color: #333333;
-  font-size: 125%;
-  font-weight: initial;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-bottom-color: #FFFFFF;
-  border-bottom-width: 0;
-}
-&#10;#xnklnhmigy .gt_subtitle {
-  color: #333333;
-  font-size: 85%;
-  font-weight: initial;
-  padding-top: 3px;
-  padding-bottom: 5px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-top-color: #FFFFFF;
-  border-top-width: 0;
-}
-&#10;#xnklnhmigy .gt_heading {
-  background-color: #FFFFFF;
-  text-align: center;
-  border-bottom-color: #FFFFFF;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-}
-&#10;#xnklnhmigy .gt_bottom_border {
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-}
-&#10;#xnklnhmigy .gt_col_headings {
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-}
-&#10;#xnklnhmigy .gt_col_heading {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: normal;
-  text-transform: inherit;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: bottom;
-  padding-top: 5px;
-  padding-bottom: 6px;
-  padding-left: 5px;
-  padding-right: 5px;
-  overflow-x: hidden;
-}
-&#10;#xnklnhmigy .gt_column_spanner_outer {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: normal;
-  text-transform: inherit;
-  padding-top: 0;
-  padding-bottom: 0;
-  padding-left: 4px;
-  padding-right: 4px;
-}
-&#10;#xnklnhmigy .gt_column_spanner_outer:first-child {
-  padding-left: 0;
-}
-&#10;#xnklnhmigy .gt_column_spanner_outer:last-child {
-  padding-right: 0;
-}
-&#10;#xnklnhmigy .gt_column_spanner {
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  vertical-align: bottom;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  overflow-x: hidden;
-  display: inline-block;
-  width: 100%;
-}
-&#10;#xnklnhmigy .gt_spanner_row {
-  border-bottom-style: hidden;
-}
-&#10;#xnklnhmigy .gt_group_heading {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: middle;
-  text-align: left;
-}
-&#10;#xnklnhmigy .gt_empty_group_heading {
-  padding: 0.5px;
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  vertical-align: middle;
-}
-&#10;#xnklnhmigy .gt_from_md > :first-child {
-  margin-top: 0;
-}
-&#10;#xnklnhmigy .gt_from_md > :last-child {
-  margin-bottom: 0;
-}
-&#10;#xnklnhmigy .gt_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  margin: 10px;
-  border-top-style: solid;
-  border-top-width: 1px;
-  border-top-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: middle;
-  overflow-x: hidden;
-}
-&#10;#xnklnhmigy .gt_stub {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-right-style: solid;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-&#10;#xnklnhmigy .gt_stub_row_group {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-right-style: solid;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  padding-left: 5px;
-  padding-right: 5px;
-  vertical-align: top;
-}
-&#10;#xnklnhmigy .gt_row_group_first td {
-  border-top-width: 2px;
-}
-&#10;#xnklnhmigy .gt_row_group_first th {
-  border-top-width: 2px;
-}
-&#10;#xnklnhmigy .gt_summary_row {
-  color: #333333;
-  background-color: #FFFFFF;
-  text-transform: inherit;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-&#10;#xnklnhmigy .gt_first_summary_row {
-  border-top-style: solid;
-  border-top-color: #D3D3D3;
-}
-&#10;#xnklnhmigy .gt_first_summary_row.thick {
-  border-top-width: 2px;
-}
-&#10;#xnklnhmigy .gt_last_summary_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-}
-&#10;#xnklnhmigy .gt_grand_summary_row {
-  color: #333333;
-  background-color: #FFFFFF;
-  text-transform: inherit;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-&#10;#xnklnhmigy .gt_first_grand_summary_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-top-style: double;
-  border-top-width: 6px;
-  border-top-color: #D3D3D3;
-}
-&#10;#xnklnhmigy .gt_last_grand_summary_row_top {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-bottom-style: double;
-  border-bottom-width: 6px;
-  border-bottom-color: #D3D3D3;
-}
-&#10;#xnklnhmigy .gt_striped {
-  background-color: rgba(128, 128, 128, 0.05);
-}
-&#10;#xnklnhmigy .gt_table_body {
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-}
-&#10;#xnklnhmigy .gt_footnotes {
-  color: #333333;
-  background-color: #FFFFFF;
-  border-bottom-style: none;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-}
-&#10;#xnklnhmigy .gt_footnote {
-  margin: 0px;
-  font-size: 90%;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-&#10;#xnklnhmigy .gt_sourcenotes {
-  color: #333333;
-  background-color: #FFFFFF;
-  border-bottom-style: none;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-}
-&#10;#xnklnhmigy .gt_sourcenote {
-  font-size: 90%;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-&#10;#xnklnhmigy .gt_left {
-  text-align: left;
-}
-&#10;#xnklnhmigy .gt_center {
-  text-align: center;
-}
-&#10;#xnklnhmigy .gt_right {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-&#10;#xnklnhmigy .gt_font_normal {
-  font-weight: normal;
-}
-&#10;#xnklnhmigy .gt_font_bold {
-  font-weight: bold;
-}
-&#10;#xnklnhmigy .gt_font_italic {
-  font-style: italic;
-}
-&#10;#xnklnhmigy .gt_super {
-  font-size: 65%;
-}
-&#10;#xnklnhmigy .gt_footnote_marks {
-  font-size: 75%;
-  vertical-align: 0.4em;
-  position: initial;
-}
-&#10;#xnklnhmigy .gt_asterisk {
-  font-size: 100%;
-  vertical-align: 0;
-}
-&#10;#xnklnhmigy .gt_indent_1 {
-  text-indent: 5px;
-}
-&#10;#xnklnhmigy .gt_indent_2 {
-  text-indent: 10px;
-}
-&#10;#xnklnhmigy .gt_indent_3 {
-  text-indent: 15px;
-}
-&#10;#xnklnhmigy .gt_indent_4 {
-  text-indent: 20px;
-}
-&#10;#xnklnhmigy .gt_indent_5 {
-  text-indent: 25px;
-}
-</style>
-<table class="table">
-<colgroup>
-<col width="23%">
-<col width="5%">
-<col width="59%">
-<col width="6%">
-<col width="4%">
-</colgroup>
-<thead><tr class="header">
-<th>name</th>
-<th>value</th>
-<th>description</th>
-<th>input_type</th>
-<th>scope</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td>access_mode</td>
-<td>automatic</td>
-<td>Access mode of the database (AUTOMATIC, READ_ONLY or READ_WRITE)</td>
-<td>VARCHAR</td>
-<td>GLOBAL</td>
-</tr>
-<tr class="even">
-<td>allocator_background_threads</td>
-<td>false</td>
-<td>Whether to enable the allocator background thread.</td>
-<td>BOOLEAN</td>
-<td>GLOBAL</td>
-</tr>
-<tr class="odd">
-<td>allocator_bulk_deallocation_flush_threshold</td>
-<td>512.0 MiB</td>
-<td>If a bulk deallocation larger than this occurs, flush outstanding allocations.</td>
-<td>VARCHAR</td>
-<td>GLOBAL</td>
-</tr>
-<tr class="even">
-<td>allocator_flush_threshold</td>
-<td>128.0 MiB</td>
-<td>Peak allocation threshold at which to flush the allocator after completing a task.</td>
-<td>VARCHAR</td>
-<td>GLOBAL</td>
-</tr>
-<tr class="odd">
-<td>allow_community_extensions</td>
-<td>true</td>
-<td>Allow to load community built extensions</td>
-<td>BOOLEAN</td>
-<td>GLOBAL</td>
-</tr>
-<tr class="even">
-<td>allow_extensions_metadata_mismatch</td>
-<td>false</td>
-<td>Allow to load extensions with not compatible metadata</td>
-<td>BOOLEAN</td>
-<td>GLOBAL</td>
-</tr>
-<tr class="odd">
-<td>allow_persistent_secrets</td>
-<td>true</td>
-<td>Allow the creation of persistent secrets, that are stored and loaded on restarts</td>
-<td>BOOLEAN</td>
-<td>GLOBAL</td>
-</tr>
-<tr class="even">
-<td>allow_unredacted_secrets</td>
-<td>false</td>
-<td>Allow printing unredacted secrets</td>
-<td>BOOLEAN</td>
-<td>GLOBAL</td>
-</tr>
-<tr class="odd">
-<td>allow_unsigned_extensions</td>
-<td>false</td>
-<td>Allow to load extensions with invalid or missing signatures</td>
-<td>BOOLEAN</td>
-<td>GLOBAL</td>
-</tr>
-<tr class="even">
-<td>allowed_directories</td>
-<td>[]</td>
-<td>List of directories/prefixes that are ALWAYS allowed to be queried - even when enable_external_access is false</td>
-<td>VARCHAR[]</td>
-<td>GLOBAL</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<p>Congratulations, you’ve set up your motherduck database!</p>
-<p>Now let’s load some data into it so we can play around with the options.</p>
-<p>If you’re new to databases, it will be helpful to have a basic understanding of database management - don’t worry the basics are straight forward and won’t overwhelm you, below are a list of resources I found helpful.</p>
-<ul>
-<li><a href="https://solutions.posit.co/connections/db/" class="external-link">Posit solutions guide to working with databases</a></li>
-<li><a href="https://dbplyr.tidyverse.org/articles/dbplyr.html" class="external-link">dbplyr package page</a></li>
-<li><a href="https://motherduck.com/docs/key-tasks/authenticating-and-connecting-to-motherduck/" class="external-link">Motherduck how to guide</a></li>
-<li><a href="https://duckdb.org/docs/stable/sql/introduction" class="external-link">duckdb documentation guide</a></li>
-</ul>
-<p>I’m not going to cover data engineering or database management in any real depth mostly because I don’t know anything about it.</p>
-<p>For most of your workflow, you would follow a typical pattern:</p>
-<ol style="list-style-type: decimal">
-<li>Create a database, schema or table</li>
-<li>Upload, update or amend data to your table</li>
-<li>Query the data to do calculations, analytics or reference in dashboards</li>
-</ol>
-<p>If you’re running a database that multiple users have access to (either through cloud or on a local server) then a typical workflow may be</p>
-<ol style="list-style-type: decimal">
-<li>Create a users with certain set of permissions and roles to a database</li>
-<li>Assign tokens / secrets to users so that they can access databaes remotely</li>
-<li>Manage database utilities such as scaling</li>
-<li>Run analytics on your database metadata</li>
-</ol>
-<p>Let’s see these in action</p>
-<blockquote>
-<p>[!NOTE]</p>
-<h3 id="dbi-vs-md">DBI vs. md</h3>
-<p>These functions are mainly sugar syntax wrappers around the fabulous DBI packages to stream and simplify common database queries.</p>
-</blockquote>
-</div>
-<div class="section level2">
-<h2 id="create-a-database">Create a database<a class="anchor" aria-label="anchor" href="#create-a-database"></a>
-</h2>
-<p>Later on we will show examples of how to read data from a source file, eg. csv, parquet, excel, or even a different database, directly into duckdb but for now let’s assume its some data that you already have loaded.</p>
-<p>Before we get into that lets review quickly the three things you need to load data into a database: - database name - This is object that will hold your schemas, tables, functions, roles, permissions, etc - somtimes this may be called a catalog - schema name - This of this as fancy name to classify and organize your tables, functions, procedures, etc - By default, duckdb will use “main” as a schema name - table or view name - This is the name of the actual table or view that holds your data</p>
-<p>To save or reference data, you need to fully qualify with <code>database_name.schema_name.table_name</code></p>
-<p>If you uploaded data without creating a table or schema first then duckdb will assign “temp” and “main” as the default names for your database and schema respectively.</p>
-<p>The quickest and easiest way to get data into duckdb is either use:</p>
-<ul>
-<li>duckdb::register_duckdb()</li>
-<li>md::create_or_replace_database()</li>
-</ul>
-<p>The different is create_or_replace_database() gives you more control on the database name and schema name</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">diamonds_tbl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">diamonds</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">con_tmp</span> <span class="op">&lt;-</span> <span class="fu">create_local_temp_db</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">diamonds_tbl</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">md</span><span class="fu">::</span><span class="fu"><a href="reference/create_or_replace_database.html">create_or_replace_database</a></span><span class="op">(</span></span>
-<span>        .con <span class="op">=</span> <span class="va">con_tmp</span></span>
-<span>        ,database_name <span class="op">=</span> <span class="st">"temp"</span></span>
-<span>        ,schema_name <span class="op">=</span> <span class="st">"main"</span></span>
-<span>        ,table_name <span class="op">=</span> <span class="st">"diamonds"</span></span>
-<span>        ,overwrite<span class="op">=</span><span class="cn">FALSE</span></span>
-<span>        <span class="op">)</span></span></code></pre></div>
-<p>Notice that we don’t assing this object to anything, this just silently writes our data to our database, to validate the data is in our dtabase, we can do the following:</p>
-<p>DBI::xxxx</p>
-<p>MD::list_tables()</p>
-<p>After running these functions, we can see our table - ready for us to query it.</p>
-<p>to query, you can simply leverage dplyr::tbl() function to pull it and from there leverage the fantastic dbplyr package to use tidy verbs to perform additional functions</p>
-<p>Let’s say we want to filter and summarize this table and save it to a new schema with a new name – no problem, we can repeat the steps above this time with a new schema and reference name.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">duckdb</span><span class="fu">::</span><span class="fu"><a href="https://r.duckdb.org/reference/duckdb_register.html" class="external-link">duckdb_register</a></span><span class="op">(</span><span class="va">con_tmp</span>,name <span class="op">=</span> <span class="st">"diamonds"</span>,<span class="va">diamonds_tbl</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">tbl</span><span class="op">(</span><span class="va">con_tmp</span>,<span class="st">"diamonds"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">tbl</span><span class="op">(</span><span class="va">con_tmp</span>,<span class="fu">sql</span><span class="op">(</span><span class="st">"select * from file1dbc839ef04b6.raw.diamonds"</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbGetQuery.html" class="external-link">dbGetQuery</a></span><span class="op">(</span><span class="va">con_tmp</span>,<span class="st">"select * from file1dbc839ef04b6.raw.diamonds"</span><span class="op">)</span></span>
-<span></span>
-<span></span>
-<span><span class="fu">create_or_replace_schema</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span></span>
-<span><span class="fu">create_or_replace_table</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>What if we want to delete or move a database, schema or table?</p>
-<p>Now that the basics are covered, let us explore</p>
-</div>
-</div>
-<div class="section level1">
-<h1 id="database-adminstrative-functions">Database adminstrative functions<a class="anchor" aria-label="anchor" href="#database-adminstrative-functions"></a>
-</h1>
-<ul>
-<li><p>list_extensions()</p></li>
-<li><p>install_extensions()</p></li>
-<li><p>load_extensions</p></li>
-<li><p>validate_install_status</p></li>
-<li><p>validate_load_status</p></li>
-<li><p>show_duckdb_settings()</p></li>
-<li><p>These are a collection of motherduck specific database utilities to help you list, install and load duckdb extensions</p></li>
-<li><p>the full list of extensions is available via duckdb community store are listed <a href="https://duckdb.org/docs/stable/core_extensions/overview.html" class="external-link">here</a></p></li>
-<li><p>the <code><a href="reference/list_extensions.html">list_extensions()</a></code> will list duckdb extension from the community store and list their status, install or loaded</p></li>
-<li><p>you can use <code><a href="reference/install_extensions.html">install_extensions()</a></code> to install a new exnsion – this will also automatically load the extension</p></li>
-<li><p>If the extension is already install you can use xx</p></li>
-</ul>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/list_extensions.html">list_extensions</a></span><span class="op">(</span><span class="va">con</span><span class="op">)</span></span></code></pre></div>
 <blockquote>
 <p>[!NOTE]</p>
 <h3 id="how-to-create-a-motherduck-account-and-access-token">how to create a motherduck account and access token?</h3>
 <ol style="list-style-type: decimal">
-<li>go to <a href="https://motherduck.com/" class="external-link">motherduck</a> and create an account, free options are available</li>
+<li>Go to <a href="https://motherduck.com/" class="external-link">motherduck</a> and create an account, free options are available</li>
 <li>Go to your user name in the top right, click settings then click access tokens</li>
 <li>Click create token and then name your token and copy the token code</li>
 <li>You will need this token to access your account</li>
@@ -873,6 +285,80 @@
 </ul>
 <p><img src="access_token_md.png"></p>
 </blockquote>
+<p>When connecting to motherduck there are a number of configuration options available, you can reference them via the <code>md::db_config</code> which will pull a list of options and their default values</p>
+<p>To change these, simply edit the configuration options you want and then pass this as an argument</p>
+<p>You can see the full list of duckdb configuration options <a href="https://duckdb.org/docs/stable/configuration/overview.html" class="external-link">here</a> or alternatively you can use <code><a href="reference/list_settings.html">list_settings()</a></code> to see your current configuration options.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">config</span> <span class="op">&lt;-</span> <span class="fu">md</span><span class="fu">::</span><span class="va">db_config</span> <span class="co">#&lt;1&gt; get list of default configuration options</span></span>
+<span></span>
+<span><span class="va">config</span><span class="op">$</span><span class="va">allow_community_extensions</span> <span class="op">&lt;-</span> <span class="st">"true"</span> <span class="co">#&lt;2&gt; change a default option</span></span>
+<span></span>
+<span><span class="va">con_md</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/connect_to_motherduck.html">connect_to_motherduck</a></span><span class="op">(</span><span class="st">"MOTHERDUCK_TOKEN"</span>,config <span class="op">=</span> <span class="va">config</span><span class="op">)</span> <span class="co">#&lt;3&gt; pass the modified list to your connection</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/list_settings.html">list_setting</a></span><span class="op">(</span><span class="va">con_md</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># A tibble: 10 × 5</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>   name                                       value description input_type scope</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>   <span class="sc">&lt;</span>chr<span class="sc">&gt;</span>                                      <span class="er">&lt;</span>chr<span class="sc">&gt;</span> <span class="er">&lt;</span>chr<span class="sc">&gt;</span>       <span class="er">&lt;</span>chr<span class="sc">&gt;</span>      <span class="er">&lt;</span>chr<span class="sc">&gt;</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a> <span class="dv">1</span> access_mode                                auto… Access mod… VARCHAR    GLOB…</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a> <span class="dv">2</span> allocator_background_threads               false Whether to… BOOLEAN    GLOB…</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a> <span class="dv">3</span> allocator_bulk_deallocation_flush_thresho… <span class="fl">512.</span>… If a bulk … VARCHAR    GLOB…</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a> <span class="dv">4</span> allocator_flush_threshold                  <span class="fl">128.</span>… Peak alloc… VARCHAR    GLOB…</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a> <span class="dv">5</span> allow_community_extensions                 true  Allow to l… BOOLEAN    GLOB…</span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a> <span class="dv">6</span> allow_extensions_metadata_mismatch         false Allow to l… BOOLEAN    GLOB…</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a> <span class="dv">7</span> allow_persistent_secrets                   true  Allow the … BOOLEAN    GLOB…</span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a> <span class="dv">8</span> allow_unredacted_secrets                   false Allow prin… BOOLEAN    GLOB…</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a> <span class="dv">9</span> allow_unsigned_extensions                  false Allow to l… BOOLEAN    GLOB…</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="dv">10</span> allowed_directories                        []    List of di… VARCHAR[]  GLOB…</span></code></pre></div>
+<p>Congratulations, you’ve set up your motherduck database!</p>
+<p>Now let’s load some data into it so we can play around with the options.</p>
+<p>If you’re new to databases, it will be helpful to have a basic understanding of database management - don’t worry the basics are straight forward and won’t overwhelm you, below are a list of resources I found helpful.</p>
+<ul>
+<li><a href="https://solutions.posit.co/connections/db/" class="external-link">Posit solutions guide to working with databases</a></li>
+<li><a href="https://dbplyr.tidyverse.org/articles/dbplyr.html" class="external-link">dbplyr package page</a></li>
+<li><a href="https://motherduck.com/docs/key-tasks/authenticating-and-connecting-to-motherduck/" class="external-link">Motherduck how to guide</a></li>
+<li><a href="https://duckdb.org/docs/stable/sql/introduction" class="external-link">duckdb documentation guide</a></li>
+</ul>
+<p>Please see the {md} package down website to see additional documentation on how to use the functions and motherduck</p>
+<p>I’m not going to cover data engineering or database management in any real depth mostly because I don’t know anything about it.</p>
+<p>For most of your workflow, you would follow a typical pattern:</p>
+<ol style="list-style-type: decimal">
+<li>Create a database, schema or table</li>
+<li>Upload, update or amend data to your table</li>
+<li>Query the data to do calculations, analytics or reference in dashboards</li>
+</ol>
+<p>If you’re running a database that multiple users have access to (either through cloud or on a local server) then a typical workflow may be</p>
+<ol style="list-style-type: decimal">
+<li>Create a users with certain set of permissions and roles to a database</li>
+<li>Assign tokens / secrets to users so that they can access databaes remotely</li>
+<li>Manage database utilities such as scaling</li>
+<li>Run analytics on your database metadata</li>
+</ol>
+<p>Let’s see these in action</p>
+<blockquote>
+<p>[!NOTE]</p>
+<h3 id="dbi-vs-md">DBI vs. md</h3>
+<p>These functions are mainly sugar syntax wrappers around the fabulous DBI packages to stream and simplify common database queries.</p>
+</blockquote>
+</div>
+</div>
+<div class="section level1">
+<h1 id="database-adminstrative-functions">Database adminstrative functions<a class="anchor" aria-label="anchor" href="#database-adminstrative-functions"></a>
+</h1>
+<ul>
+<li><p>list_extensions()</p></li>
+<li><p>install_extensions()</p></li>
+<li><p>load_extensions</p></li>
+<li><p>validate_install_status</p></li>
+<li><p>validate_load_status</p></li>
+<li><p>show_duckdb_settings()</p></li>
+<li><p>These are a collection of motherduck specific database utilities to help you list, install and load duckdb extensions</p></li>
+<li><p>the full list of extensions is available via duckdb community store are listed <a href="https://duckdb.org/docs/stable/core_extensions/overview.html" class="external-link">here</a></p></li>
+<li><p>the <code><a href="reference/list_extensions.html">list_extensions()</a></code> will list duckdb extension from the community store and list their status, install or loaded</p></li>
+<li><p>you can use <code><a href="reference/install_extensions.html">install_extensions()</a></code> to install a new exnsion – this will also automatically load the extension</p></li>
+<li><p>If the extension is already install you can use xx</p></li>
+</ul>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/list_extensions.html">list_extensions</a></span><span class="op">(</span><span class="va">con</span><span class="op">)</span></span></code></pre></div>
 </div>
 
 
