@@ -19,7 +19,7 @@ load_all()
 
 ```
 
-![](md_logo.png){width=40%}
+![](man/figures/md_logo.png){width=40%}
 
 
 # Developer notes
