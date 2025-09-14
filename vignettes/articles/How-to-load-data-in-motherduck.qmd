@@ -1,0 +1,111 @@
+---
+title: "How to load data in motherduck"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+
+
+```{r setup}
+library(md)
+```
+
+
+
+
+
+
+## Create a database
+
+Later on we will show examples of how to read data from a source file, eg. csv, parquet, excel, or even a different database, directly into duckdb but for now let's assume its some data that you already have loaded.
+
+
+Before we get into that lets review quickly the three things you need to load data into a database:
+-   database name
+    -   This is object that will hold your schemas, tables, functions, roles, permissions, etc
+    -   somtimes this may be called a catalog
+-   schema name
+    -   This of this as fancy name to classify and organize your tables, functions, procedures, etc
+    -   By default, duckdb will use "main" as a schema name
+-   table or view name
+    -   This is the name of the actual table or view that holds your data
+    
+To save or reference data, you need to fully qualify with `database_name.schema_name.table_name`
+
+If you uploaded data without creating a table or schema first then duckdb will assign "temp" and "main" as the default names for your database and schema respectively.
+
+The quickest and easiest way to get data into duckdb is either use:
+
+-   duckdb::register_duckdb()
+-   md::create_or_replace_database()
+
+The different is create_or_replace_database() gives you more control on the database name and schema name
+
+```{r}
+#| label: create-or-replace-example
+#| echo: true
+#| eval: false
+#| warning: false
+#| message: false
+#| include: true
+
+diamonds_tbl <- data(diamonds) #<1>
+
+con_tmp <- create_local_temp_db() #<2>
+
+diamonds_tbl |>  #<3>
+    md::create_or_replace_database( #<4>
+        .con = con_tmp #<5>
+        ,database_name = "temp" #<6>
+        ,schema_name = "main" #<7>
+        ,table_name = "diamonds" #<8>
+        ,overwrite=FALSE  #<9>
+        )
+
+
+
+```
+
+
+Notice that we don't assing this object to anything, this just silently writes our data to our database, to validate the data is in our dtabase, we can do the following:
+
+DBI::xxxx
+
+MD::list_tables()
+
+After running these functions, we can see our table - ready for us to query it. 
+
+to query, you can simply leverage dplyr::tbl() function to pull it and from there leverage the fantastic dbplyr package to use tidy verbs to perform additional functions
+
+
+Let's say we want to filter and summarize this table and save it to a new schema with a new name -- no problem, we can repeat the steps above this time with a new schema and reference name.
+
+```{r}
+#| eval: false
+duckdb::duckdb_register(con_tmp,name = "diamonds",diamonds_tbl)
+
+tbl(con_tmp,"diamonds")
+
+tbl(con_tmp,sql("select * from file1dbc839ef04b6.raw.diamonds"))
+
+DBI::dbGetQuery(con_tmp,"select * from file1dbc839ef04b6.raw.diamonds")
+
+
+create_or_replace_schema()
+
+
+create_or_replace_table()
+
+```
+
+What if we want to delete or move a database, schema or table?
+
+
+Now that the basics are covered, let us explore 
+

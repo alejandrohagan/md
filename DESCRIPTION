@@ -33,3 +33,5 @@ Suggests:
 Config/testthat/edition: 3
 Depends: 
     R (>= 3.5)
+URL: https://alejandrohagan.github.io/md/
+Config/Needs/website: rmarkdown

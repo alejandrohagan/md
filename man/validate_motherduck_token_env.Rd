@@ -2,7 +2,7 @@
 % Please edit documentation in R/api.R
 \name{validate_motherduck_token_env}
 \alias{validate_motherduck_token_env}
-\title{Validate if motherduck token in Environment file}
+\title{Validate if motherduck token in environment file}
 \usage{
 validate_motherduck_token_env(motherduck_token = "MOTHERDUCK_TOKEN")
 }
@@ -13,5 +13,5 @@ validate_motherduck_token_env(motherduck_token = "MOTHERDUCK_TOKEN")
 character vector
 }
 \description{
-Validate if motherduck token in Environment file
+Validate if motherduck token in environment file
 }

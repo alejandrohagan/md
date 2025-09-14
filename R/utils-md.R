@@ -940,16 +940,16 @@ list_table<- function(.con){
 }
 
 
-#' Title
+#' @title Upload a local database to motherduck
+#' @name upload_database_to_md
 #'
-#' @param .con
-#' @param from_db_name
-#' @param to_db_name
+#' @param .con motherduck connection
+#' @param from_db_name the local database to be copied
+#' @param to_db_name the name of the motherduck database to be created
 #'
-#' @returns
+#' @returns print statement
 #' @export
 #'
-#' @examples
 upload_database_to_md <- function(.con,from_db_name,to_db_name){
 
   DBI::dbExecute(
@@ -966,14 +966,13 @@ upload_database_to_md <- function(.con,from_db_name,to_db_name){
 
 
 
-#' Title
+#' @title List database settings
+#' @name list_settings
+#' @param .con dubdb or md connection
 #'
-#' @param .con
-#'
-#' @returns
+#' @returns tibble
 #' @export
 #'
-#' @examples
 list_setting <- function(.con){
 
   out <- DBI::dbGetQuery(

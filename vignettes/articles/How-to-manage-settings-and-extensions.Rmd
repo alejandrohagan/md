@@ -1,0 +1,14 @@
+---
+title: "How to manage settings and extensions"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(md)
+```

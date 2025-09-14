@@ -4,7 +4,7 @@
 \alias{connect_to_motherduck}
 \title{Create connection to motherduck}
 \usage{
-connect_to_motherduck(motherduck_token = "MOTHERDUCK_TOKEN")
+connect_to_motherduck(motherduck_token = "MOTHERDUCK_TOKEN", config)
 }
 \arguments{
 \item{motherduck_token}{motherduck token saved in your environment file}

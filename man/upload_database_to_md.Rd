@@ -2,13 +2,20 @@
 % Please edit documentation in R/utils-md.R
 \name{upload_database_to_md}
 \alias{upload_database_to_md}
-\title{Title}
+\title{Upload a local database to motherduck}
 \usage{
 upload_database_to_md(.con, from_db_name, to_db_name)
 }
 \arguments{
-\item{to_db_name}{}
+\item{.con}{motherduck connection}
+
+\item{from_db_name}{the local database to be copied}
+
+\item{to_db_name}{the name of the motherduck database to be created}
+}
+\value{
+print statement
 }
 \description{
-Title
+Upload a local database to motherduck
 }

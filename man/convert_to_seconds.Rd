@@ -2,13 +2,21 @@
 % Please edit documentation in R/api.R
 \name{convert_to_seconds}
 \alias{convert_to_seconds}
-\title{Title}
+\title{Convert units to seconds}
 \usage{
 convert_to_seconds(number, units)
 }
 \arguments{
-\item{units}{}
+\item{number}{numeriv value}
+
+\item{units}{second, minute, day, month, year or never}
+}
+\value{
+number
 }
 \description{
-Title
+Convert units to seconds
+}
+\examples{
+convert_to_seconds(300,"days")
 }

@@ -2,16 +2,18 @@
 % Please edit documentation in R/api.R
 \name{show_current_user}
 \alias{show_current_user}
-\title{Title}
+\title{Show current user}
 \usage{
 show_current_user(motherduck_token = "MOTHERDUCK_TOKEN", return = "msg")
 }
 \arguments{
-\item{.con}{duckdb connectoin}
+\item{motherduck_token}{motherduck token}
+
+\item{return}{msg or arg}
 }
 \value{
-tibble
+tibble or print statement
 }
 \description{
-Title
+Show current user
 }

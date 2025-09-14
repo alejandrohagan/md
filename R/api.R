@@ -1,15 +1,16 @@
 
 #' @title Show current user
 #' @name show_current_user
+#' @param motherduck_token motherduck token
 #'
-#' @param .con duckdb/md connectoin
+#' @param return msg or arg
 #'
-#' @returns tibble
+#'
+#' @returns tibble or print statement
 #' @export
 #'
 
 show_current_user <- function(motherduck_token="MOTHERDUCK_TOKEN",return="msg"){
-
 
     return_valid_vec <- c("msg","arg")
 
@@ -48,9 +49,8 @@ show_current_user <- function(motherduck_token="MOTHERDUCK_TOKEN",return="msg"){
 #' @param column_name1 first column of name of response object
 #' @param column_name2 second column of name of response object
 #'
-#' @returns
+#' @returns tibble
 #'
-#' @examples
 check_resp_status_and_tidy_response <- function(resp,json_response,column_name1,column_name2){
 
 
@@ -84,13 +84,12 @@ check_resp_status_and_tidy_response <- function(resp,json_response,column_name1,
 }
 
 
-#' Validate if motherduck token in Environment file
+#' Validate if motherduck token in environment file
 #'
 #' @param motherduck_token
 #'
 #' @returns character vector
 #'
-#' @examples
 validate_motherduck_token_env <- function(motherduck_token="MOTHERDUCK_TOKEN"){
 
     assertthat::assert_that(
@@ -111,22 +110,20 @@ validate_motherduck_token_env <- function(motherduck_token="MOTHERDUCK_TOKEN"){
 
 
 
-#' Title
+#' @title List activee motherduck accounts
+#' @name list_md_active_accounts
+#' @param motherduck_token admin user's token
 #'
-#' @param motherduck_token
-#'
-#' @returns list
+#' @returns tibble
 #' @export
 #'
 list_md_active_accounts <- function(motherduck_token="MOTHERDUCK_TOKEN"){
 
     # https://motherduck.com/docs/sql-reference/rest-api/ducklings-get-duckling-config-for-user/
 
-    # Ensure that 'motherduck_token' is a character string
     motherduck_token_env=validate_motherduck_token_env(motherduck_token)
 
     show_current_user(motherduck_token = motherduck_token)
-
 
     # Make a GET request to the MotherDuck API to retrieve active accounts
     resp <- httr2::request("https://api.motherduck.com/v1/active_accounts") |>
@@ -137,13 +134,15 @@ list_md_active_accounts <- function(motherduck_token="MOTHERDUCK_TOKEN"){
         httr2::req_error(is_error = function(resp) FALSE) |>
         httr2::req_perform()  # Perform the HTTP request
 
-
-
-
     # Parse the JSON response body
     json_response <- httr2::resp_body_json(resp)
 
-    out <- check_resp_status_and_tidy_response(resp,json_response,column_name1 = "account_settings",column_name2 = "account_values")
+    out <- check_resp_status_and_tidy_response(
+        resp = resp
+        ,json_response = json_response
+        ,column_name1 = "account_settings"
+        ,column_name2 = "account_values"
+        )
 
 
     return(out)
@@ -152,8 +151,8 @@ list_md_active_accounts <- function(motherduck_token="MOTHERDUCK_TOKEN"){
 
 
 
-#' Title
-#'
+#' @title List a motherduck user's tokens
+#' @name list_md_user_tokens
 #' @param .con duckdb connection
 #' @param user_name motherduck user name
 #' @param motherduck_token motherduck token or environment nick name
@@ -195,15 +194,14 @@ list_md_user_tokens <- function(user_name,motherduck_token="MOTHERDUCK_TOKEN"){
 
 
 
-#' Title
-#'
+#' @title List motherduck user's instance settings
+#' @name list_md_user_instance
 #' @param user_name mother duck user name
-#' @param motherduck_token mother duck token or environment name
+#' @param motherduck_token admin's motherduck user's instance
 #'
-#' @returns
+#' @returns tibble
 #' @export
 #'
-#' @examples
 list_md_user_instance <- function(user_name,motherduck_token="MOTHERDUCK_TOKEN"){
 
     #https://motherduck.com/docs/sql-reference/rest-api/ducklings-get-duckling-config-for-user/
@@ -230,12 +228,12 @@ list_md_user_instance <- function(user_name,motherduck_token="MOTHERDUCK_TOKEN")
 
 }
 
-#' Title
-#'
+#' @title Delete a motherduck user
+#' @name delete_md_user
 #' @param user_name motherduck user name
 #' @param motherduck_token motherduck token or environment variable
 #'
-#' @returns
+#' @returns tibble
 #' @export
 #'
 delete_md_user <- function(user_name,motherduck_token) {
@@ -276,25 +274,26 @@ delete_md_user <- function(user_name,motherduck_token) {
 
 
 
-#' Title
+#' @title Create a new motherduck token
+#' @name create_md_user
 #'
-#' @param user_name
-#' @param motherduck_token
+#' @param user_name new motherduck user name
+#' @param motherduck_token admin user's token
 #'
-#' @returns
+#' @returns tibble
 #' @export
 #'
-#' @examples
 create_md_user <- function(user_name,motherduck_token="MOTHERDUCK_TOKEN"){
-    # user_name <- "testq_20250909"
+    # user_name <- c("test_20250913")
 
     assertthat::assert_that(
-        is.character(user_name)
+        length(user_name)==1
+        ,all(is.character(user_name))
     )
 
 
     # Replace <token> with your actual Bearer token
-    motherduck_token_env=validate_motherduck_token_env(motherduck_token)
+    motherduck_token_env <- validate_motherduck_token_env(motherduck_token)
 
     show_current_user(motherduck_token = motherduck_token,return = "msg")
 
@@ -319,8 +318,6 @@ create_md_user <- function(user_name,motherduck_token="MOTHERDUCK_TOKEN"){
     # Parse the response
     json_response <-  httr2::resp_body_json(resp)
 
-
-
     out <- check_resp_status_and_tidy_response(
         resp = resp
         ,json_response =json_response
@@ -330,23 +327,21 @@ create_md_user <- function(user_name,motherduck_token="MOTHERDUCK_TOKEN"){
 
     return(out)
 
-
 }
 
 
-#' Title
+#' @title Create a motherduck access token
+#' @name  create_md_access_token
+#' @param user_name new users name
+#' @param token_type the token type
+#' @param token_name the token name
+#' @param token_expiration_number the token expiration number - minimum 300 seconds
+#' @param token_expiration_unit the token expiration unit (`seconds`,`minutes`,`days`,`weeks`,`months`,`years`,`never`)
+#' @param motherduck_token admin user's token
 #'
-#' @param user_name
-#' @param token_type
-#' @param token_name
-#' @param token_expiration_number
-#' @param token_expiration_unit
-#' @param motherduck_token
-#'
-#' @returns
+#' @returns tibble
 #' @export
 #'
-#' @examples
 create_md_access_token <- function(user_name,token_type,token_name,token_expiration_number,token_expiration_unit,motherduck_token="MOTHERDUCK_TOKEN"){
 
     # test inputs
@@ -428,14 +423,13 @@ create_md_access_token <- function(user_name,token_type,token_name,token_expirat
 
 #' Title
 #'
-#' @param user_name
-#' @param token_name
-#' @param motherduck_token
+#' @param user_name motherduck user name
+#' @param token_name motherduck token name
+#' @param motherduck_token admin user's token
 #'
-#' @returns
+#' @returns tibble
 #' @export
 #'
-#' @examples
 delete_md_access_token <- function(user_name,token_name,motherduck_token="MOTHERDUCK_TOKEN"){
 
     motherduck_token_env <- validate_motherduck_token_env(motherduck_token)
@@ -465,18 +459,17 @@ delete_md_access_token <- function(user_name,token_name,motherduck_token="MOTHER
 }
 
 
-#' Title
+#' @title Configure motherduck user's settings
 #'
-#' @param user_name
-#' @param motherduck_token
-#' @param token_type
-#' @param instance_size
-#' @param flock_size
+#' @param user_name motherduck user name
+#' @param motherduck_token user's access token
+#' @param token_type the to be token type
+#' @param instance_size the to be instance size
+#' @param flock_size the to be flock size
 #'
-#' @returns
+#' @returns tibble
 #' @export
 #'
-#' @examples
 configure_md_user_settings <- function(
         user_name
         ,motherduck_token="MOTHERDUCK_TOKEN"
@@ -528,32 +521,31 @@ configure_md_user_settings <- function(
         ,column_name1 = "username"
         ,column_name2 = "value"
     )
-
-
-
 }
 
-#' Title
+#' @title Convert units to seconds
+#' @name convert_to_seconds
+#' @param number numeriv value
+#' @param units second, minute, day, month, year or never
 #'
-#' @param number
-#' @param units
-#'
-#' @returns
-#' @export
+#' @returns number
 #'
 #' @examples
+#' convert_to_seconds(300,"days")
 convert_to_seconds <- function(number,units){
 
     # units <- "day"
     # number <- 100
 
-    valid_units <- c("second","minute","day","month","year","never")
+    valid_units <- c("seconds","second","minutes","minute","days","day","months","month","years","year","never")
 
     units <- tolower(units)
 
     assertthat::assert_that(
-        all(is.character(units))
-        ,all(is.numeric(number))
+        length(units)==1
+        ,length(number)==1
+        ,is.character(units)
+        ,is.numeric(number)
     )
 
     unit_vec <- rlang::arg_match(
@@ -565,10 +557,15 @@ convert_to_seconds <- function(number,units){
 
     conversion_factors_vec = c(
         "second"= 1,
+        "seconds"=1,
         "minute"= 60,
+        "minutes"=60,
         "day"= 86400,
+        "days"= 86400,
         "month"= 2592000,
-        "year"= 31536000
+        "months"= 2592000,
+        "year"= 31536000,
+        "years"= 31536000
     )
 
     if(unit_vec=="never"){
@@ -584,11 +581,11 @@ convert_to_seconds <- function(number,units){
 }
 
 
-#' @tile Validate MD token type input
+#' @title Validate MD token type input
 #' @name validate_token_type
 #' @param token_type character vector either read_write or read_scaling
 #'
-#' @returns
+#' @returns vector
 #'
 validate_token_type <- function(token_type){
 

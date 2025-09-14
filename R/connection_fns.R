@@ -94,7 +94,7 @@ validate_md_connection_status <- function(.con,return_type="msg"){
 #' @returns connection
 #' @export
 #'
-connect_to_motherduck <- function(motherduck_token="MOTHERDUCK_TOKEN"){
+connect_to_motherduck <- function(motherduck_token="MOTHERDUCK_TOKEN",config){
 
     # motherduck_token="MOTHERDUCK_TOKEN"
 
@@ -126,17 +126,22 @@ connect_to_motherduck <- function(motherduck_token="MOTHERDUCK_TOKEN"){
         ,msg=cli_msg()
     )
 
-    .con <-DBI::dbConnect(
+    if(!missing(config)){
+
+    .con <- DBI::dbConnect(
         duckdb::duckdb(
             dbdir = tempfile()
-            ,config=list(
-                allow_unsigned_extensions = 'true'
-                ,allow_extensions_metadata_mismatch='true'
-                ,allow_unredacted_secrets='true'
+            ,config=
+                list(allow_community_extensions="true")
+        )
+    )
+    }else{
+        .con <-DBI::dbConnect(
+            duckdb::duckdb(
+                dbdir = tempfile()
             )
         )
-        # ,...=list(motherduck_token=motherduck_token_code)
-    )
+    }
 
     if(!validate_extension_load_status(.con,"motherduck",return_type="arg")){
 

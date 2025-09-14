@@ -2,7 +2,7 @@
 % Please edit documentation in R/api.R
 \name{delete_md_user}
 \alias{delete_md_user}
-\title{Title}
+\title{Delete a motherduck user}
 \usage{
 delete_md_user(user_name, motherduck_token)
 }
@@ -11,6 +11,9 @@ delete_md_user(user_name, motherduck_token)
 
 \item{motherduck_token}{motherduck token or environment variable}
 }
+\value{
+tibble
+}
 \description{
-Title
+Delete a motherduck user
 }

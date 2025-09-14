@@ -15,6 +15,7 @@ format: gfm
 library(epoxy)
 library(tidyverse)
 library(DBI)
+load_all()
 
 ```
 
@@ -51,72 +52,90 @@ library(DBI)
     -   [case study 2](contoso package)
     -   [case study 3](something machine learning)
     
-# My Project
+## Overview
 
-This is WIP collection of utilities to help with the management, administration and navigation of [duckdb](https://duckdb.org/) database either locally on your computer or in the cloud via [motherduck](https://motherduck.com/)
+This is a collection of utilities to help with the management, administration and navigation of [duckdb](https://duckdb.org/) database either locally on your computer or in the cloud via [motherduck](https://motherduck.com/)
 
-Database management is incredibly easy in R with fantastic packages such as [DBI](https://dbplyr.tidyverse.org/) and [dbplyr](https://dbplyr.tidyverse.org/), however some databases have specific extensions or utilities that are only aren't readily accessible via this packages
+Database management is incredibly easy in R with fantastic packages such as [DBI](https://dbplyr.tidyverse.org/) and [dbplyr](https://dbplyr.tidyverse.org/), however some databases have specific extensions or utilities that are aren't readily accessible via this packages
 
-MD simplifies these utilities and common database administration task with easy to understand syntax. MD is built upon [DBI](https://dbplyr.tidyverse.org/) and returns a lazy DBI object so that you can further fully integrate your data with [dbplyr](https://dbplyr.tidyverse.org/)
+{md} pack simplifies these common database administration task with easy to understand syntax. {md} is built upon [DBI](https://dbplyr.tidyverse.org/) and returns a lazy DBI object so that you can further fully integrate your data with [dbplyr](https://dbplyr.tidyverse.org/)
 
-Eventually, I'll use the learnings from this package to create a meta DB utilities package so that regardless if you're in snowflake, DuckDB, redshift, etc you will have generalized functions that work across your database types
+
+## future ambition
+
+Eventually, I'll use the learning from this package to create a meta DB utilities package so that regardless if you're in snowflake, DuckDB, Redshift, etc you will have generalized functions that work across your database types
 
 This is very much work in progress -- I'll eventually transition to the [R7](https://rconsortium.github.io/S7/articles/S7.html) object system but just want to get some usage first before deciding on the architecture and structure.
 
 Please create an issue if you have any comments or requests or reach out if you have any feedback.
 
-# Overview of functions
+## Overview of functions
 
-## functions that help you manage your connection and database metadata
+Below is a quick overview of the functions available in the package.
 
--   `connect_to_motherduck()` will leverage your motherduck token to connect you to your motherduck instance (it will install motherduck extension if not created)
--   `load_extensions()` will load a duckdb extensions either from an official repository or if you set the flag, a community repository
--   `install_extensions()` will install various duckdb extensions from the official repository
--   `validate_*()` collection of functions will just validate your connection and extension status
+### functions that help you manage your connection and database metadata
 
-## functions that help you see what is in your databases
--   `pwd()` prints the current database that you are "in"
--   `cd()` will change your "root" database so that the list_* familiy of functions are relative to that root
+-   `connect_to_motherduck()` will leverage your motherduck token to connect you to your motherduck instance (it will install the motherduck extension if not already present)
+-   `install_extensions()` will install various duckdb extensions from the official repository or if you set the flag, a community repository
+-   `load_extensions()` will load a duckdb extensions either from an official repository 
+-   `validate_md_connection_statu()` will validate your motherduck connection status
+-   `validate_extension_install_status()` will validate if an extension has been successfully installed
+-   `validate_extension_load_status()` will validate if an extension has been successfully loaded
+
+### functions that help you see what is in your databases
+-   `pwd()` prints the current database that you are "in" 
+-   `cd()` will change your "root" database so any execution functions are relative to that database
 -   `list_database()` list the databases and their metadata
 -   `list_schema()`list the schemas and their metadata
 -   `list_table()`list the tables and their metadata
 -   `list_view()`list the views and their metadata
 
-## functions that will help you read data into duckdb or motherduck 
--   `read_httpfs()` will read httpfs file formats directly into duckdb
--   `read_parquet()` will read parquet file formats directly into duckdb
--   `read_excel()` will read excel files directly to your database
+### functions that will help you read data into duckdb or motherduck 
+-   `read_httpfs()` will read httpfs file formats 
+-   `read_parquet()` will read parquet file formats
+-   `read_excel()` will read excel files formats 
 
-## functions that will help you create or replace databases, scehems, tables or views 
+### functions that will help you create or replace databases, scehems, tables or views 
 -   `create_or_replace_database()` will take R data and create a database with your data
 -   `create_or_replace_schemas()` will take R data and create a schema with your data
 -   `create_or_replace_view()` will take R data and create a views with your data
 -   `create_or_replace_table()` will take R data and create a tables with your data
 -   `drop_table()` will delete a table from your databases
--
+-   `drop_database()` will delete a database
+
+
+## functions to help you manage motherduck users, tokens, and instance settings
+-   `list_md_active_accounts()`
+-   `list_md_user_instance()`
+-   `list_md_user_tokens()`
+-   `show_current_user()`
+-   `create_md_user()`
+-   `delete_md_user()`
+-   `create_md_access_token()`
+-   `delete_md_access_token()`
+-   `configure_md_user_settings()`  
+
 ## functions to help you understand your data
 -   `summary()` will summarize your table or view's data
+
 
 ## What do I need to use this?
 
 -   [duckdb](https://duckdb.org/) package installed on your computer
--   Optional: If you want to store your data in [motherduck](https://motherduck.com/), then you need your own motherduck account and an access token which can be saved to your R environment file with `usethis::edit_r_environ()`
--   data that you want to upload to 
-
+-   A [motherduck](https://motherduck.com/) account
+-   A motherduck access token which you you can be saved to your R environment file with `usethis::edit_r_environ()`
 
 ::: {.callout-note collapse="true"}
 ## Whats the difference between Motherduck and Duckdb?
 
 - Duckdb is a database that you can deploy and run either temporary or permanently in your computer. If you run it via your local computer, it is only available on your computer
 
-- Motherduck is a cloud based deployment of duckdb which means you can save your data in the cloud and then access it locally via your database
+- Motherduck is a cloud based deployment of duckdb which means you can save your data in the cloud or access it locally
 
-- Most core functions in this package work for both
+- Most core functions in this package work for both motherduck or duckdb database
 
-- It is just a question if you want you data to be access only locally on your computer or if you want to be able to access it remotely via the cloud
-
+- It is more of a question if you want you data to be access only locally on your computer or if you want to be able to access it remotely via the cloud
 :::
-
 
 # Lets see the package in action
 
@@ -124,79 +143,144 @@ Please create an issue if you have any comments or requests or reach out if you 
 
 When creating a duckdb database, you have three options
 
-1. A temporary instance that exists in your local computer
-2. A permenant instance that exists in your local computer
+1. A in-memory based instance that exists in your local computer
+2. A file based instance that exists in your local computer
 3. A cloud-based instance through [motherduck](https://motherduck.com/)
 
+To create options 1 or 2 you can simply use either the [duckdb](https://duckdb.org/) or the [duckplyr](https://duckplyr.tidyverse.org/index.html)
 
-If you want to set up a local instance you can easily do that with the md package or you can you just DBI and duckdb package as well, there's no real advantage to the md package
+To connect to your motherduck account you can still reference the above packages but need to do few additional steps or alternatively you use the `connect_to_motherduck()` function and pass through your token variable name^[recommend you use `MOTHERDUCK_TOKEN` as your variable name] and optional configuration options
 
-Simply clarify the type argument:
-
--   `temp` for a temporary file
--   `file` location to a new or existing database file
--   `md` for your motherduck account
 
 
 ```{r}
 #| label: connection-example
+#| echo: true
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
+
+
+con_md <- connect_to_motherduck("MOTHERDUCK_TOKEN")
+
+```
+
+This will return a connection and print statement indicating if connection status.
+
+At any time you can validate your connection status with `validate_md_connection_status()`
+
+
+```{r}
+#| label: validate-examples
+#| echo: true
+#| eval: true
+#| warning: false
+#| message: true
+#| include: true
+
+validate_md_connection_status(con_md)
+
+
+```
+
+
+
+::: {.callout-note collapse="true"}
+## how to create a motherduck account and access token?
+
+1. Go to [motherduck](https://motherduck.com/) and create an account, free options are available
+2. Go to your user name in the top right, click settings then click access tokens
+3. Click create token and then name your token and copy the token code
+4. You will need this token to access your account 
+5. If you want to access it via R then simplest way is to save your access code as a variable in your r environment 
+6. Simply leverage the [usethis](https://usethis.r-lib.org/) function `edit_r_environ()` to set your access code to a variable and save it -- this is one time activity
+7. To check if your correctly saved your variable then you can use the Sys.getenv("var_name") with "var_name" the named you assigned your access token to
+8. Going forward, if you want to access your token you don't need to re-type the access token, simply remember your variable name
+
+
+-   First you will need a motherduck account, which has both free and paid tiers
+-   Once you've created an account, simply, go to your settings and click 'Access Tokens' under your 'Integrations'
+-   Keep this secure and safe as this lets you connect to your online database to read or write data
+-   Open R and use the `usethis::edit_r_environ()` function to put your motherduck token as a variable in your enviornment profile
+
+    -   MOTHERDUCK_TOKEN='tokenID'
+-   From there you can use the `connect_to_motherduck("MOTHERDUCK_TOKEN")`
+-   This will use the [DBI](https://dbi.r-dbi.org/) library to create a connection to your mother duck instance
+
+
+![](access_token_md.png)
+
+:::
+
+
+
+
+When connecting to motherduck there are a number of configuration options available, you can reference them via the `md::db_config` which will pull a list of options and their default values
+
+To change these, simply edit the configuration options you want and then pass this as an argument
+
+You can see the full list of duckdb configuration options [here](https://duckdb.org/docs/stable/configuration/overview.html) or alternatively you can use `list_settings()` to see your current configuration options.
+
+```{r}
+#| label: connection-config
+#| echo: true
+#| eval: true
+#| warning: false
+#| message: true
+#| include: true
+
+config <- md::db_config #<1> get list of default configuration options
+
+config$allow_community_extensions <- "true" #<2> change a default option
+
+con_md <- connect_to_motherduck("MOTHERDUCK_TOKEN",config = config) #<3> pass the modified list to your connection
+
+```
+
+```{r}
+#| label: list-settings
 #| echo: true
 #| eval: false
 #| warning: false
 #| message: false
 #| include: true
 
-con <- connect_to_motherduck("MOTHERDUCK_TOKEN")
+
+list_setting(con_md)
 
 ```
+
 
 
 ```{r}
-#| label: validate-examples
-#| echo: true
-#| eval: false
+#| label: list-settings-hidden
+#| echo: false
+#| eval: true
 #| warning: false
-#| message: true
+#| message: false
 #| include: true
 
-validate_md_connection_status(.con)
 
+list_setting(con_md) |> 
+    head(10) 
 
 ```
 
 
-When connecting to motherduck there are a number of configuration options available, you can reference them via the md::config which will pull a list of the default values
-
-To change these, simply edit the configuration options you want and then pass this as an argument
-
-You can see the full list of duckdb configuration options [here](https://duckdb.org/docs/stable/configuration/overview.html)
-
-
-```{r}
-#| label: connection-config
-#| echo: true
-#| eval: false
-#| warning: false
-#| message: true
-#| include: true
-
-config <- md_config
-
-config$allow_community_extensions <- "true"
-
-con <- connect_to_motherduck("MOTHERDUCK_TOKEN")
-
-```
-
-
-Congratulations, you've set up your duckdb database!
+Congratulations, you've set up your motherduck database!
 
 Now let's load some data into it so we can play around with the options.
 
 If you're new to databases, it will be helpful to have a basic understanding of database management - don't worry the basics are straight forward and won't overwhelm you, below are a list of resources I found helpful.
 
--   resource 1
--   resource 2
+-   [Posit solutions guide to working with databases](https://solutions.posit.co/connections/db/)
+-   [dbplyr package page](https://dbplyr.tidyverse.org/articles/dbplyr.html)
+-   [Motherduck how to guide](https://motherduck.com/docs/key-tasks/authenticating-and-connecting-to-motherduck/)
+-   [duckdb documentation guide](https://duckdb.org/docs/stable/sql/introduction)
+
+
+Please see the {md} package down website to see additional documentation on how to use the functions and motherduck
 
 I'm not going to cover data engineering or database management in any real depth mostly because I don't know anything about it. 
 
@@ -222,96 +306,6 @@ These functions are mainly sugar syntax wrappers around the fabulous DBI package
 
 :::
 
-
-## Create a database
-
-Later on we will show examples of how to read data from a source file, eg. csv, parquet, excel, or even a different database, directly into duckdb but for now let's assume its some data that you already have loaded.
-
-
-Before we get into that lets review quickly the three things you need to load data into a database:
--   database name
-    -   This is object that will hold your schemas, tables, functions, roles, permissions, etc
-    -   somtimes this may be called a catalog
--   schema name
-    -   This of this as fancy name to classify and organize your tables, functions, procedures, etc
-    -   By default, duckdb will use "main" as a schema name
--   table or view name
-    -   This is the name of the actual table or view that holds your data
-    
-To save or reference data, you need to fully qualify with `database_name.schema_name.table_name`
-
-If you uploaded data without creating a table or schema first then duckdb will assign "temp" and "main" as the default names for your database and schema respectively.
-
-The quickest and easiest way to get data into duckdb is either use:
-
--   duckdb::register_duckdb()
--   md::create_or_replace_database()
-
-The different is create_or_replace_database() gives you more control on the database name and schema name
-
-```{r}
-#| label: create-or-replace-example
-#| echo: true
-#| eval: false
-#| warning: false
-#| message: false
-#| include: true
-
-diamonds_tbl <- data(diamonds) #<1>
-
-con_tmp <- create_local_temp_db() #<2>
-
-diamonds_tbl |>  #<3>
-    md::create_or_replace_database( #<4>
-        .con = con_tmp #<5>
-        ,database_name = "temp" #<6>
-        ,schema_name = "main" #<7>
-        ,table_name = "diamonds" #<8>
-        ,overwrite=FALSE  #<9>
-        )
-
-
-
-```
-
-
-Notice that we don't assing this object to anything, this just silently writes our data to our database, to validate the data is in our dtabase, we can do the following:
-
-DBI::xxxx
-
-MD::list_tables()
-
-After running these functions, we can see our table - ready for us to query it. 
-
-to query, you can simply leverage dplyr::tbl() function to pull it and from there leverage the fantastic dbplyr package to use tidy verbs to perform additional functions
-
-
-Let's say we want to filter and summarize this table and save it to a new schema with a new name -- no problem, we can repeat the steps above this time with a new schema and reference name.
-
-```{r}
-#| eval: false
-duckdb::duckdb_register(con_tmp,name = "diamonds",diamonds_tbl)
-
-tbl(con_tmp,"diamonds")
-
-tbl(con_tmp,sql("select * from file1dbc839ef04b6.raw.diamonds"))
-
-DBI::dbGetQuery(con_tmp,"select * from file1dbc839ef04b6.raw.diamonds")
-
-
-create_or_replace_schema()
-
-
-create_or_replace_table()
-
-```
-
-What if we want to delete or move a database, schema or table?
-
-
-Now that the basics are covered, let us explore 
-
-
 # Database adminstrative functions
 - list_extensions()
 - install_extensions()
@@ -336,35 +330,6 @@ Now that the basics are covered, let us explore
 #| include: true
 list_extensions(con)
 
-
 ```
 
-
-
-::: {.callout-note}
-## how to create a motherduck account and access token?
-
-1. go to [motherduck](https://motherduck.com/) and create an account, free options are available
-2. Go to your user name in the top right, click settings then click access tokens
-3. Click create token and then name your token and copy the token code
-4. You will need this token to access your account 
-5. If you want to access it via R then simplest way is to save your access code as a variable in your r environment 
-6. Simply leverage the [usethis](https://usethis.r-lib.org/) function `edit_r_environ()` to set your access code to a variable and save it -- this is one time activity
-7. To check if your correctly saved your variable then you can use the Sys.getenv("var_name") with "var_name" the named you assigned your access token to
-8. Going forward, if you want to access your token you don't need to re-type the access token, simply remember your variable name
-
-
--   First you will need a motherduck account, which has both free and paid tiers
--   Once you've created an account, simply, go to your settings and click 'Access Tokens' under your 'Integrations'
--   Keep this secure and safe as this lets you connect to your online database to read or write data
--   Open R and use the `usethis::edit_r_environ()` function to put your motherduck token as a variable in your enviornment profile
-
-    -   MOTHERDUCK_TOKEN='tokenID'
--   From there you can use the `connect_to_motherduck("MOTHERDUCK_TOKEN")`
--   This will use the [DBI](https://dbi.r-dbi.org/) library to create a connection to your mother duck instance
-
-
-![](access_token_md.png)
-
-:::
 

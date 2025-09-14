@@ -2,15 +2,18 @@
 % Please edit documentation in R/api.R
 \name{list_md_user_instance}
 \alias{list_md_user_instance}
-\title{Title}
+\title{List motherduck user's instance settings}
 \usage{
 list_md_user_instance(user_name, motherduck_token = "MOTHERDUCK_TOKEN")
 }
 \arguments{
 \item{user_name}{mother duck user name}
 
-\item{motherduck_token}{mother duck token or environment name}
+\item{motherduck_token}{admin's motherduck user's instance}
+}
+\value{
+tibble
 }
 \description{
-Title
+List motherduck user's instance settings
 }

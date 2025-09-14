@@ -2,9 +2,12 @@
 
 S3method(summary,tbl_lazy)
 export(cd)
+export(configure_md_user_settings)
 export(connect_to_motherduck)
-export(convert_to_seconds)
+export(create_md_access_token)
+export(create_md_user)
 export(create_or_replace_database)
+export(delete_md_access_token)
 export(delete_md_user)
 export(install_extensions)
 export(list_database)

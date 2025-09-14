@@ -2,7 +2,7 @@
 % Please edit documentation in R/api.R
 \name{list_md_user_tokens}
 \alias{list_md_user_tokens}
-\title{Title}
+\title{List a motherduck user's tokens}
 \usage{
 list_md_user_tokens(user_name, motherduck_token = "MOTHERDUCK_TOKEN")
 }
@@ -17,5 +17,5 @@ list_md_user_tokens(user_name, motherduck_token = "MOTHERDUCK_TOKEN")
 tibble
 }
 \description{
-Title
+List a motherduck user's tokens
 }

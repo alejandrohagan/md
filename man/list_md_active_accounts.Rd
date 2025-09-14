@@ -2,16 +2,16 @@
 % Please edit documentation in R/api.R
 \name{list_md_active_accounts}
 \alias{list_md_active_accounts}
-\title{Title}
+\title{List activee motherduck accounts}
 \usage{
 list_md_active_accounts(motherduck_token = "MOTHERDUCK_TOKEN")
 }
 \arguments{
-\item{motherduck_token}{}
+\item{motherduck_token}{admin user's token}
 }
 \value{
-list
+tibble
 }
 \description{
-Title
+List activee motherduck accounts
 }
