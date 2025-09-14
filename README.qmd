@@ -19,7 +19,7 @@ load_all()
 
 ```
 
-![](man/figures/md_logo.png){width=40%}
+![A logo of mother duck with her child](man/figures/md_logo.png){width=40%}
 
 
 # Developer notes
