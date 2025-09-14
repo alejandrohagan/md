@@ -19,39 +19,6 @@ load_all()
 
 ```
 
-![A logo of mother duck with her child](man/figures/md_logo.png){width=40%}
-
-
-# Developer notes
--   create_or_replace_database doesn't work if its local or temp database only mother duck -- need to generalize logic
-    -   create subfunctions so we can use cli to showcase what is going on
-        -   need a function that returns a connection type eg local vs. md
-        -   If MD then do create or replace function
-        -   if not MD then simply do create schema, create table function
-        -   perhaps work backwards from create table?
--    update and complete function documentation 
--   create tests with describes
--   update documentation with more examples
-    -   how to create a database
-    -   how to upload existing data
-    -   how to move data around in a database
-    -   database admin options
-    -   how to upload data from source files w/o reading it locally
-        -   how to install extensions
-        -   csv
-        -   parquet
-        -   excel
-        -   another database
-    -   How to manage a database (MD only)
-        -  add a user
-        -  manager user instance
-        -  create access tokens
-        -  delete a user
-        -  xxx
-    -   [case study 1](motherduck.com/blog/semantic-layer-duckdb-tutorial/)
-    -   [case study 2](contoso package)
-    -   [case study 3](something machine learning)
-    
 ## Overview
 
 This is a collection of utilities to help with the management, administration and navigation of [duckdb](https://duckdb.org/) database either locally on your computer or in the cloud via [motherduck](https://motherduck.com/)
@@ -212,9 +179,6 @@ validate_md_connection_status(con_md)
 ![](access_token_md.png)
 
 :::
-
-
-
 
 When connecting to motherduck there are a number of configuration options available, you can reference them via the `md::db_config` which will pull a list of options and their default values
 
