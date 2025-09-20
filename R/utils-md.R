@@ -468,16 +468,21 @@ show_motherduck_token <- function(.con){
 #' @export
 create_or_replace_database <- function(.data,.con,database_name,schema_name,table_name,write_type="overwrite"){
 
-
   # Validate write_type
-  write_type <- rlang::arg_match(write_type)
+  write_type <- rlang::arg_match(write_type,values = c("overwrite","append"))
 
   # Validate the connection (assume this is a custom function)
   validate_con(.con)
 
-  # Create and connect to the database
-  DBI::dbExecute(.con, glue::glue_sql("CREATE DATABASE IF NOT EXISTS {`database_name`};", .con = .con))
-  DBI::dbExecute(.con, glue::glue_sql("USE {`database_name`};", .con = .con))
+  md_con_indicator <- validate_md_connection_status(.con,return_type="arg")
+
+  if(md_con_indicator){
+    # Create and connect to the database
+    DBI::dbExecute(.con, glue::glue_sql("CREATE DATABASE IF NOT EXISTS {`database_name`};", .con = .con))
+    DBI::dbExecute(.con, glue::glue_sql("USE {`database_name`};", .con = .con))
+
+  }
+
   # Create schema
   DBI::dbExecute(.con, glue::glue_sql("CREATE SCHEMA IF NOT EXISTS {`schema_name`};", .con = .con))
   DBI::dbExecute(.con, glue::glue_sql("USE {`schema_name`};", .con = .con))
@@ -490,6 +495,12 @@ create_or_replace_database <- function(.data,.con,database_name,schema_name,tabl
     )
 
   # Use DBI::Id to ensure schema is used explicitly
+
+  if(!md_con_indicator){
+
+    database_name <- pwd(.con)$current_database
+  }
+
   table_id <- DBI::Id(database=database_name,schema = schema_name, table = table_name)
 
   # Write table
@@ -504,6 +515,136 @@ create_or_replace_database <- function(.data,.con,database_name,schema_name,tabl
   }
 
   cli::cli_alert_success("Successfully uploaded table {.val {schema_name}.{table_name}} to database {.val {database_name}}.")
+
+}
+
+#' Overwrite or append tibble to motherduck database
+#'
+#' @param .data tibble
+#' @param .con duckdb connection
+#' @param database_name name of database
+#' @param schema_name name of schema
+#' @param table_name name of table
+#' @param write_type overwrite or append
+#'
+#' @returns nothing
+#' @export
+create_schema <- function(.con,database_name,schema_name){
+
+  # Validate write_type
+  # write_type <- rlang::arg_match(write_type,values = c("overwrite","append"))
+
+  # validate_con(.con)
+
+  md_con_indicator <- validate_md_connection_status(.con,return_type="arg")
+
+  if(md_con_indicator){
+    # Create and connect to the database
+    DBI::dbExecute(.con, glue::glue_sql("USE {`database_name`};", .con = .con))
+  }
+
+  # Create schema
+  DBI::dbExecute(.con, glue::glue_sql("CREATE SCHEMA IF NOT EXISTS {`schema_name`};", .con = .con))
+  DBI::dbExecute(.con, glue::glue_sql("USE {`schema_name`};", .con = .con))
+
+
+  # Use DBI::Id to ensure schema is used explicitly
+
+  if(!md_con_indicator){
+
+    database_name <- pwd(.con)$current_database
+  }
+
+  table_id <- DBI::Id(database=database_name,schema = schema_name)
+
+  cli::cli_alert_success("Successfully created schema {.val {schema_name}} to database {.val {database_name}}.")
+
+}
+
+
+
+
+
+
+
+#' Overwrite or append tibble to motherduck database
+#'
+#' @param .con duckdb connection
+#' @param database_name name of database
+#' @param schema_name name of schema
+#'
+#' @returns message
+#' @export
+create_or_replace_schema <- function(.con,database_name,schema_name){
+
+  # Validate write_type
+
+  # validate_con(.con)
+
+  md_con_indicator <- validate_md_connection_status(.con,return_type="arg")
+
+  if(md_con_indicator){
+    # Create and connect to the database
+    DBI::dbExecute(.con, glue::glue_sql("USE {`database_name`};", .con = .con))
+  }
+
+  # Create schema
+  DBI::dbExecute(.con, glue::glue_sql("DROP SCHEMA IF EXISTS {`schema_name`} CASCADE;", .con = .con))
+  DBI::dbExecute(.con, glue::glue_sql("CREATE SCHEMA IF NOT EXISTS {`schema_name`};", .con = .con))
+  DBI::dbExecute(.con, glue::glue_sql("USE {`schema_name`};", .con = .con))
+
+
+  # Use DBI::Id to ensure schema is used explicitly
+
+  if(!md_con_indicator){
+
+    database_name <- pwd(.con)$current_database
+  }
+
+  table_id <- DBI::Id(database=database_name,schema = schema_name)
+
+  cli::cli_alert_success("Successfully created schema {.val {schema_name}} to database {.val {database_name}}.")
+
+}
+
+
+
+#' Overwrite or append tibble to motherduck database
+#'
+#' @param .con duckdb connection
+#' @param database_name name of database
+#' @param schema_name name of schema
+#'
+#' @returns nothing
+#' @export
+create_schema <- function(.con,database_name,schema_name){
+
+  # Validate write_type
+
+  # validate_con(.con)
+
+  md_con_indicator <- validate_md_connection_status(.con,return_type="arg")
+
+  if(md_con_indicator){
+    # Create and connect to the database
+    DBI::dbExecute(.con, glue::glue_sql("USE {`database_name`};", .con = .con))
+  }
+
+  # Create schema
+  DBI::dbExecute(.con, glue::glue_sql("CREATE SCHEMA IF NOT EXISTS {`schema_name`};", .con = .con))
+  DBI::dbExecute(.con, glue::glue_sql("USE {`schema_name`};", .con = .con))
+
+
+  # Use DBI::Id to ensure schema is used explicitly
+
+  if(!md_con_indicator){
+
+    database_name <- pwd(.con)$current_database
+  }
+
+  table_id <- DBI::Id(database=database_name,schema = schema_name)
+
+  cli::cli_alert_success("Successfully created schema {.val {schema_name}} to database {.val {database_name}}.")
 
 }
 
@@ -785,7 +926,7 @@ summary.tbl_lazy <- function(.data){
 #' @examples
 #' #' con <- DBI::dbConnect(duckdb::duckdb())
 #' lmd(con,type='database')
-list_database<- function(.con){
+list_databases<- function(.con){
 
 
 
@@ -821,7 +962,7 @@ list_database<- function(.con){
 #' @examples
 #' #' con <- DBI::dbConnect(duckdb::duckdb())
 #' lmd(con,type='database')
-list_schema<- function(.con){
+list_schemas<- function(.con){
 
 
 
@@ -853,6 +994,7 @@ list_schema<- function(.con){
     )
 
 }
+
 #' list database objects
 #'
 #' @param .con connection
@@ -863,8 +1005,7 @@ list_schema<- function(.con){
 #'
 #' @examples
 #' #' con <- DBI::dbConnect(duckdb::duckdb())
-#' lmd(con,type='database')
-list_table<- function(.con){
+list_current_tables<- function(.con){
 
 
   assertthat::assert_that(
@@ -896,6 +1037,51 @@ list_table<- function(.con){
     )
 
 }
+
+
+
+#' list database objects
+#'
+#' @param .con connection
+#' @param type 'database', 'schema' or 'views'
+#'
+#' @returns tibble
+#' @export
+#'
+#' @examples
+#' #' con <- DBI::dbConnect(duckdb::duckdb())
+#' list_all_tables(con,type='database')
+list_all_tables<- function(.con){
+
+
+  assertthat::assert_that(
+    validate_con(.con)
+  )
+
+
+
+  tables_dbi <-
+    dplyr::tbl(
+      .con
+      ,dplyr::sql("
+    SELECT DISTINCT
+    table_catalog
+    ,table_schema
+    ,table_name
+    FROM
+    information_schema.tables
+    WHERE
+    TRUE
+")
+    )
+
+  suppressWarnings(
+    return(tables_dbi)
+  )
+
+}
+
+
 
 
 #' @title Upload a local database to motherduck
@@ -1004,6 +1190,14 @@ create_share <- function(.con,database_name,share_name,access,visibility,update)
 }
 
 
+#' Title
+#'
+#' @param .con
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 list_shares <- function(.con){
 
   out <- DBI::dbGetQuery(
@@ -1015,6 +1209,27 @@ list_shares <- function(.con){
   return(out)
 
 }
+
+move_table_between_schemas <- function(.con, old_schema, new_schema, table_name) {
+
+  schema_exists <- DBI::dbGetQuery(.con, glue::glue("SELECT EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = '{new_schema}');"))
+
+  # If the schema doesn't exist, create it
+  if (!schema_exists$exists) {
+    DBI::dbExecute(.con, glue::glue("CREATE SCHEMA {`new_schema`};"))
+    cli::cli_alert_info("Schema {.val {new_schema}} did not exist. It has been created.")
+  }
+
+
+  # Build SQL query to move the table
+  sql <- glue::glue("ALTER TABLE {`old_schema`}.{`table_name`} SET SCHEMA {`new_schema`};")
+
+  # Execute the query to move the table
+  DBI::dbExecute(.con, sql)
+
+  cli::cli_alert_success("Table {.val {table_name}} has been moved from {.val {old_schema}} to {.val {new_schema}}.")
+}
+
 
 
 #' Title
@@ -1044,6 +1259,95 @@ delete_database <- function(
 
 
 
+
+#' Title
+#'
+#' @param .con
+#' @param table_name
+#' @param to_database_name
+#' @param to_schema
+#'
+#' @returns
+#' @export
+#'
+#' @examples
+copy_table_to_database <- function(.con,table_name,to_database_name,to_schema){
+
+  md_con_indicator <- validate_md_connection_status(.con,return_type="arg")
+
+  if(md_con_indicator){
+    # Create and connect to the database
+    DBI::dbExecute(.con, glue::glue_sql("CREATE DATABASE IF NOT EXISTS {`to_database_name`};", .con = .con))
+    # DBI::dbExecute(.con, glue::glue_sql("USE {`to_database_name`};", .con = .con))
+
+  }
+
+  # Create schema
+  DBI::dbExecute(.con, glue::glue_sql("CREATE SCHEMA IF NOT EXISTS {`to_schema`};", .con = .con))
+  # DBI::dbExecute(.con, glue::glue_sql("USE {`to_schema`};", .con = .con))
+
+  if(!md_con_indicator){
+
+    database_name <- pwd(.con)$current_database
+
+  }
+
+  # get table attributes
+  from_table_attributes <- return_table_attributes(.con=.con,table_name = table_name)
+
+  #create ID
+
+  to_db <- DBI::Id(database=to_datbase_name,schema=to_schema,table=table_name)
+  from_db <- DBI::Id(database=from_table_attributes$table_catalog,schema=from_table_attributes$table_schema,table=table_name)
+
+  purrr::map2(
+    .x=to_db
+    ,.y=from_db
+    ,.f =\(.x,.y) DBI::dbExecute(.con,glue::glue_sql("CREATE TABLE {.x} AS   SELECT * FROM {.y};",.con=.con))
+  )
+
+
+}
+
+
+#' Title
+#'
+#' @param .con
+#' @param table_name
+#'
+#' @returns
+#' @export
+#'
+#' @examples
+return_table_attributes <- function(.con,table_name){
+
+    out <- DBI::dbGetQuery(
+      .con
+      ,glue::glue_sql(
+      "SELECT table_catalog, table_schema, table_name
+     FROM information_schema.tables
+     WHERE table_name IN ({table_name_vec*})"
+      ,.con = .con
+      )
+    )
+      return(out)
+
+    }
+
+
+
+
+#' Title
+#'
+#' @param .con
+#' @param database_name
+#' @param schema_name
+#' @param cascade
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 delete_schema <- function(
     .con,
     database_name,

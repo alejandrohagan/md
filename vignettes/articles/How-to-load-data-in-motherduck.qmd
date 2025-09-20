@@ -5,6 +5,7 @@ title: "How to load data in motherduck"
 
 ```{r setup}
 library(md)
+library(tidyverse)
 ```
 
 
@@ -44,16 +45,18 @@ The different is create_or_replace_database() gives you more control on the data
 
 
 
-con_md <- md::connect_to_motherduck("MOTHERDUCK_TOKEN") #<1>
+temp_con <- DBI::dbConnect(duckdb::duckdb()) #<1>
 
 ggplot2::diamonds |>  #<2>
     md::create_or_replace_database(
-        .con = con_md #<3>
+        .con = temp_con #<3>
         ,database_name = "work_please4" #<4>
-        ,schema_name = "main" #<5>
-        ,table_name = "diamonds3" #<6>
+        ,schema_name = "new" #<5>
+        ,table_name = "diamonds" #<6>
         ,write_type="overwrite"  #<7>
         )
+
+
 
 ```
 
@@ -63,14 +66,22 @@ ggplot2::diamonds |>  #<2>
 4. database name (either new or existing)
 5. schema name
 6. table name
-7.  Either overwrite or append the data
+7. Either overwrite or append the data
 
 
 
-Notice that we don't assign this object to anything, this just silently writes our data to our database, to validate the data is in our dtabase, we can do the following:
+Notice that we don't assign this object to anything, this just silently writes our data to our database, to validate the data is in our database, we can do the following:
 
 We can validate if we have successfully saved the table in our database by running `list_tables()`
 
+::: {.callout-note}
+## Duckdb vs. Motherduck
+
+If you have a local file or in memory duckdb connection, then you can't create a new database but this function will still work but it will just ignore the database_name you supply it and instead take the name of your current connection.
+
+This is because a your local file / in memory connection is the database -- you can't create or replace a database on top of that. However in motherduck you can create multiple databases.
+
+:::
 
 ```{r}
 #| label: list-tables-example
@@ -80,7 +91,7 @@ We can validate if we have successfully saved the table in our database by runni
 #| message: false
 #| include: true
 
-list_table(con_md)
+list_all_tables(temp_con)
 ```
 
 After running these functions, we can see our table - ready for us to query it. 
@@ -94,11 +105,47 @@ Let's say we want to filter and summarize this table and save it to a new schema
 ```{r}
 #| eval: false
 
+
+id_name <- DBI::Id("new","diamonds")
+
+diamonds_summary_tbl <- tbl(temp_con,id_name) |> 
+    summarise(
+        .by=c(color,cut)
+        ,mean_price=mean(price)
+    )
+
+diamonds_summary_tbl |> 
+    collect() |> 
+create_or_replace_database(
+    .con = temp_con
+    ,database_name = "memory"
+    ,schema_name = "curated"
+    ,table_name = "diamonds_summary"
+    ,write_type = "overwrite"
+)
+
+list_all_tables(temp_con)
+```
+
+## create new schema
+
+
+```{r}
+create_or
 ```
 
 
-What if we want to delete or move a database, schema or table?
+## move tables between schemas and databases
 
+## drop databaes
 
-How to load data directly to motherduck?
+## how to load data directly into motherduck
 
+-   from csv
+-   from excel
+-   from parquet
+-   from local database
+-   from hf
+-   from httpfs
+
+## how to 
