@@ -21,6 +21,6 @@ Installs and loads valid DuckDB extensions
 }
 \examples{
 con <- DBI::dbConnect(duckdb::duckdb())
-install_extensions(con,'motherduck',silent_msg=TRUE)
+load_extensions(con,'motherduck')
 
 }

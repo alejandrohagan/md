@@ -358,13 +358,13 @@ install_extensions <- function(.con,extension_names){
 #'
 #' @examples
 #' con <- DBI::dbConnect(duckdb::duckdb())
-#' install_extensions(con,'motherduck',silent_msg=TRUE)
+#' load_extensions(con,'motherduck')
 #'
 load_extensions <- function(.con,extension_names){
 
-  # extension_names <- c("fts")
+  # extension_names <- c("motherduck")
   # silent_msg <- TRUE
-  # .con
+  # .con <- connect_to_motherduck()
 
   # assertthat::assert_that(is.logical(silent_msg),msg = "silent_msg must be TRUE or FALSE")
 
@@ -384,6 +384,7 @@ load_extensions <- function(.con,extension_names){
   # validate_extension_install_status(.con,ext_lst$valid_ext,return_type = "arg")
 
   if(!validate_extension_install_status(.con,ext_lst$valid_ext,return_type = "arg")){
+
 
     purrr::map(
       ext_lst$valid_ext
@@ -427,9 +428,10 @@ load_extensions <- function(.con,extension_names){
     cli::cli_text("See {.url https://duckdb.org/docs/stable/extensions/overview.html} for more information")
     cli::cli_end()
   }
-  # if(!silent_msg){
+
+
     cli_ext_status_msg()
-  # }
+
 
 }
 
@@ -467,85 +469,41 @@ show_motherduck_token <- function(.con){
 create_or_replace_database <- function(.data,.con,database_name,schema_name,table_name,write_type="overwrite"){
 
 
-    # motherduck_token <- Sys.getenv(motherduck_token)
-    #
-    # if(!DBI::dbIsValid(con)){
-    #
-    #   con <- DBI::dbConnect(duckdb::duckdb(),":mem:",list(motherduck_token=motherduck_token))
-    #
-    # }
+  # Validate write_type
+  write_type <- rlang::arg_match(write_type)
 
-    # DBI::dbExecute(con, "LOAD 'motherduck';")
-
-
-  .con <- con_tmp
-  database_name <- "test_db"
-  schema_name <- "raw"
-  table_name <- "diamonds"
-  .data <- diamonds
-
-    # check that existing has loaded correctly
+  # Validate the connection (assume this is a custom function)
   validate_con(.con)
 
-  # validate_md_connection_status(.con,return_type = "arg")
+  # Create and connect to the database
+  DBI::dbExecute(.con, glue::glue_sql("CREATE DATABASE IF NOT EXISTS {`database_name`};", .con = .con))
+  DBI::dbExecute(.con, glue::glue_sql("USE {`database_name`};", .con = .con))
+  # Create schema
+  DBI::dbExecute(.con, glue::glue_sql("CREATE SCHEMA IF NOT EXISTS {`schema_name`};", .con = .con))
+  DBI::dbExecute(.con, glue::glue_sql("USE {`schema_name`};", .con = .con))
 
-    # database_name <- "tsa"
-    # create_db_query <- paste0("CREATE DATABASE IF NOT EXISTS ",database_name,";")
-    # use_db_query <- paste0("USE ",database_name,"; ")
+  # Add audit fields
+  out <- .data |>
+    dplyr::mutate(
+      upload_date = Sys.Date(),
+      upload_time = format(Sys.time(), "%H:%M:%S")
+    )
 
+  # Use DBI::Id to ensure schema is used explicitly
+  table_id <- DBI::Id(database=database_name,schema = schema_name, table = table_name)
 
-    # schema_name <- "main"
+  # Write table
+  if (write_type == "overwrite") {
 
-    create_schema_query <- paste0(
-      # use_db_query
-      "CREATE SCHEMA IF NOT EXISTS "
-      ,schema_name
-      ,";")
-    use_schema_query <- paste0("USE ",schema_name,";")
+    DBI::dbWriteTable(.con, name = table_id, value = out, overwrite = TRUE)
 
+  } else if (write_type == "append") {
 
-    create_table_query <- paste0(
-      # use_db_query
-      use_schema_query
-      )
+    DBI::dbWriteTable(.con, name = table_id, value = out, append = TRUE)
 
-    # create database
+  }
 
-    DBI::dbExecute(.con,create_db_query)
-    DBI::dbExecute(.con,create_schema_query)
-    DBI::dbExecute(.con,create_table_query)
-
-
-    #add upload date
-
-   out <-  .data |>
-      dplyr::mutate(
-        upload_date=Sys.Date()
-        ,upload_time=format(Sys.time(), "%H:%M:%S")
-      ) |>
-     tibble::as_tibble()
-   # upload data
-
-
-
-    # type <- "append"
-    write_type_vec <- rlang::arg_match(write_type,values=c("overwrite","append"))
-
-    if(write_type_vec=="overwrite"){
-
-        DBI::dbWriteTable(conn = .con,name = table_name,value = out,overwrite=TRUE)
-
-    cli::cli_alert_info("succesfully upload query")
-
-    }
-
-    if(write_type_vec=="append"){
-
-        DBI::dbWriteTable(conn = .con,name = table_name,value = out,append=TRUE)
-
-      cli::cli_alert_info("succesfully upload query")
-
-    }
+  cli::cli_alert_success("Successfully uploaded table {.val {schema_name}.{table_name}} to database {.val {database_name}}.")
 
 }
 
@@ -1056,6 +1014,52 @@ list_shares <- function(.con){
 
   return(out)
 
+}
+
+
+#' Title
+#'
+#' @param .con
+#' @param database_name
+#'
+#' @returns
+#' @export
+#'
+#' @examples
+delete_database <- function(
+    .con
+    ,database_name
+) {
+
+  # Drop the database (no need to ATTACH)
+  drop_db_sql <- glue::glue_sql(
+    "DROP DATABASE IF EXISTS {`database_name`};",
+    .con = .con
+  )
+
+  DBI::dbExecute(.con, drop_db_sql)
+
+  cli::cli_alert_success("💥 Dropped database {.val {md_db_name}}.")
+}
+
+
+
+delete_schema <- function(
+    .con,
+    database_name,
+    schema_name,
+    cascade = TRUE
+) {
+
+  # Drop the schema
+  drop_schema_sql <- glue::glue_sql(
+    "DROP SCHEMA IF EXISTS database_name.{`schema_name`} {DBI::SQL(if (cascade) 'CASCADE' else '')};",
+    .con = .con
+  )
+
+  DBI::dbExecute(.con, drop_schema_sql)
+
+  cli::cli_alert_success("🏗️ Dropped schema {.val {schema_name}} from MotherDuck DB {.val {database_name}}.")
 }
 
 utils::globalVariables(c("con", "extension_name", "installed", "loaded"))

@@ -10,7 +10,7 @@
 #' @export
 #'
 
-show_current_user <- function(motherduck_token="MOTHERDUCK_TOKEN",return="msg"){
+show_current_user <- function(.con,motherduck_token="MOTHERDUCK_TOKEN",return="msg"){
 
     return_valid_vec <- c("msg","arg")
 
@@ -21,9 +21,11 @@ show_current_user <- function(motherduck_token="MOTHERDUCK_TOKEN",return="msg"){
         ,error_arg ="return"
     )
 
-    # motherduck_token_env=validate_motherduck_token_env(motherduck_token)
+    if(missing(.con)){
 
    .con<-  suppressMessages(connect_to_motherduck(motherduck_token))
+
+    }
 
     current_user_tbl <- DBI::dbGetQuery(.con,"select current_user") |>
     tibble::as_tibble()
@@ -581,7 +583,7 @@ convert_to_seconds <- function(number,units){
 }
 
 
-#' @title Validate MD token type input
+#' @title Validate MD token type args
 #' @name validate_token_type
 #' @param token_type character vector either read_write or read_scaling
 #'
@@ -604,3 +606,282 @@ validate_token_type <- function(token_type){
 
 
 }
+
+#' @title Validate instance size args
+#' @name validate_instance_size
+#' @param instance_size select either "pulse", "standard", "jumbo", "mega", "giga"
+#'
+#' @returns character vector
+#'
+validate_instance_size <- function(instance_size){
+
+    valid_instance_size <- c("pulse", "standard", "jumbo", "mega", "giga")
+
+    instance_size_vec <- rlang::arg_match(
+        tolower(instance_size)
+        ,valid_instance_size
+        ,multiple = FALSE
+        ,error_arg = "instance_size"
+    )
+
+    return(instance_size_vec)
+
+}
+
+
+
+#' @title Validate flock size args
+#' @name validate_flock_size
+#' @param flock_size whole number between 0-60
+#'
+#' @returns integer
+#'
+validate_flock_size <- function(flock_size){
+
+    valid_flock_size <- 0:60
+
+    flock_size_int <- as_integer(flock_size)
+
+    assertthat::assert_that(
+        length(flock_size_int)==1
+        ,is.integer(flock_size_int)
+        ,flock_size_int %in% valid_flock_size
+        ,env = cli::cli_abort("Enter a single whole number between 0-60. You entered {flock_size}")
+    )
+
+
+    return(flock_size_int)
+
+}
+
+
+
+#' Title
+#'
+#' @param .con
+#' @param share_name
+#' @param database_name
+#' @param access
+#' @param visibility
+#' @param update
+#'
+#' @returns
+#' @export
+#'
+#' @examples
+create_or_replace_motherduck_share <- function(.con,
+                                    share_name,
+                                    database_name,
+                                    access        =  "PUBLIC",
+                                    visibility    = "LISTED",
+                                    update        =  "AUTOMATIC") {
+    # Validate arguments
+
+    valid_access_vec = c("RESTRICTED", "PUBLIC")
+    valid_visibility_vec = c("HIDDEN", "LISTED")
+    valid_update_vec = c("AUTOMATIC", "MANUAL")
+
+    assertthat::assert_that(
+        is.character(share_name)
+        ,is.character(database_name)
+    )
+
+    rlang::arg_match(
+        access
+        ,values = valid_access_vec
+        ,multiple = FALSE
+        ,error_arg = "access"
+    )
+
+    rlang::arg_match(
+        visibility
+        ,values = valid_visibility_vec
+        ,multiple = FALSE
+        ,error_arg = "visibility"
+    )
+
+
+    rlang::arg_match(
+        update
+        ,values = valid_visibility_vec
+        ,multiple = FALSE
+        ,error_arg = "update"
+    )
+
+
+    # Build SQL statement
+    query <- glue::glue("
+    CREATE OR REPLACE SHARE {share_name} FROM {database_name} (
+      ACCESS {access},
+      VISIBILITY {visibility},
+      UPDATE {update}
+    );
+  ")
+
+    show_current_user(.con=.con)
+    # Execute query
+    DBI::dbExecute(.con, query)
+}
+
+
+
+#' Title
+#'
+#' @param .con
+#' @param share_name
+#' @param database_name
+#' @param access
+#' @param visibility
+#' @param update
+#'
+#' @returns
+#' @export
+#'
+#' @examples
+create_if_not_exist_motherduck_share <- function(.con,
+                                               share_name,
+                                               database_name,
+                                               access        =  "PUBLIC",
+                                               visibility    = "LISTED",
+                                               update        =  "AUTOMATIC") {
+    # Validate arguments
+
+    valid_access_vec = c("RESTRICTED", "PUBLIC")
+    valid_visibility_vec = c("HIDDEN", "LISTED")
+    valid_update_vec = c("AUTOMATIC", "MANUAL")
+
+    assertthat::assert_that(
+        is.character(share_name)
+        ,is.character(database_name)
+    )
+
+    rlang::arg_match(
+        access
+        ,values = valid_access_vec
+        ,multiple = FALSE
+        ,error_arg = "access"
+    )
+
+    rlang::arg_match(
+        visibility
+        ,values = valid_visibility_vec
+        ,multiple = FALSE
+        ,error_arg = "visibility"
+    )
+
+
+    rlang::arg_match(
+        update
+        ,values = valid_visibility_vec
+        ,multiple = FALSE
+        ,error_arg = "update"
+    )
+
+
+    # Build SQL statement
+    query <- glue::glue("
+    CREATE IF NOT EXISTS {share_name} FROM {database_name} (
+      ACCESS {access},
+      VISIBILITY {visibility},
+      UPDATE {update}
+    );
+  ")
+
+    show_current_user(.con=.con)
+    # Execute query
+    DBI::dbExecute(.con, query)
+}
+
+
+
+
+
+
+#' @title Describe share
+#' @name describe_share
+#' @param .con connection
+#' @param share_path shared path name
+#'
+#' @returns tibble
+#' @export
+#'
+describe_share <- function(.con, share_path) {
+
+    assertthat::asserthat(
+        is.character(share_name)
+    )
+
+
+    # Build and run the query
+    query <- glue::glue("
+    SELECT *
+    FROM md_describe_database_share('{share_path}');
+  ")
+
+    # Return the result as a data frame
+    DBI::dbGetQuery(.con, query) |>
+        tibble::as_tibble()
+}
+
+
+
+#' Title
+#'
+#' @param .con
+#' @param share_name
+#' @param if_exists
+#'
+#' @returns
+#' @export
+#'
+#' @examples
+drop_motherduck_share <- function(.con, share_name, if_exists = TRUE) {
+
+    #validate inputs
+    validate_con(.con)
+
+    assertthat::asserthat(
+        is.character(share_name)
+    )
+
+    # Sanitize share_name by wrapping with double quotes
+    share_name_quoted <- DBI::dbQuoteIdentifier(.con, share_name)
+
+
+    # Build query with or without IF EXISTS
+    if_clause <- if (if_exists) "IF EXISTS" else ""
+
+    query <- glue::glue("DROP SHARE {if_clause} {share_name_quoted};")
+
+    show_current_user(.con)
+
+    DBI::dbExecute(con, query)
+}
+
+
+#' @title List all owned shares
+#' @name list_owned_shares
+#' @param .con motherduck connection
+#'
+#' @returns tibble
+#' @export
+#'
+list_owned_shares <- function(.con) {
+
+    DBI::dbGetQuery(con, "LIST SHARES;") |>
+        tibble::as_tibble()
+}
+
+#' @title List all shares that are shared with you
+#' @name list_shared_with_me_shares
+#' @param .con motherduck connection
+#'
+#' @returns tibble
+#' @export
+#'
+list_shared_with_me_shares <- function(.con) {
+
+    DBI::dbGetQuery(con, "select * from MD_INFORMATION_SCHEMA.SHARED_WITH_ME;") |>
+        tibble::as_tibble()
+}
+

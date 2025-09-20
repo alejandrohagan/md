@@ -1,41 +1,6 @@
 # My Project
 
 
-<img src="man/figures/md_logo.png" style="width:40.0%"
-alt="A logo of mother duck with her child" />
-
-# Developer notes
-
-- create_or_replace_database doesn’t work if its local or temp database
-  only mother duck – need to generalize logic
-  - create subfunctions so we can use cli to showcase what is going on
-    - need a function that returns a connection type eg local vs. md
-    - If MD then do create or replace function
-    - if not MD then simply do create schema, create table function
-    - perhaps work backwards from create table?
-- update and complete function documentation
-- create tests with describes
-- update documentation with more examples
-  - how to create a database
-  - how to upload existing data
-  - how to move data around in a database
-  - database admin options
-  - how to upload data from source files w/o reading it locally
-    - how to install extensions
-    - csv
-    - parquet
-    - excel
-    - another database
-  - How to manage a database (MD only)
-    - add a user
-    - manager user instance
-    - create access tokens
-    - delete a user
-    - xxx
-  - [case study 1](motherduck.com/blog/semantic-layer-duckdb-tutorial/)
-  - [case study 2](contoso%20package)
-  - [case study 3](something%20machine%20learning)
-
 ## Overview
 
 This is a collection of utilities to help with the management,
@@ -55,7 +20,7 @@ to understand syntax. {md} is built upon
 that you can further fully integrate your data with
 [dbplyr](https://dbplyr.tidyverse.org/)
 
-## future ambition
+## Future ambition
 
 Eventually, I’ll use the learning from this package to create a meta DB
 utilities package so that regardless if you’re in snowflake, DuckDB,
@@ -74,7 +39,7 @@ if you have any feedback.
 
 Below is a quick overview of the functions available in the package.
 
-### functions that help you manage your connection and database metadata
+### Functions that help you manage your connection and database metadata
 
 - `connect_to_motherduck()` will leverage your motherduck token to
   connect you to your motherduck instance (it will install the
@@ -90,7 +55,7 @@ Below is a quick overview of the functions available in the package.
 - `validate_extension_load_status()` will validate if an extension has
   been successfully loaded
 
-### functions that help you see what is in your databases
+### Functions that help you see what is in your databases
 
 - `pwd()` prints the current database that you are “in”
 - `cd()` will change your “root” database so any execution functions are
@@ -100,13 +65,13 @@ Below is a quick overview of the functions available in the package.
 - `list_table()`list the tables and their metadata
 - `list_view()`list the views and their metadata
 
-### functions that will help you read data into duckdb or motherduck
+### Functions that will help you read data into duckdb or motherduck
 
 - `read_httpfs()` will read httpfs file formats
 - `read_parquet()` will read parquet file formats
 - `read_excel()` will read excel files formats
 
-### functions that will help you create or replace databases, scehems, tables or views
+### Functions that will help you create or replace databases, scehems, tables or views
 
 - `create_or_replace_database()` will take R data and create a database
   with your data
@@ -119,21 +84,29 @@ Below is a quick overview of the functions available in the package.
 - `drop_table()` will delete a table from your databases
 - `drop_database()` will delete a database
 
-## functions to help you manage motherduck users, tokens, and instance settings
+## Functions to help you manage motherduck users, tokens, and instance settings
 
-- `list_md_active_accounts()`
-- `list_md_user_instance()`
-- `list_md_user_tokens()`
-- `show_current_user()`
-- `create_md_user()`
-- `delete_md_user()`
-- `create_md_access_token()`
-- `delete_md_access_token()`
-- `configure_md_user_settings()`
+- `list_md_active_accounts()` list users with active duckling instances
+  (note: will not list inactive users)
+- `list_md_user_instance()` list a user’s instance settings
+- `list_md_user_tokens()` list user’s tokens
+- `show_current_user()` show your current user name
+- `create_md_user()` create user or service account in your organization
+- `delete_md_user()` delete a user or service account
+- `create_md_access_token()` create an access token for a user
+- `delete_md_access_token()` delete an access token for a user
+- `configure_md_user_settings()` configure a user’s instance settings
 
-## functions to help you understand your data
+### Functions to help you understand your data
 
 - `summary()` will summarize your table or view’s data
+
+### Functions to help your read data
+
+- `read_excel()` will read an excel file formats directly to duckdb or
+  motherduck
+- `read_httpfs()` will read httpfs formats directly to duckdb or
+  motherduck
 
 ## What do I need to use this?
 
@@ -160,9 +133,9 @@ Below is a quick overview of the functions available in the package.
 >   locally on your computer or if you want to be able to access it
 >   remotely via the cloud
 
-# Lets see the package in action
+## Lets see the package in action
 
-## Create a duckdb instance and Connect to your motherduck account
+### Create a duckdb instance and Connect to your motherduck account
 
 When creating a duckdb database, you have three options
 
@@ -183,6 +156,19 @@ variable name[^1] and optional configuration options
 con_md <- connect_to_motherduck("MOTHERDUCK_TOKEN")
 ```
 
+    ── Extension Load & Install Report ─────────────────────────────────────────────
+
+    Installed and loaded 1 extension: motherduck
+
+    Use `list_extensions()` to list extensions, status and their descriptions
+
+    Use `install_extensions()` to install new duckdb extensions
+
+    See <https://duckdb.org/docs/stable/extensions/overview.html> for more
+    information
+
+    ✔ You are connected to MotherDuck
+
 This will return a connection and print statement indicating if
 connection status.
 
@@ -192,6 +178,8 @@ At any time you can validate your connection status with
 ``` r
 validate_md_connection_status(con_md)
 ```
+
+    ✔ You are connected to MotherDuck
 
 > [!NOTE]
 >
@@ -234,15 +222,14 @@ validate_md_connection_status(con_md)
 >
 > - This will use the [DBI](https://dbi.r-dbi.org/) library to create a
 >   connection to your mother duck instance
->
-> ![](access_token_md.png)
 
 When connecting to motherduck there are a number of configuration
 options available, you can reference them via the `md::db_config` which
 will pull a list of options and their default values
 
 To change these, simply edit the configuration options you want and then
-pass this as an argument
+pass the list as an argument `connect_to_motherduck()` or `duckdb()` if
+connecting locally
 
 You can see the full list of duckdb configuration options
 [here](https://duckdb.org/docs/stable/configuration/overview.html) or
@@ -251,6 +238,7 @@ configuration options.
 
 ``` r
 config <- md::db_config #<1> get list of default configuration options
+
 
 config$allow_community_extensions <- "true" #<2> change a default option
 
@@ -261,23 +249,7 @@ con_md <- connect_to_motherduck("MOTHERDUCK_TOKEN",config = config) #<3> pass th
 list_setting(con_md)
 ```
 
-    # A tibble: 10 × 5
-       name                                       value description input_type scope
-       <chr>                                      <chr> <chr>       <chr>      <chr>
-     1 access_mode                                auto… Access mod… VARCHAR    GLOB…
-     2 allocator_background_threads               false Whether to… BOOLEAN    GLOB…
-     3 allocator_bulk_deallocation_flush_thresho… 512.… If a bulk … VARCHAR    GLOB…
-     4 allocator_flush_threshold                  128.… Peak alloc… VARCHAR    GLOB…
-     5 allow_community_extensions                 true  Allow to l… BOOLEAN    GLOB…
-     6 allow_extensions_metadata_mismatch         false Allow to l… BOOLEAN    GLOB…
-     7 allow_persistent_secrets                   true  Allow the … BOOLEAN    GLOB…
-     8 allow_unredacted_secrets                   false Allow prin… BOOLEAN    GLOB…
-     9 allow_unsigned_extensions                  false Allow to l… BOOLEAN    GLOB…
-    10 allowed_directories                        []    List of di… VARCHAR[]  GLOB…
-
 Congratulations, you’ve set up your motherduck database!
-
-Now let’s load some data into it so we can play around with the options.
 
 If you’re new to databases, it will be helpful to have a basic
 understanding of database management - don’t worry the basics are
@@ -295,67 +267,5 @@ I found helpful.
 
 Please see the {md} package down website to see additional documentation
 on how to use the functions and motherduck
-
-I’m not going to cover data engineering or database management in any
-real depth mostly because I don’t know anything about it.
-
-For most of your workflow, you would follow a typical pattern:
-
-1.  Create a database, schema or table
-2.  Upload, update or amend data to your table
-3.  Query the data to do calculations, analytics or reference in
-    dashboards
-
-If you’re running a database that multiple users have access to (either
-through cloud or on a local server) then a typical workflow may be
-
-1.  Create a users with certain set of permissions and roles to a
-    database
-2.  Assign tokens / secrets to users so that they can access databaes
-    remotely
-3.  Manage database utilities such as scaling
-4.  Run analytics on your database metadata
-
-Let’s see these in action
-
-> [!NOTE]
->
-> ### DBI vs. md
->
-> These functions are mainly sugar syntax wrappers around the fabulous
-> DBI packages to stream and simplify common database queries.
-
-# Database adminstrative functions
-
-- list_extensions()
-
-- install_extensions()
-
-- load_extensions
-
-- validate_install_status
-
-- validate_load_status
-
-- show_duckdb_settings()
-
-- These are a collection of motherduck specific database utilities to
-  help you list, install and load duckdb extensions
-
-- the full list of extensions is available via duckdb community store
-  are listed
-  [here](https://duckdb.org/docs/stable/core_extensions/overview.html)
-
-- the `list_extensions()` will list duckdb extension from the community
-  store and list their status, install or loaded
-
-- you can use `install_extensions()` to install a new exnsion – this
-  will also automatically load the extension
-
-- If the extension is already install you can use xx
-
-``` r
-list_extensions(con)
-```
 
 [^1]: recommend you use `MOTHERDUCK_TOKEN` as your variable name

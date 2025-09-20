@@ -2,7 +2,7 @@
 % Please edit documentation in R/api.R
 \name{validate_token_type}
 \alias{validate_token_type}
-\title{Validate MD token type input}
+\title{Validate MD token type args}
 \usage{
 validate_token_type(token_type)
 }
@@ -13,5 +13,5 @@ validate_token_type(token_type)
 vector
 }
 \description{
-Validate MD token type input
+Validate MD token type args
 }

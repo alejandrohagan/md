@@ -4,7 +4,7 @@
 \alias{show_current_user}
 \title{Show current user}
 \usage{
-show_current_user(motherduck_token = "MOTHERDUCK_TOKEN", return = "msg")
+show_current_user(.con, motherduck_token = "MOTHERDUCK_TOKEN", return = "msg")
 }
 \arguments{
 \item{motherduck_token}{motherduck token}

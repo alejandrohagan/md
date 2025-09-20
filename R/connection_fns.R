@@ -104,9 +104,6 @@ connect_to_motherduck <- function(motherduck_token="MOTHERDUCK_TOKEN",config){
 
     motherduck_token_code <- Sys.getenv(motherduck_token)
 
-
-
-
     cli_msg <- function() {
         cli::cli_par()
         cli::cli_h1("Motherduck token status")
@@ -131,8 +128,7 @@ connect_to_motherduck <- function(motherduck_token="MOTHERDUCK_TOKEN",config){
     .con <- DBI::dbConnect(
         duckdb::duckdb(
             dbdir = tempfile()
-            ,config=
-                list(allow_community_extensions="true")
+            ,config=config
         )
     )
     }else{

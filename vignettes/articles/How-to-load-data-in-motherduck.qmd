@@ -1,0 +1,104 @@
+---
+title: "How to load data in motherduck"
+---
+
+
+```{r setup}
+library(md)
+```
+
+
+
+## Create a database
+
+Later on we will show examples of how to read data from a source file, eg. csv, parquet, excel, or even a different database, directly into duckdb but for now let's assume you want to upload some data that you already have loaded in your R environment.
+
+
+Before we get into that lets review quickly the three things you need to load data into a database:
+-   Database name
+    -   This is object that will hold your schemas, tables or views
+    -   Somtimes this may be called a catalog
+-   Schema name
+    -   This fancy name to classify and organize your tables, functions, procedures, etc
+-   Table or view name
+    -   This is the name of the actual table or view that holds your data
+    
+To save or reference data, you need to either fully qualify the name with `database_name.schema_name.table_name` or you need to be "in" your database and schema and reference the table name.
+
+If you uploaded data without creating a table or schema first then duckdb will assign "temp" and "main" as the default names for your database and schema respectively.
+
+The quickest and easiest way to get data into duckdb is either use:
+
+-   duckdb::register_duckdb()
+-   md::create_or_replace_database()
+
+The different is create_or_replace_database() gives you more control on the database name and schema name.
+
+```{r}
+#| label: create-or-replace-example
+#| echo: true
+#| eval: false
+#| warning: true
+#| message: true
+#| include: true
+
+
+
+con_md <- md::connect_to_motherduck("MOTHERDUCK_TOKEN") #<1>
+
+ggplot2::diamonds |>  #<2>
+    md::create_or_replace_database(
+        .con = con_md #<3>
+        ,database_name = "work_please4" #<4>
+        ,schema_name = "main" #<5>
+        ,table_name = "diamonds3" #<6>
+        ,write_type="overwrite"  #<7>
+        )
+
+```
+
+1. motherduck connection with your token
+2. Pass your data into the function
+3. List your motherduck connection
+4. database name (either new or existing)
+5. schema name
+6. table name
+7.  Either overwrite or append the data
+
+
+
+Notice that we don't assign this object to anything, this just silently writes our data to our database, to validate the data is in our dtabase, we can do the following:
+
+We can validate if we have successfully saved the table in our database by running `list_tables()`
+
+
+```{r}
+#| label: list-tables-example
+#| echo: true
+#| eval: false
+#| warning: false
+#| message: false
+#| include: true
+
+list_table(con_md)
+```
+
+After running these functions, we can see our table - ready for us to query it. 
+
+If you want to access your motherduck data, you can simply leverage` dplyr::tbl()` function with your motherduck connection to pull it and from there leverage the fantastic dbplyr package to use tidy verbs to perform additional functions
+
+## organizing our data
+
+Let's say we want to filter and summarize this table and save it to a new schema with a new name -- no problem, we can repeat the steps above this time with a new schema and reference name.
+
+```{r}
+#| eval: false
+
+```
+
+
+What if we want to delete or move a database, schema or table?
+
+
+How to load data directly to motherduck?
+
