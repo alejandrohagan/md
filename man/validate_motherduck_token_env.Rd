@@ -7,7 +7,7 @@
 validate_motherduck_token_env(motherduck_token = "MOTHERDUCK_TOKEN")
 }
 \arguments{
-\item{motherduck_token}{}
+\item{motherduck_token}{your motherduck token}
 }
 \value{
 character vector

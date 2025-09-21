@@ -2,7 +2,7 @@
 % Please edit documentation in R/api.R
 \name{delete_md_access_token}
 \alias{delete_md_access_token}
-\title{Title}
+\title{Delete MD user's access token}
 \usage{
 delete_md_access_token(
   user_name,
@@ -21,5 +21,5 @@ delete_md_access_token(
 tibble
 }
 \description{
-Title
+Delete MD user's access token
 }

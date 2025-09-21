@@ -86,9 +86,9 @@ check_resp_status_and_tidy_response <- function(resp,json_response,column_name1,
 }
 
 
-#' Validate if motherduck token in environment file
-#'
-#' @param motherduck_token
+#' @title Validate if motherduck token in environment file
+#' @name validate_motherduck_token_env
+#' @param motherduck_token your motherduck token
 #'
 #' @returns character vector
 #'
@@ -111,8 +111,7 @@ validate_motherduck_token_env <- function(motherduck_token="MOTHERDUCK_TOKEN"){
 
 
 
-
-#' @title List activee motherduck accounts
+#' @title List active motherduck accounts
 #' @name list_md_active_accounts
 #' @param motherduck_token admin user's token
 #'
@@ -191,9 +190,6 @@ list_md_user_tokens <- function(user_name,motherduck_token="MOTHERDUCK_TOKEN"){
     return(out)
 
 }
-
-
-
 
 
 #' @title List motherduck user's instance settings
@@ -423,8 +419,8 @@ create_md_access_token <- function(user_name,token_type,token_name,token_expirat
 
 }
 
-#' Title
-#'
+#' @title Delete MD user's access token
+#' @name delete_md_access_token
 #' @param user_name motherduck user name
 #' @param token_name motherduck token name
 #' @param motherduck_token admin user's token
@@ -457,12 +453,11 @@ delete_md_access_token <- function(user_name,token_name,motherduck_token="MOTHER
         ,column_name2 = "value"
     )
 
-
 }
 
 
 #' @title Configure motherduck user's settings
-#'
+#' @name configure_md_user_settings
 #' @param user_name motherduck user name
 #' @param motherduck_token user's access token
 #' @param token_type the to be token type
@@ -656,20 +651,19 @@ validate_flock_size <- function(flock_size){
 
 
 
-#' Title
+#' @@title Create or replace a motherduck share
 #'
-#' @param .con
-#' @param share_name
-#' @param database_name
-#' @param access
-#' @param visibility
-#' @param update
+#' @param .con md connection
+#' @param share_name shame name
+#' @param database_name database name to be shared
+#' @param access either "RESTRICTED" or "PUBLIC"
+#' @param visibility either "HIDDEN"or  "LISTED"
+#' @param update either "AUTOMATIC" or "MANUAL"
 #'
-#' @returns
+#' @returns message
 #' @export
 #'
-#' @examples
-create_or_replace_motherduck_share <- function(.con,
+create_or_replace_share <- function(.con,
                                     share_name,
                                     database_name,
                                     access        =  "PUBLIC",
@@ -725,25 +719,24 @@ create_or_replace_motherduck_share <- function(.con,
 
 
 
-#' Title
+#' Create a MD share of a database
+#' @name create_if_not_exists_share
+#' @param .con MD connection
+#' @param share_name new share name
+#' @param database_name target database
+#' @param access "RESTRICTED" or "PUBLIC"
+#' @param visibility "HIDDEN" or "LISTED"
+#' @param update "AUTOMATIC" or "MANUAL"
 #'
-#' @param .con
-#' @param share_name
-#' @param database_name
-#' @param access
-#' @param visibility
-#' @param update
-#'
-#' @returns
+#' @returns message
 #' @export
 #'
-#' @examples
-create_if_not_exist_motherduck_share <- function(.con,
-                                               share_name,
-                                               database_name,
-                                               access        =  "PUBLIC",
-                                               visibility    = "LISTED",
-                                               update        =  "AUTOMATIC") {
+create_if_not_exists_share <- function(.con,
+                         share_name,
+                         database_name,
+                         access        =  "PUBLIC",
+                         visibility    = "LISTED",
+                         update        =  "AUTOMATIC") {
     # Validate arguments
 
     valid_access_vec = c("RESTRICTED", "PUBLIC")
@@ -777,19 +770,21 @@ create_if_not_exist_motherduck_share <- function(.con,
         ,error_arg = "update"
     )
 
+    validate_md_connection_status(.con,return_type = "arg")
 
     # Build SQL statement
-    query <- glue::glue("
+   DBI::dbExecute(
+   .con
+   ,glue::glue_sql("
     CREATE IF NOT EXISTS {share_name} FROM {database_name} (
       ACCESS {access},
       VISIBILITY {visibility},
       UPDATE {update}
-    );
-  ")
+    );",.con=.con)
+    )
 
     show_current_user(.con=.con)
-    # Execute query
-    DBI::dbExecute(.con, query)
+
 }
 
 
@@ -813,49 +808,54 @@ describe_share <- function(.con, share_path) {
 
 
     # Build and run the query
-    query <- glue::glue("
-    SELECT *
-    FROM md_describe_database_share('{share_path}');
-  ")
+    out <-DBI::dbGetQuery(.con,glue::glue_sql("SELECT * FROM md_describe_database_share('{share_path}');",.con=.con)) |>
+      tibble::as_tibble()
 
     # Return the result as a data frame
-    DBI::dbGetQuery(.con, query) |>
-        tibble::as_tibble()
+    return(out)
 }
 
 
 
-#' Title
+#' @title Drop a MD share name
+#' @name drop_share
 #'
-#' @param .con
-#' @param share_name
-#' @param if_exists
+#' @param .con MD connection
+#' @param share_name Share name
 #'
-#' @returns
+#' @returns message
 #' @export
 #'
-#' @examples
-drop_motherduck_share <- function(.con, share_name, if_exists = TRUE) {
+drop_share <- function(.con, share_name) {
 
+  # .con <- con_md
+  # share_name <- "test"
     #validate inputs
-    validate_con(.con)
+    md::validate_md_connection_status(.con,return_type = "arg")
 
-    assertthat::asserthat(
+    assertthat::assert_that(
         is.character(share_name)
     )
 
     # Sanitize share_name by wrapping with double quotes
     share_name_quoted <- DBI::dbQuoteIdentifier(.con, share_name)
 
+    suppressWarnings(
+    valid_share_name <- unique(md::list_shares(.con)$name)
+    )
 
-    # Build query with or without IF EXISTS
-    if_clause <- if (if_exists) "IF EXISTS" else ""
+    if(any(share_name %in% valid_share_name)){
 
-    query <- glue::glue("DROP SHARE {if_clause} {share_name_quoted};")
+    DBI::dbExecute(.con,glue::glue_sql("DROP SHARE IF EXISTS {share_name_quoted};",.con=.con))
+
+    }else{
+
+      cli::cli_alert_warning("There is no share named {share_name}")
+
+    }
 
     show_current_user(.con)
 
-    DBI::dbExecute(con, query)
 }
 
 
@@ -868,7 +868,7 @@ drop_motherduck_share <- function(.con, share_name, if_exists = TRUE) {
 #'
 list_owned_shares <- function(.con) {
 
-    DBI::dbGetQuery(con, "LIST SHARES;") |>
+    DBI::dbGetQuery(.con, "LIST SHARES;") |>
         tibble::as_tibble()
 }
 
@@ -881,7 +881,7 @@ list_owned_shares <- function(.con) {
 #'
 list_shared_with_me_shares <- function(.con) {
 
-    DBI::dbGetQuery(con, "select * from MD_INFORMATION_SCHEMA.SHARED_WITH_ME;") |>
+    DBI::dbGetQuery(.con, "select * from MD_INFORMATION_SCHEMA.SHARED_WITH_ME;") |>
         tibble::as_tibble()
 }
 

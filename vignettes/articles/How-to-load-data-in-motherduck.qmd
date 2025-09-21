@@ -3,9 +3,17 @@ title: "How to load data in motherduck"
 ---
 
 
-```{r setup}
+```{r}
+#| label: setup
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
+
 library(md)
 library(tidyverse)
+load_all()
 ```
 
 
@@ -36,9 +44,9 @@ The quickest and easiest way to get data into duckdb is either use:
 The different is create_or_replace_database() gives you more control on the database name and schema name.
 
 ```{r}
-#| label: create-or-replace-example
+#| label: create-table
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: true
 #| message: true
 #| include: true
@@ -48,16 +56,13 @@ The different is create_or_replace_database() gives you more control on the data
 temp_con <- DBI::dbConnect(duckdb::duckdb()) #<1>
 
 ggplot2::diamonds |>  #<2>
-    md::create_or_replace_database(
+    create_table(
         .con = temp_con #<3>
-        ,database_name = "work_please4" #<4>
-        ,schema_name = "new" #<5>
+        ,database_name = "memory" #<4>
+        ,schema_name = "raw" #<5>
         ,table_name = "diamonds" #<6>
         ,write_type="overwrite"  #<7>
         )
-
-
-
 ```
 
 1. motherduck connection with your token
@@ -67,8 +72,6 @@ ggplot2::diamonds |>  #<2>
 5. schema name
 6. table name
 7. Either overwrite or append the data
-
-
 
 Notice that we don't assign this object to anything, this just silently writes our data to our database, to validate the data is in our database, we can do the following:
 
@@ -96,44 +99,120 @@ list_all_tables(temp_con)
 
 After running these functions, we can see our table - ready for us to query it. 
 
-If you want to access your motherduck data, you can simply leverage` dplyr::tbl()` function with your motherduck connection to pull it and from there leverage the fantastic dbplyr package to use tidy verbs to perform additional functions
+If you want to access your motherduck data, you can simply leverage` dplyr::tbl()` function with your motherduck connection to pull your data and from there leverage the fantastic dbplyr or dplyr package respectively to use tidy verbs to perform additional functions
 
 ## organizing our data
 
-Let's say we want to filter and summarize this table and save it to a new schema with a new name -- no problem, we can repeat the steps above this time with a new schema and reference name.
+Let's say we want to filter and summarize this table and save to our database new name -- no problem, we can repeat the steps and this time we will upload a DBI object instead of tibble.
 
 ```{r}
 #| eval: false
 
+id_name <- DBI::Id("raw","diamonds") #<1>
 
-id_name <- DBI::Id("new","diamonds")
-
-diamonds_summary_tbl <- tbl(temp_con,id_name) |> 
+diamonds_summary_tbl <- tbl(temp_con,id_name) |>  #<2>
     summarise(
-        .by=c(color,cut)
-        ,mean_price=mean(price)
+        .by=c(color,cut,clarity)
+        ,mean_price=mean(price,na.rm=TRUE)
     )
 
-diamonds_summary_tbl |> 
-    collect() |> 
-create_or_replace_database(
+diamonds_summary_tbl |>
+    create_table(   #<3>
     .con = temp_con
     ,database_name = "memory"
-    ,schema_name = "curated"
-    ,table_name = "diamonds_summary"
+    ,schema_name = "raw"
+    ,table_name = "diamonds_summary" 
     ,write_type = "overwrite"
 )
 
+```
+1. x
+2. y
+3. z
+
+
+While its the same syntax, create_table will work with an R objct or DBI object to save that table into your database. 
+
+We can validate the tables are correctly loaded with the below function
+
+```{r}
 list_all_tables(temp_con)
 ```
 
 ## create new schema
 
+Let's saw we want to organize these existing tables into different schema, we can do this by first creating a new schema and then moving that table or  alternatively loading a table directly with a new schema and table 
+
 
 ```{r}
-create_or
+#| label: new-schema
+#| echo: true
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
+
+    create_schema(
+        .con=temp_con
+        ,database_name = "memory"
+        ,schema_name = "curated"
+    )
 ```
 
+This will create a new schema if it doesn't exist but won't load any date.
+
+
+```{r}
+list_schemas(temp_con)
+list_all_tables(temp_con)
+pwd(temp_con)
+```
+::: {.callout-note}
+## default schemas
+Remember as default your duckdb will create a `main` schema even if you don't save any table to it
+If you are using duckdb then your database will default to "memory" or the file-path that you selected
+:::
+
+We can copy one of tables to our schema with 
+
+```{r}
+
+md::copy_table_to_database(
+    .con = temp_con
+    ,table_name = "diamonds_summary"
+    ,to_database_name = "memory"
+    ,to_schema = "curated"
+    )
+```
+
+There's a complimentary functio called `create_or_repalce_schema` which will also create a schema the different is if there is already a schema with that name it will delete that schema and any tables saved under it.
+```{r}
+
+```
+
+
+```{r}
+create_or_replace_schema(.con = temp_con,database_name = "memory",schema_name = "raw")
+```
+
+This will delete your old schema and any tables under the schema and replace with a new / empty schema
+
+
+# lets load data into the new schema 
+
+```{r}
+diamonds |> 
+    create_table()
+```
+
+
+```{r}
+
+list_all_tables(.con=temp_con)
+
+
+
+```
 
 ## move tables between schemas and databases
 

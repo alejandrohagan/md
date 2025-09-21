@@ -7,7 +7,10 @@
 list_shares(.con)
 }
 \arguments{
-\item{.con}{}
+\item{.con}{connection}
+}
+\value{
+message
 }
 \description{
 Title

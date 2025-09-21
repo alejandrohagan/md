@@ -2,7 +2,7 @@
 % Please edit documentation in R/api.R
 \name{list_md_active_accounts}
 \alias{list_md_active_accounts}
-\title{List activee motherduck accounts}
+\title{List active motherduck accounts}
 \usage{
 list_md_active_accounts(motherduck_token = "MOTHERDUCK_TOKEN")
 }
@@ -13,5 +13,5 @@ list_md_active_accounts(motherduck_token = "MOTHERDUCK_TOKEN")
 tibble
 }
 \description{
-List activee motherduck accounts
+List active motherduck accounts
 }
