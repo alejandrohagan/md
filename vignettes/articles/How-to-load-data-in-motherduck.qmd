@@ -136,6 +136,12 @@ While its the same syntax, create_table will work with an R objct or DBI object 
 We can validate the tables are correctly loaded with the below function
 
 ```{r}
+#| label: list-all-tables1
+#| echo: true
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
 list_all_tables(temp_con)
 ```
 
@@ -163,68 +169,126 @@ This will create a new schema if it doesn't exist but won't load any date.
 
 
 ```{r}
+#| label: list-schemas
+#| echo: true
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
+
 list_schemas(temp_con)
-list_all_tables(temp_con)
-pwd(temp_con)
+
 ```
 ::: {.callout-note}
 ## default schemas
 Remember as default your duckdb will create a `main` schema even if you don't save any table to it
 If you are using duckdb then your database will default to "memory" or the file-path that you selected
+
+Also note that in duckdb you can't delete main schema either
 :::
 
 We can copy one of tables to our schema with 
 
-```{r}
 
-md::copy_table_to_database(
-    .con = temp_con
-    ,table_name = "diamonds_summary"
-    ,to_database_name = "memory"
-    ,to_schema = "curated"
+```{r}
+tables_to_move_tbl <- list_all_tables(temp_con) |> 
+    collect() |> 
+    dplyr::filter(
+        table_name=="diamonds_summary"
     )
 ```
 
-There's a complimentary functio called `create_or_repalce_schema` which will also create a schema the different is if there is already a schema with that name it will delete that schema and any tables saved under it.
-```{r}
 
+```{r}
+#| label: copy-tabl-to-location
+#| echo: true
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
+
+
+
+
+md::copy_tables_to_new_location(
+    .con = temp_con
+    ,from_table_names = tables_to_move_tbl
+    ,to_database_name = "memory"
+    ,to_schema_name = "curated"
+    )
+```
+
+There's a complimentary function called `create_or_repalce_schema` which will also create a schema the different is if there is already a schema with that name it will delete that schema and any tables saved under it.
+
+```{r}
+list_schemas(temp_con)
 ```
 
 
-```{r}
-create_or_replace_schema(.con = temp_con,database_name = "memory",schema_name = "raw")
-```
+Alternative you can just alter the exiting schema of your table
+
 
 This will delete your old schema and any tables under the schema and replace with a new / empty schema
 
+## drop databaes, schemas or tables
 
-# lets load data into the new schema 
+Sometimes we need to delete databases, schemas or tables. 
 
-```{r}
-diamonds |> 
-    create_table()
-```
-
+Be careful when you do this as its irreversible -- there is no CTRL+Z to undo this. 
 
 ```{r}
+#| label: var
+#| echo: true
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
 
-list_all_tables(.con=temp_con)
-
-
-
+delete_schema(temp_con,database_name = "memory",schema_name = "raw",cascade = TRUE)
 ```
 
-## move tables between schemas and databases
+```{r}
+list_all_tables(temp_con)
+```
 
-## drop databaes
 
 ## how to load data directly into motherduck
 
--   from csv
+
+
+```{r}
+#| label: read-csv
+#| echo: true
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
+
+write.csv(mtcars,"mtcars.csv")
+
+# cd(schema = "raw")
+
+duckdb::duckdb_read_csv(conn = temp_con,files = "mtcars.csv",name = "mtcars")
+
+
+
+
+```
+
+
+```{r}
+
+
+```
+
 -   from excel
 -   from parquet
 -   from local database
 -   from hf
 -   from httpfs
 
-## how to 
+## attach a local database to MD or an MD database to local DB
+
+
+
+

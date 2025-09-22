@@ -386,7 +386,7 @@ delete_schema <- function(
 
     # Drop the schema
     drop_schema_sql <- glue::glue_sql(
-        "DROP SCHEMA IF EXISTS database_name.{`schema_name`} {DBI::SQL(if (cascade) 'CASCADE' else '')};",
+        "DROP SCHEMA IF EXISTS {`database_name`}.{`schema_name`} {DBI::SQL(if (cascade) 'CASCADE' else '')};",
         .con = .con
     )
 
@@ -447,6 +447,9 @@ copy_tables_to_new_location <- function(.con,from_table_names,to_database_name,t
       DBI::Id(database_name=to_database_name,schema_name=to_schema_name,table_name=.x)
     }
   )
+
+  from_db <- from_table_names |>
+    convert_table_to_sql_id()
 
   map2(
     .x=to_db
