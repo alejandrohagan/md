@@ -1,6 +1,6 @@
 ## code to prepare `excel_config` dataset goes here
 
-excel_config <- tribble(
+config_excel <- tribble(
     ~option,            ~type,     ~default,                  ~description,
     "header",           "BOOLEAN", "automatically inferred",  "Whether to treat the first row as containing the names of the resulting columns.",
     "sheet",            "VARCHAR", "automatically inferred",  "The name of the sheet in the xlsx file to read. Default is the first sheet.",
@@ -12,4 +12,4 @@ excel_config <- tribble(
 )
 
 
-usethis::use_data(excel_config, overwrite = TRUE)
+usethis::use_data(config_excel, overwrite = TRUE)

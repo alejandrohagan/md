@@ -23,8 +23,11 @@ read_excel_duckdb <- function(.con,to_database_name,to_schema_name,to_table_name
 
     md::load_extensions(temp_con,"excel")
 
+    DBI::dbExecute(conn = .con,glue::glue_sql("USE {`to_database_name`}",.con=.con))
 
-    DBI::dbExecute(conn = .con,glue::glue_sql("CREATE TABLE starwars AS SELECT * FROM read_xlsx({`file_path`});",.con = .con))
+    DBI::dbExecute(conn = .con,glue::glue_sql("USE {`to_schema_name`}",.con=.con))
+
+    DBI::dbExecute(conn = .con,glue::glue_sql("CREATE TABLE {`to_table_name`} AS SELECT * FROM read_xlsx({`file_path`});",.con = .con))
 
 
 }

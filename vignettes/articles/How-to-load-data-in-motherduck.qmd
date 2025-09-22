@@ -224,6 +224,25 @@ There's a complimentary function called `create_or_repalce_schema` which will al
 list_schemas(temp_con)
 ```
 
+# how to navigate around your databases or schemas
+
+-pwd() this will help you know where you "are" and is inspired by the linux command to print working diretory (but in this case print working database)
+
+If you were to create a new table, or upload a new schema, etc -- it would show up here
+
+to navigate around, you can also use a linux inspired function `cd()` which is change database. This will change your database or schema that you are "in"
+-cd()
+    
+```{r}
+
+pwd(temp_con)
+
+cd(temp_con,database = "memory",schema = "curated")
+
+
+```
+
+# developer notes -- need to make database arg options
 
 Alternative you can just alter the exiting schema of your table
 
@@ -270,25 +289,81 @@ write.csv(mtcars,"mtcars.csv")
 
 duckdb::duckdb_read_csv(conn = temp_con,files = "mtcars.csv",name = "mtcars")
 
+```
+for excel, parquet or httpfs file formats, we can leverage md read_excel_duckdb, read_parquet_duckdb() or read_httpfs_duckdb()
+
+```{r}
+    
+openxlsx::write.xlsx(starwars,"starwars.xlsx")
 
 
+
+read_excel_duckdb(
+    .con=temp_con
+    ,to_database_name = "memory"
+    ,to_schema_name = "raw"
+    ,to_table_name = "starwars"
+    ,file_path = "starwars.xlsx"
+    ,header = TRUE
+)
 
 ```
 
+We can add the following options directly to function to help with uploading the excel files. Note these are available in the documentation and via the build in datasets
+
+
+developer notes
+-   need to add functionality for options
+-   need to add print statements
+-   need to add create schema / create db if not available
+-   need to design robust print statements
+-   
 
 ```{r}
 
+```
+-   from parquet
 
+```{r}
+
+iris
+
+arrow::write_parquet(x = iris,sink = "iris.parquet")
+
+
+read_parquet_duckdb(temp_con,to_table_name = "iris",file_path =  "iris.parquet")
+
+
+
+list_all_tables(temp_con)
 ```
 
--   from excel
--   from parquet
--   from local database
--   from hf
+This will install and load the parquet extension and then go through the standard workflow of creating a table (and associated database / schema if not created) for your work
+
 -   from httpfs
+-   from local database to local databse
+-   from MD to local
+-   from local to md
 
-## attach a local database to MD or an MD database to local DB
 
+```{r}
+dbExecute(temp_con, "
+  CREATE VIEW test_view AS
+  SELECT *
+  from starwars
+")
+
+
+tbl(temp_con,"test_view")
+
+
+dbGetQuery(temp_con,
+"SELECT *
+FROM duckdb_views()
+WHERE view_name = 'test_view';") |>
+    collect() 
+    pull(sql)
+```
 
 
 

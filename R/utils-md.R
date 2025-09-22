@@ -619,7 +619,7 @@ cd <- function(.con,database,schema){
 
   validate_con(.con)
 
-  database_valid_vec <- list_database(.con) |>
+  database_valid_vec <- list_databases(.con) |>
     dplyr::pull(table_catalog)
 
   if(database %in% database_valid_vec){
@@ -642,8 +642,8 @@ cd <- function(.con,database,schema){
 
   if(!missing(schema)){
 
-  schema_valid_vec <- list_schema(.con) |>
-    dplyr::pull(table_schema)
+  schema_valid_vec <- list_schemas(.con) |>
+    dplyr::pull(schema_name)
 
 
 
