@@ -7,15 +7,18 @@
 create_or_replace_schema(.con, database_name, schema_name)
 }
 \arguments{
-\item{.con}{duckdb connection}
+\item{.con}{A DuckDB connection object. The database connection used to execute the SQL queries.}
 
-\item{database_name}{name of database}
+\item{database_name}{The name of the database where the schema should be created or replaced.}
 
-\item{schema_name}{name of schema}
+\item{schema_name}{The name of the schema to be created or replaced.}
 }
 \value{
 message
 }
 \description{
-Overwrite or append tibble to motherduck database
+This function drops an existing schema (if it exists) in the specified database and creates a new schema
+in that database. It first checks if a connection to Motherduck (via DuckDB) is valid. If the connection
+is active, it executes the necessary SQL commands to switch to the specified database and schema.
+It also generates a success message upon successfully creating the schema.
 }

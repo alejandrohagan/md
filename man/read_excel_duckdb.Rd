@@ -12,7 +12,7 @@ read_excel_duckdb(
   file_path,
   header,
   sheet,
-  all_var_char,
+  all_varchar,
   ignore_errors,
   range,
   stop_at_empty,

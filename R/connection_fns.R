@@ -66,6 +66,7 @@ validate_md_connection_status <- function(.con,return_type="msg"){
 
     }else{
 
+
         status_lst$msg <-\(x) cli::cli_alert_warning("You are not connected to MotherDuck")
         status_lst$arg <- FALSE
 
@@ -73,6 +74,7 @@ validate_md_connection_status <- function(.con,return_type="msg"){
 
     if(return_type=="msg"){
 
+        cli::cli_h2(text="Connection Status Report:")
         return(status_lst$msg())
 
     }else{

@@ -1,9 +1,14 @@
 
 #' Overwrite or append tibble to motherduck database
 #'
-#' @param .con duckdb connection
-#' @param database_name name of database
-#' @param schema_name name of schema
+#' @param .con A DuckDB connection object. The database connection used to execute the SQL queries.
+#' @param database_name The name of the database where the schema should be created or replaced.
+#' @param schema_name The name of the schema to be created or replaced.
+#' @description
+#' This function drops an existing schema (if it exists) in the specified database and creates a new schema
+#' in that database. It first checks if a connection to Motherduck (via DuckDB) is valid. If the connection
+#' is active, it executes the necessary SQL commands to switch to the specified database and schema.
+#' It also generates a success message upon successfully creating the schema.
 #'
 #' @returns message
 #' @export
@@ -25,17 +30,12 @@ create_or_replace_schema <- function(.con,database_name,schema_name){
     DBI::dbExecute(.con, glue::glue_sql("CREATE SCHEMA IF NOT EXISTS {`schema_name`};", .con = .con))
     DBI::dbExecute(.con, glue::glue_sql("USE {`schema_name`};", .con = .con))
 
-
-    # Use DBI::Id to ensure schema is used explicitly
-
-    if(!md_con_indicator){
-
-        database_name <- pwd(.con)$current_database
-    }
-
-    table_id <- DBI::Id(database=database_name,schema = schema_name)
-
-    cli::cli_alert_success("Successfully created schema {.val {schema_name}} to database {.val {database_name}}.")
+    # print report
+    cli::cli_h1("Status:")
+    md:::validate_md_connection_status(.con)
+    md:::cli_show_user(.con)
+    md:::cli_show_db(.con)
+    md:::cli_create_obj(.con,database_name = database_name,schema_name = schema_name)
 
 }
 
@@ -69,14 +69,11 @@ create_schema <- function(.con,database_name,schema_name){
 
     # Use DBI::Id to ensure schema is used explicitly
 
-    if(!md_con_indicator){
-
-        database_name <- pwd(.con)$current_database
-    }
-
-    table_id <- DBI::Id(database=database_name,schema = schema_name)
-
-    cli::cli_alert_success("Successfully created schema {.val {schema_name}} to database {.val {database_name}}.")
+    cli::cli_h1("Status:")
+    md:::validate_md_connection_status(.con)
+    md:::cli_show_user(.con)
+    md:::cli_show_db(.con)
+    md:::cli_create_obj(.con,database_name = database_name,schema_name = schema_name)
 
 }
 
@@ -138,7 +135,6 @@ create_table_tbl <- function(.data,.con,database_name,schema_name,table_name,wri
 
     }
 
-    cli::cli_alert_success("Successfully uploaded table {.val {schema_name}.{table_name}} to database {.val {database_name}}.")
 
 }
 
@@ -154,8 +150,6 @@ create_table_tbl <- function(.data,.con,database_name,schema_name,table_name,wri
 #' @returns message
 #'
 create_table_dbi <- function(.data,.con,database_name,schema_name,table_name,write_type="overwrite"){
-
-
 
   # Validate write_type
   write_type <- rlang::arg_match(write_type,values = c("overwrite","append"))
@@ -211,8 +205,6 @@ create_table_dbi <- function(.data,.con,database_name,schema_name,table_name,wri
 
   }
 
-  cli::cli_alert_success("Successfully uploaded table {.val {schema_name}.{table_name}} to database {.val {database_name}}.")
-
 }
 
 
@@ -251,6 +243,13 @@ create_table <- function(.data,.con,database_name,schema_name,table_name,write_t
     create_table_tbl(.data=.data,.con=.con,database_name=database_name,schema_name=schema_name,table_name=table_name,write_type=write_type)
   }
 
+  cli::cli_h1("Status:")
+  md:::validate_md_connection_status(.con)
+  md:::cli_show_user(.con)
+  md:::cli_show_db(.con)
+  md:::cli_create_obj(.con,database_name = database_name,schema_name = schema_name,write_type = write_type)
+
+
 }
 
 
@@ -276,63 +275,16 @@ create_or_replace_database <- function(.con,database_name){
 
     DBI::dbExecute(.con, glue::glue_sql("USE {`database_name`};", .con = .con))
 
-    cli::cli_alert_success("Successfully uploaded table {.val {schema_name}.{table_name}} to database {.val {database_name}}.")
   }
 
-  if(!md_con_indicator){
+  cli::cli_h1("Status:")
+  md:::validate_md_connection_status(.con)
+  md:::cli_show_user(.con)
+  md:::cli_show_db(.con)
+  md:::cli_create_obj(.con,database_name = database_name,schema_name = schema_name,write_type = write_type)
 
-    database_name <- pwd(.con)$current_database
-
-    cli::cli_alert_warning("No new database is created, you are in database {.val {database_name}}.")
-
-  }
 
 }
-
-
-#' Overwrite or append tibble to motherduck database
-#'
-#' @param .data tibble
-#' @param .con duckdb connection
-#' @param database_name name of database
-#' @param schema_name name of schema
-#' @param table_name name of table
-#' @param write_type overwrite or append
-#'
-#' @returns nothing
-#' @export
-create_schema <- function(.con,database_name,schema_name){
-
-    # Validate write_type
-    # write_type <- rlang::arg_match(write_type,values = c("overwrite","append"))
-
-    # validate_con(.con)
-
-    md_con_indicator <- validate_md_connection_status(.con,return_type="arg")
-
-    if(md_con_indicator){
-        # Create and connect to the database
-        DBI::dbExecute(.con, glue::glue_sql("USE {`database_name`};", .con = .con))
-    }
-
-    # Create schema
-    DBI::dbExecute(.con, glue::glue_sql("CREATE SCHEMA IF NOT EXISTS {`schema_name`};", .con = .con))
-    DBI::dbExecute(.con, glue::glue_sql("USE {`schema_name`};", .con = .con))
-
-
-    # Use DBI::Id to ensure schema is used explicitly
-
-    if(!md_con_indicator){
-
-        database_name <- pwd(.con)$current_database
-    }
-
-    table_id <- DBI::Id(database=database_name,schema = schema_name)
-
-    cli::cli_alert_success("Successfully created schema {.val {schema_name}} to database {.val {database_name}}.")
-
-}
-
 
 #' Title
 #'
@@ -362,7 +314,13 @@ alter_table_schemas <- function(.con, from_table_names, new_schema) {
     # Execute the query to move the table
     DBI::dbExecute(.con, sql)
 
-    cli::cli_alert_success("Table {.val {table_name}} has been moved from {.val {old_schema}} to {.val {new_schema}}.")
+    cli::cli_h1("Status:")
+    md:::validate_md_connection_status(.con)
+    md:::cli_show_user(.con)
+    md:::cli_show_db(.con)
+    cli::cli_h2("Action Report:")
+    cli::cli_li("Change {from_table_names} schema to {new_schema}")
+
 }
 
 
@@ -392,7 +350,12 @@ delete_schema <- function(
 
     DBI::dbExecute(.con, drop_schema_sql)
 
-    cli::cli_alert_success("🏗️ Dropped schema {.val {schema_name}} from MotherDuck DB {.val {database_name}}.")
+    cli::cli_h1("Status:")
+    md:::validate_md_connection_status(.con)
+    md:::cli_show_user(.con)
+    md:::cli_show_db(.con)
+    md:::cli_delete_obj(.con = .con,database_name = database_name,schema_name = schema_name)
+
 }
 
 
@@ -408,7 +371,6 @@ delete_schema <- function(
 #' @export
 #'
 copy_tables_to_new_location <- function(.con,from_table_names,to_database_name,to_schema_name){
-
 
   md_con_indicator <- validate_md_connection_status(.con,return_type="arg")
 
@@ -458,6 +420,14 @@ copy_tables_to_new_location <- function(.con,from_table_names,to_database_name,t
       DBI::dbExecute(.con,glue::glue_sql("CREATE TABLE {`.x`} AS   SELECT * FROM {`.y`};",.con=.con))
     }
   )
+
+  cli::cli_h1("Status:")
+  md:::validate_md_connection_status(.con)
+  md:::cli_show_user(.con)
+  md:::cli_show_db(.con)
+  cli::cli_h2("Action Report:")
+  cli::cli_li("Copied {from_table_names} to {database_name}")
+
 }
 
 
@@ -482,6 +452,14 @@ upload_database_to_md <- function(.con,from_db_name,to_db_name){
             )
         )
     )
+
+  cli::cli_h1("Status:")
+  md:::validate_md_connection_status(.con)
+  md:::cli_show_user(.con)
+  md:::cli_show_db(.con)
+  cli::cli_h2("Action Report:")
+  cli::cli_li("Copied {to_db_name} from {from_db_name}")
+
 
 }
 
@@ -510,6 +488,7 @@ list_fns <- function(.con){
     )
 
     return(out)
+
 }
 
 
@@ -700,7 +679,14 @@ delete_database <- function(
 
     DBI::dbExecute(.con, drop_db_sql)
 
-    cli::cli_alert_success("💥 Dropped database {.val {md_db_name}}.")
+    cli::cli_h1("Status:")
+    md:::validate_md_connection_status(.con)
+    md:::cli_show_user(.con)
+    md:::cli_show_db(.con)
+    md:::cli_delete_obj(.con,database_name=database_name)
+
+
+
 }
 
 

@@ -5,8 +5,6 @@
 \title{Overwrite or append tibble to motherduck database}
 \usage{
 create_schema(.con, database_name, schema_name)
-
-create_schema(.con, database_name, schema_name)
 }
 \arguments{
 \item{.con}{duckdb connection}
@@ -14,20 +12,10 @@ create_schema(.con, database_name, schema_name)
 \item{database_name}{name of database}
 
 \item{schema_name}{name of schema}
-
-\item{.data}{tibble}
-
-\item{table_name}{name of table}
-
-\item{write_type}{overwrite or append}
 }
 \value{
 nothing
-
-nothing
 }
 \description{
-Overwrite or append tibble to motherduck database
-
 Overwrite or append tibble to motherduck database
 }

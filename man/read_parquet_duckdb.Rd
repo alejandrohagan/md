@@ -9,14 +9,7 @@ read_parquet_duckdb(
   to_database_name,
   to_schema_name,
   to_table_name,
-  file_path,
-  header,
-  sheet,
-  all_var_char,
-  ignore_errors,
-  range,
-  stop_at_empty,
-  empty_as_varchar
+  file_path
 )
 }
 \arguments{

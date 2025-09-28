@@ -3,7 +3,7 @@
 
 
 
-db_config <- list(
+config_db <- list(
     access_mode = "automatic",
     allocator_background_threads = "false",
     allocator_bulk_deallocation_flush_threshold = "512MB",
@@ -112,4 +112,4 @@ db_config <- list(
 
 
 
-usethis::use_data(db_config, overwrite = TRUE)
+usethis::use_data(config_db, overwrite = TRUE)
