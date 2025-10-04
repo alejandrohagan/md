@@ -2,20 +2,40 @@
 % Please edit documentation in R/utils-db.R
 \name{upload_database_to_md}
 \alias{upload_database_to_md}
-\title{Upload a local database to motherduck}
+\title{Upload a Local Database to MotherDuck}
 \usage{
 upload_database_to_md(.con, from_db_name, to_db_name)
 }
 \arguments{
-\item{.con}{motherduck connection}
+\item{.con}{A valid MotherDuck `DBI` connection.}
 
-\item{from_db_name}{the local database to be copied}
+\item{from_db_name}{The local database name to copy from.}
 
-\item{to_db_name}{the name of the motherduck database to be created}
+\item{to_db_name}{The target MotherDuck database to create/overwrite.}
 }
 \value{
-print statement
+Invisibly returns `NULL`.
+Side effect: creates the target database and copies all objects; prints a CLI
+action report.
 }
 \description{
-Upload a local database to motherduck
+Creates a new database on MotherDuck (if it does not exist) and copies
+all objects from an existing local database into it using the
+`COPY FROM DATABASE` command.
+}
+\details{
+- Runs `CREATE DATABASE <to_db_name>` if the target database does not exist.
+- Then runs `COPY FROM DATABASE <from_db_name> TO <to_db_name>` to copy all
+  objects (tables, views, etc.) from the local database.
+- Prints a CLI status report (connection, user, current DB) after completion.
+}
+\examples{
+\dontrun{
+con <- DBI::dbConnect(duckdb::duckdb())
+upload_database_to_md(con, from_db_name = "local_db", to_db_name = "analytics")
+}
+
+}
+\seealso{
+[DBI::dbExecute()]
 }

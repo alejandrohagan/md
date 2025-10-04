@@ -2,22 +2,28 @@
 % Please edit documentation in R/utils-db.R
 \name{list_schemas}
 \alias{list_schemas}
-\title{list database objects}
+\title{List Schemas in the Current Database}
 \usage{
 list_schemas(.con)
 }
 \arguments{
-\item{.con}{connection}
-
-\item{type}{'database', 'schema' or 'views'}
+\item{.con}{A valid `DBI` connection (DuckDB / MotherDuck).}
 }
 \value{
-tibble
+A `dbplyr` lazy tibble with columns:
+* `catalog_name` — the current database name.
+* `schema_name` — each schema within that database.
 }
 \description{
-list database objects
+Returns a lazy tibble of all schemas in the **current database** of the
+connection. Queries `information_schema.schemata` and filters to the
+current database (`catalog_name = current_database()`).
 }
-\examples{
-#' con <- DBI::dbConnect(duckdb::duckdb())
-lmd(con,type='database')
+\details{
+- This function assumes the connection is valid (checked with
+  `validate_con()`).
+- Returns a `dbplyr` lazy table; use `collect()` to bring the result into R.
+}
+\seealso{
+[dbplyr::tbl()], [DBI::dbConnect()]
 }

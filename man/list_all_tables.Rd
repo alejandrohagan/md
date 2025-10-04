@@ -2,22 +2,28 @@
 % Please edit documentation in R/utils-db.R
 \name{list_all_tables}
 \alias{list_all_tables}
-\title{list database objects}
+\title{List All Tables Visible to the Connection}
 \usage{
 list_all_tables(.con)
 }
 \arguments{
-\item{.con}{connection}
-
-\item{type}{'database', 'schema' or 'views'}
+\item{.con}{A valid `DBI` connection (DuckDB / MotherDuck).}
 }
 \value{
-tibble
+A `dbplyr` lazy tibble with columns:
+* `table_catalog` — database/catalog name
+* `table_schema`  — schema name
+* `table_name`    — table name
 }
 \description{
-list database objects
+Returns a lazy tibble of all tables visible to the current connection by
+querying `information_schema.tables` (across all catalogs/databases and
+schemas).
 }
-\examples{
-#' con <- DBI::dbConnect(duckdb::duckdb())
-list_all_tables(con,type='database')
+\details{
+The result is a `dbplyr` lazy table (`tbl_dbi`). Use `collect()` to bring
+results into R as a local tibble.
+}
+\seealso{
+[dbplyr::tbl()], [DBI::dbConnect()]
 }

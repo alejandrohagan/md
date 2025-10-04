@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils-db.R
 \name{copy_tables_to_new_location}
 \alias{copy_tables_to_new_location}
-\title{Copy tables to new schema}
+\title{Copy Tables to a New Database/Schema}
 \usage{
 copy_tables_to_new_location(
   .con,
@@ -12,17 +12,34 @@ copy_tables_to_new_location(
 )
 }
 \arguments{
-\item{.con}{connection}
+\item{.con}{A `DBI` connection (DuckDB / MotherDuck).}
 
-\item{from_table_names}{tibble of tables to be copied with `database_name`,`schema_name` and `table_name` columns}
+\item{from_table_names}{A tibble/data frame listing source tables, with
+columns `database_name`, `schema_name`, and `table_name`.}
 
-\item{to_database_name}{target database name}
+\item{to_database_name}{Target database name.}
 
-\item{to_schema_name}{target schema_name}
+\item{to_schema_name}{Target schema name.}
 }
 \value{
-message
+Invisibly returns a character vector of fully-qualified destination table
+names that were created. Side effect: creates target DB/schema if needed and
+writes new tables.
 }
 \description{
-Copy tables to new schema
+Copies one or more tables to a new location (database/schema) by creating
+new tables via `CREATE TABLE ... AS SELECT * FROM ...`.
+If connected to MotherDuck, the target database is created if missing, and
+the target schema is created if missing on any connection.
+}
+\details{
+- Input `from_table_names` must contain columns:
+  `database_name`, `schema_name`, and `table_name`.
+- For each source table, the function issues:
+  `CREATE TABLE <to_db>.<to_schema>.<table> AS SELECT * FROM <src_db>.<src_schema>.<table>`.
+- On local DuckDB (non-MotherDuck), the target database name is ignored and
+  defaults to the current database of the connection.
+}
+\seealso{
+[DBI::dbExecute()], [DBI::Id()]
 }

@@ -2,18 +2,8 @@
 % Please edit documentation in R/utils-db.R
 \name{create_table}
 \alias{create_table}
-\alias{create_table_tbl}
-\title{Overwrite or append tibble to database}
+\title{Create or Append a Table from a Tibble or DBI-Backed Table}
 \usage{
-create_table_tbl(
-  .data,
-  .con,
-  database_name,
-  schema_name,
-  table_name,
-  write_type = "overwrite"
-)
-
 create_table(
   .data,
   .con,
@@ -24,25 +14,40 @@ create_table(
 )
 }
 \arguments{
-\item{.data}{tibble or dbi object}
+\item{.data}{Tibble/data frame (in-memory) or a `dbplyr`/DBI-backed lazy
+table (class `"tbl_dbi"`).}
 
-\item{.con}{duckdb or MD connection}
+\item{.con}{A DuckDB or MotherDuck `DBI` connection.}
 
-\item{database_name}{database name}
+\item{database_name}{Database name to create/use.}
 
-\item{schema_name}{schema name}
+\item{schema_name}{Schema name to create/use.}
 
-\item{table_name}{table name}
+\item{table_name}{Target table name to create or append to.}
 
-\item{write_type}{overwrite or append}
+\item{write_type}{Write strategy: `"overwrite"` (drop/create) or
+`"append"` (insert rows). Defaults to `"overwrite"`.}
 }
 \value{
-nothing
-
-message
+Invisibly returns `NULL`. Side effect: writes a table to the database by
+delegating to the appropriate helper.
 }
 \description{
-Overwrite or append tibble to database
-
-Title
+A thin wrapper that routes to either [`create_table_dbi()`] (for
+`dbplyr`-backed lazy tables, class `"tbl_dbi"`) or
+[`create_table_tbl()`] (for in-memory tibbles / data frames), creating
+a physical table in the target database/schema. Supports **overwrite**
+and **append** write strategies and defers all heavy lifting to the
+specific implementation.
+}
+\details{
+- If `.data` is a `dbplyr` lazy table (class `"tbl_dbi"`), the call is
+  delegated to [`create_table_dbi()`].
+- If `.data` is an in-memory tibble/data frame (class including
+  `"data.frame"`), the call is delegated to [`create_table_tbl()`].
+- Any other input classes trigger an error.
+}
+\seealso{
+[create_table_dbi()], [create_table_tbl()], [DBI::dbWriteTable()],
+  [dbplyr::remote_query()]
 }

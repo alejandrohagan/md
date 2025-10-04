@@ -2,20 +2,27 @@
 % Please edit documentation in R/utils-db.R
 \name{list_fns}
 \alias{list_fns}
-\title{List database functions}
+\alias{list_db_fns}
+\title{List Database Functions (DuckDB/MotherDuck)}
 \usage{
 list_fns(.con)
 }
 \arguments{
-\item{.con}{connection}
+\item{.con}{A valid `DBI` connection (DuckDB or MotherDuck).}
 }
 \value{
-tibble
+A `dbplyr` lazy tibble (`tbl_dbi`) with function metadata (e.g.,
+`function_name`, `schema`, `is_aggregate`, `is_alias`, etc.).
 }
 \description{
-List database functions
+Returns a lazy table listing available SQL functions from the current
+DuckDB/MotherDuck connection using `duckdb_functions()`.
 }
-\examples{
-con <- DBI::dbConnect(duckdb::duckdb())
-list_db_fns(con)
+\details{
+This wrapper validates the connection and then queries
+`duckdb_functions()` to enumerate function metadata. The result is a
+`dbplyr` lazy tibble (`tbl_dbi`); call `collect()` to materialize it in R.
+}
+\seealso{
+[DBI::dbConnect()], [dbplyr::tbl()]
 }

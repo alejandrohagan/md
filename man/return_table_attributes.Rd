@@ -2,18 +2,30 @@
 % Please edit documentation in R/utils-db.R
 \name{return_table_attributes}
 \alias{return_table_attributes}
-\title{Title}
+\title{Retrieve Metadata for One or More Tables}
 \usage{
 return_table_attributes(.con, table_name)
 }
 \arguments{
-\item{.con}{connection}
+\item{.con}{A valid `DBI` connection (DuckDB / MotherDuck).}
 
-\item{table_name}{table name}
+\item{table_name}{Character vector of one or more table names to look up.}
 }
 \value{
-tibble
+A local tibble (data frame) with columns:
+* `table_catalog` — database/catalog name
+* `table_schema`  — schema name
+* `table_name`    — the matching table names
 }
 \description{
-Title
+Returns catalog (database), schema, and table information for one or more
+tables visible to the connection by querying `information_schema.tables`.
+}
+\details{
+- Accepts one or more table names and returns their associated
+  `table_catalog`, `table_schema`, and `table_name` if found.
+- Uses `information_schema.tables` to look up metadata.
+}
+\seealso{
+[DBI::dbGetQuery()], [information_schema.tables]
 }

@@ -2,22 +2,32 @@
 % Please edit documentation in R/utils-db.R
 \name{delete_schema}
 \alias{delete_schema}
-\title{Title}
+\title{Drop a Schema from a Database}
 \usage{
-delete_schema(.con, database_name, schema_name, cascade = TRUE)
+delete_schema(.con, database_name, schema_name, cascade = FALSE)
 }
 \arguments{
-\item{.con}{connection}
+\item{.con}{A valid `DBI` connection (DuckDB / MotherDuck).}
 
-\item{database_name}{database name}
+\item{database_name}{Name of the database containing the schema.}
 
-\item{schema_name}{schema name}
+\item{schema_name}{Name of the schema to drop.}
 
-\item{cascade}{}
+\item{cascade}{Logical; if `TRUE` (default), use `CASCADE` to drop
+all dependent objects in the schema. If `FALSE`, drop only if empty.}
 }
 \value{
-message
+Invisibly returns `NULL`.
+Side effect: drops the schema (and contained objects if `cascade = TRUE`)
+and prints CLI status.
 }
 \description{
-Title
+Drops a schema from a specified database.
+Optionally cascades the deletion to all objects within the schema.
+Prints helpful CLI information about the current connection and action.
+}
+\details{
+- Runs `DROP SCHEMA IF EXISTS <db>.<schema>` with optional `CASCADE`.
+- Intended for DuckDB or MotherDuck connections.
+- Uses CLI helpers to show current connection and report the deletion.
 }

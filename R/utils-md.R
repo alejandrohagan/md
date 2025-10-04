@@ -620,23 +620,25 @@ cd <- function(.con,database,schema){
   validate_con(.con)
 
   database_valid_vec <- list_databases(.con) |>
-    dplyr::pull(table_catalog)
+    dplyr::pull(database_name)
 
   if(database %in% database_valid_vec){
 
     DBI::dbExecute(.con,glue::glue("USE {database};"))
 
-    current_database_vec <- pwd(.con) |>
-      dplyr::pull(current_database)
-
-    cli::cli_text("Current database: {.pkg {current_database_vec}}")
+# suppressMessages(
+#     current_database_vec <- pwd(.con) |>
+#       dplyr::pull(current_database)
+# )
+#
+#     cli::cli_text("Current database: {.pkg {current_database_vec}}")
 
   }else{
 
     cli::cli_abort("
                    {.pkg {database}} is not valid,
-                   Use {.fn ls} to list valid databases:
-                   {.or {database_valid_vec}}
+                   Use {.fn list_databases} to list valid databases.
+                   Valid databases are: {.val {database_valid_vec}}
                    ")
   }
 
@@ -648,26 +650,32 @@ cd <- function(.con,database,schema){
 
 
 
-  if(schema %in% schema_valid_vec){
+
+  if(any(schema %in% schema_valid_vec)){
 
     DBI::dbExecute(.con,glue::glue("USE {schema};"))
 
-    current_schema_vec <-   suppressMessages(
-      pwd(.con) |>
-      dplyr::pull(current_schema)
-    )
-
-    cli::cli_text("Current schema: {.pkg {current_schema_vec}}")
+    # current_schema_vec <-   suppressMessages(
+    #   pwd(.con) |>
+    #   dplyr::pull(current_schema)
+    # )
+    #
+    # cli::cli_text("Current schema: {.pkg {current_schema_vec}}")
 
   }else{
 
     cli::cli_abort("
                    {.pkg {schema}} is not valid,
-                   Use {.fn list_schema} to list valid schemas:
-                   {.or {schema_valid_vec}}
+                   Use {.fn list_schemas} to list valid schemas.
+                   Valid Schemas in  {.pkg {database}} are {.val {schema_valid_vec}}
                    ")
   }
-}
+  }
+
+
+  cli::cli_h1("Status:")
+  md:::cli_show_user(.con)
+  md:::cli_show_db(.con)
 
 
 }

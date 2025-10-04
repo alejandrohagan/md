@@ -25,16 +25,22 @@ cli_create_obj <- function(.con, database_name, schema_name, table_name, write_t
     # Step 1: Get a list of all tables from the connected database
     all_table_tbl <- list_all_tables(.con) |> dplyr::collect()
 
+    all_database_tbl <- list_databases(.con) |> dplyr::collect()
+
+
     # Step 2: If no database name is provided, get the current database from the connection
     if (is_missing(database_name)) {
         database_name <- pwd(.con) |> dplyr::pull(current_database)
     }
 
     # Step 3: Check how many tables are in the provided database by filtering
+
+    database_name_vec <- database_name
+
     db_count <-
-        all_table_tbl |>
+        all_database_tbl |>
         dplyr::filter(
-            table_catalog %in% database_name   # Filter by the given database name
+            database_name %in% database_name   # Filter by the given database name
         ) |>
         nrow()   # Count the rows (number of tables in that database)
 
@@ -42,10 +48,10 @@ cli_create_obj <- function(.con, database_name, schema_name, table_name, write_t
     cli::cli_h2("Action Report:")
 
     # Step 5: Report whether a new database is created or an existing database is used
-    cli::cli_li(
+    cli::cli_text(
         if_else(!db_count > 0,
-                "Created new database {.val {database_name}}",
-                "Inserted into existing database {.val {database_name}}"
+                "{cli::symbol$tick} Created new database {.val {database_name}}",
+                "{cli::symbol$tick} Inserted into existing database {.val {database_name}}"
                 )
     )
 
@@ -56,18 +62,26 @@ cli_create_obj <- function(.con, database_name, schema_name, table_name, write_t
 
     # Step 7: If schema name is provided, check how many tables exist in the schema
     if (!rlang::is_missing(schema_name)) {
-        schema_count <- all_table_tbl |>
+
+        schema_name_vec <- schema_name
+
+        suppressMessages(
+        cd(.con,database = database_name)
+        )
+
+        schema_count <- list_schemas(.con) |>
+            dplyr::collect() |>
             dplyr::filter(
-                table_catalog %in% database_name   # Filter by database
-                , table_schema %in% schema_name    # Filter by schema
+                catalog_name %in% database_name   # Filter by database
+                , schema_name %in% schema_name_vec    # Filter by schema
             ) |>
             nrow()   # Count the rows (number of tables in the schema)
 
         # Step 8: Report whether a new schema is created or an existing schema is used
-        cli::cli_li(
+        cli::cli_text(
             if_else(!schema_count > 0,
-                    "Created new schema {.val {schema_name}}",
-                    "Inserted into existing schema {.val {schema_name}}")
+                    "{cli::symbol$tick} Created new schema {.val {schema_name}}",
+                    "{cli::symbol$tick} Using existing schema {.val {schema_name}}")
         )
     }
 
@@ -84,10 +98,10 @@ cli_create_obj <- function(.con, database_name, schema_name, table_name, write_t
             nrow()   # Count the rows (number of matching tables)
 
         # Step 10: Report whether a new table is created or an existing table is used (based on write_type)
-        cli::cli_li(
+        cli::cli_text(
             if_else(!table_count > 0,
-                    "Created new table {.val {table_name_vec}}",
-                    "{str_to_sentence(write_type)} existing table {.val {table_name_vec}}")
+                    "{cli::symbol$tick} Created new table {.val {table_name_vec}}",
+                    "{cli::symbol$tick} {str_to_sentence(write_type)} existing table {.val {table_name_vec}}")
         )
     }
 }
@@ -181,12 +195,28 @@ cli_show_db <- function(.con) {
     # Step 4: Get the number of catalogs (databases) the user has access to
     # Calls `md::list_databases` to list all databases and counts them
     db_count <- md::list_databases(.con) |>
-        dplyr::pull(table_catalog) |> length()  # Counts the available catalogs
+        dplyr::pull(database_name) |>
+        length()  # Counts the available catalogs
 
     # Step 5: Get the number of tables the user has access to
     # Calls `md::list_all_tables` to list all tables and counts them
     table_count <- md::list_all_tables(.con) |>
-        dplyr::collect() |> nrow()  # Counts the available tables
+        dplyr::collect() |>
+        nrow()  # Counts the available tables
+
+    table_count_in_db <- md::list_all_tables(.con) |>
+        dplyr::collect() |>
+        dplyr::filter(
+            table_catalog %in% c(current_db)
+        ) |> nrow()
+
+
+    table_count_in_db_schema <- md::list_all_tables(.con) |>
+        dplyr::collect() |>
+        dplyr::filter(
+            table_catalog %in% c(current_db)
+            ,table_schema %in% c(current_schema)
+        ) |> nrow()
 
     # Step 6: Start the Catalog Report section with a header
     cli::cli_h2("Catalog Report:")  # Adds a second-level header "Catalog Report:"
@@ -199,26 +229,11 @@ cli_show_db <- function(.con) {
     cli::cli_li("Current Schema: {.val {current_schema}}")  # Displays the current schema
 
     # Step 9: Display the counts for catalogs, tables, and shares
-    cli::cli_li("# Catalogs you have access to: {.val {db_count}}")  # Displays the number of catalogs
-    cli::cli_li("# Tables you have access to: {.val {table_count}}")  # Displays the number of tables
-    cli::cli_li("# Shares you have access to: {.val {share_count}}")  # Displays the number of shares
-
-    # Step 10: End the unordered list and finish the Catalog Report
-    cli::cli_end()  # Closes the list and the catalog report section
-
-    # Step 11: Provide additional helpful functions
-    # cli::cli_h3("Helpful functions:")  # Adds a third-level header "Helpful functions:"
-    # cli::cli_ul()  # Starts a new unordered list for the functions
-#
-#     # Step 12: List helpful functions that can assist with navigating catalogs and schemas
-#     cli::cli_li("Use {.fn cd} to change your catalog or schema")  # Reference to a function for changing catalog/schema
-#     cli::cli_li("Use {.fn pwd} to print your current catalog and schema location")  # Reference to function to check current location
-#     cli::cli_li("Use {.fn list_database} to list your catalogs")  # Reference to list catalogs
-#     cli::cli_li("Use {.fn list_all_tables} to list all the tables you have access to")  # Reference to list all tables
-#     cli::cli_li("Use {.fn list_schemas} to list the schemas in your database")  # Reference to list schemas
-
-    # Step 13: End the helpful functions list
-    # cli::cli_end()
+    cli::cli_li("# Total Catalogs you have access to: {.val {db_count}}")  # Displays the number of catalogs
+    cli::cli_li("# Total Tables you have access to: {.val {table_count}}")  # Displays the number of tables
+    cli::cli_li("# Total Shares you have access to: {.val {share_count}}")  # Displays the number of shares
+    cli::cli_li("# Tables in this catalog you have access to: {.val {table_count_in_db}}")  # Displays the number of shares
+    cli::cli_li("# Tables in this catalog & schema you have access to: {.val {table_count_in_db_schema}}")  # Displays the number of shares
 }
 
 
@@ -241,6 +256,7 @@ cli_show_db <- function(.con) {
 cli_delete_obj <- function(.con, database_name, schema_name, table_name) {
 
 
+    # database_name <- "test"
     all_table_tbl <- list_all_tables(.con) |> dplyr::collect()
 
     if (is_missing(database_name)) {
@@ -248,6 +264,7 @@ cli_delete_obj <- function(.con, database_name, schema_name, table_name) {
     }
 
     if(!rlang::is_missing(database_name)){
+
 
         db_tbl <-
             all_table_tbl |>
@@ -285,14 +302,12 @@ cli_delete_obj <- function(.con, database_name, schema_name, table_name) {
 
     if(!rlang::is_missing(database_name)){
 
-        if(nrow(db_tbl)>0){
 
             schema_count <- db_tbl |> pull(table_schema) |> unique() |> length()
 
             table_count <- db_tbl |> pull(table_name) |> unique() |> length()
 
             cli::cli_li("Deleted {.val {database_name}} database with {.val {schema_count}} schemas and {.val {table_count}} tables")
-        }
     }
 
     if(!rlang::is_missing(schema_name)){

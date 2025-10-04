@@ -2,18 +2,28 @@
 % Please edit documentation in R/utils-db.R
 \name{delete_database}
 \alias{delete_database}
-\title{Title}
+\title{Drop a Database}
 \usage{
 delete_database(.con, database_name)
 }
 \arguments{
-\item{.con}{connection}
+\item{.con}{A valid `DBI` connection (DuckDB / MotherDuck).}
 
-\item{database_name}{database name}
+\item{database_name}{Name of the database to drop.}
 }
 \value{
-message
+Invisibly returns `NULL`.
+Side effect: drops the database and prints CLI status messages.
 }
 \description{
-Title
+Drops a database from the current DuckDB or MotherDuck connection if it exists.
+Prints a CLI status report after performing the operation.
+}
+\details{
+- Executes `DROP DATABASE IF EXISTS <database_name>` to remove the database.
+- Intended for DuckDB or MotherDuck connections.
+- Prints user, database and action details using CLI helper functions.
+}
+\seealso{
+[DBI::dbExecute()]
 }

@@ -2,16 +2,25 @@
 % Please edit documentation in R/utils-db.R
 \name{convert_table_to_sql_id}
 \alias{convert_table_to_sql_id}
-\title{Convert table to SQL IDs}
+\title{Convert Table Metadata to SQL Identifiers}
 \usage{
 convert_table_to_sql_id(x)
 }
 \arguments{
-\item{x}{tibble of database, schemas and tables}
+\item{x}{A tibble or data frame containing the columns:
+* `table_catalog` — database/catalog name
+* `table_schema` — schema name
+* `table_name` — table name}
 }
 \value{
-list of sql IDs
+A list of `DBI::Id` objects, each representing a fully-qualified table.
 }
 \description{
-Convert table to SQL IDs
+Converts a tibble of table metadata (`table_catalog`, `table_schema`,
+`table_name`) into a list of `DBI::Id` SQL identifiers.
+Useful for safely quoting fully qualified table references in
+`DBI`/`dbplyr` workflows.
+}
+\seealso{
+[DBI::Id()]
 }

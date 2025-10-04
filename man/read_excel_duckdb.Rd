@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_fns.R
 \name{read_excel_duckdb}
 \alias{read_excel_duckdb}
-\title{Title}
+\title{Read an Excel file into a DuckDB/MotherDuck table}
 \usage{
 read_excel_duckdb(
   .con,
@@ -20,8 +20,41 @@ read_excel_duckdb(
 )
 }
 \arguments{
-\item{empty_as_varchar}{}
+\item{.con}{A valid `DBI` connection (DuckDB / MotherDuck).}
+
+\item{to_database_name}{Target database name.}
+
+\item{to_schema_name}{Target schema name.}
+
+\item{to_table_name}{Target table name to create.}
+
+\item{file_path}{Path to the Excel file (`.xlsx`).}
+
+\item{header}{Logical; if `TRUE`, first row is header.}
+
+\item{sheet}{Character; sheet name or index (as character) to read.}
+
+\item{all_varchar}{Logical; coerce all columns to `VARCHAR`.}
+
+\item{ignore_errors}{Logical; continue on cell/row errors.}
+
+\item{range}{Character; Excel range like `"A1"` or `"A1:C100"`.}
+
+\item{stop_at_empty}{Logical; stop at first completely empty row.}
+
+\item{empty_as_varchar}{Logical; treat empty columns as `VARCHAR`.}
+}
+\value{
+Invisibly returns `NULL`.
+Side effect: creates `<database>.<schema>.<table>` with the Excel data.
 }
 \description{
-Title
+Loads the DuckDB **excel** extension and creates a table from an Excel file
+using the `read_xlsx()` table function. The destination is fully qualified
+as `<database>.<schema>.<table>`. Only the options you supply are forwarded
+to `read_xlsx()` (e.g., `sheet`, `header`, `all_varchar`, `ignore_errors`,
+`range`, `stop_at_empty`, `empty_as_varchar`).
+}
+\seealso{
+[DBI::dbExecute()], DuckDB **excel** extension (`read_xlsx`)
 }

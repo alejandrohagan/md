@@ -2,20 +2,36 @@
 % Please edit documentation in R/utils-db.R
 \name{create_schema}
 \alias{create_schema}
-\title{Overwrite or append tibble to motherduck database}
+\title{Create a Schema in a Database if It Does Not Exist}
 \usage{
 create_schema(.con, database_name, schema_name)
 }
 \arguments{
-\item{.con}{duckdb connection}
+\item{.con}{A valid `DBI` connection (e.g., DuckDB or MotherDuck).}
 
-\item{database_name}{name of database}
+\item{database_name}{Name of the database to create/use.}
 
-\item{schema_name}{name of schema}
+\item{schema_name}{Name of the schema to create if it does not exist.}
 }
 \value{
-nothing
+Invisibly returns `NULL`.
+Side effect: creates the schema if necessary and prints CLI messages.
 }
 \description{
-Overwrite or append tibble to motherduck database
+Ensures that a specified schema exists in the given database.
+If the connection is to a MotherDuck instance, the function switches
+to the specified database before creating the schema.
+It also prints helpful connection and environment information via
+CLI messages for transparency.
+}
+\details{
+- Uses `DBI::dbExecute()` with `CREATE SCHEMA IF NOT EXISTS` to create
+  the schema only when needed.
+- If connected to MotherDuck (determined by
+  `validate_md_connection_status()`), executes `USE <database>` before
+  creating the schema.
+- Displays connection/user/database information via internal CLI helpers.
+}
+\seealso{
+[DBI::dbExecute()]
 }
