@@ -9,12 +9,21 @@ title: "How to load data into motherduck"
 #| eval: true
 #| warning: false
 #| message: false
-#| include: true
+#| include: false
 
 library(md)
 library(tidyverse)
 load_all()
-old_hook <- fansi::set_knit_hooks(knitr::knit_hooks, which = c("output", "warning", "error", "message"))
+
+con_md <- connect_to_motherduck()
+md::delete_database(con_md,"vignette")
+
+Sys.sleep(4)
+
+# 
+
+hook <- fansi::set_knit_hooks(knitr::knit_hooks, which = c("output", "warning", "error", "message"))
+
 options(crayon.enabled = TRUE)
 ```
 
@@ -22,14 +31,15 @@ options(crayon.enabled = TRUE)
 ## Introduction
 
 Before we get into how to use the package, lets quickly review the three things you will need to load data into a database:
+
 -   Database name (Catalog Name)
     -   This is object that will hold your schemas, tables or views
     -   Different databases have their own naming convention, in motherduck, this is called Catalog 
 -   Schema name
-    -   This fancy name for the location that classifies and organizes your tables, functions, procedures, etc
+    -   This is fancy name for the location that classifies and organizes your tables, functions, procedures, etc
 -   Table or view name
     -   This is the name of the actual table or view that holds your data
-    -   Table is a physical table of data that persists whereas a view is a stored procedures that queries underlying tables when needed
+    -   Table can be a physical table of data that persists whereas a view is a stored procedures that queries underlying tables when needed
     
 To save or reference data, you need to either fully qualify the name with `database_name.schema_name.table_name` or you need to be "in" your database and schema and reference the table name.
 
@@ -38,30 +48,37 @@ If you uploaded data without creating a table or schema first then duckdb will a
 :::{#nte-md .callout-note collapse="true"}
 ## Teminology: Duckdb vs. Motherduck 
 
-While not technically correct, motherduck is a cloud based deployment of motherduck where you can have multiple databases, control access / permissions, and scale compute / storage as needed
+While not technically correct explanation; motherduck is a cloud based deployment of duckdb where you can have multiple databases, control access / permissions, and scale compute / storage as needed
 
-Duckdb is a essentially single database instance in your local computer where you can save the database to a file or create it in memory. 
+Duckdb is a essentially a single database instance in your local computer where you can save the database to a file or create it in memory. You are limited to one database per connection. 
 
-If you have a local file or in memory duckdb connection then you are limited to one database per connection. whatever the file name you assign to your connection will be the name of the connection.
+Through out these write ups, I tend to use duckdb & motherduck interchangeably however all functions will work motherduck database but most will still work with a duckdb database.
 
-When referencing md functions, simply ignore the database_name argument.
-
-Through out these write ups, I tend to use duckdb & motherduck interchangeably however all functions will work motherduck database but most will still work with duckdb database.
+If you are using a local duckdb database you can leave the database argument blank.
 
 :::
 ## Let's upload some data
 
 Later on we will show examples of how to read data from a source file, eg. csv, parquet, or even excel directly into motherduck without loading the data into memory but for now let's assume you want to upload some data that you already have loaded in your R environment.
 
-First let us connect to our motherduck database. In order to connect, you will need to install and load the the motherduck extension from the community store. 
+First let us connect to our motherduck database. In order to connect, you will need:
 
-The `connect_to_motherduck()` function will take your token that is your environment file, install and load the extensions if needed and connect to your motherduck instance.
+- motherduck account
+- access token
+- motherduck extenstion for duckdb
+
+The `connect_to_motherduck()` function will take your access token that is your environment file^[Use `usethis::edit_r_environ()` to save your access token to a variable name], install and load the extensions if needed and connect to your motherduck instance.
+
 
 
 ::: {#cau-con .callout-caution collapse="true"}
 ## connecto-to-motherduck
 
-One limitation of the connecting to motherduck from R is that you first need to create a local motherduck instance which then allows the connection to motherduck which means you have access to both local (temporary) duckdb database and your cloud based motherduck databases. 
+One limitation of the connecting to motherduck from R is that you first need to create a local motherduck instance which then allows the connection to motherduck.
+
+This  means you have access to both local (temporary) duckdb database and your cloud based motherduck databases. 
+
+Check which database you are "in" with the `pwd()` command
 
 :::
 
@@ -82,12 +99,12 @@ con_md <- connect_to_motherduck(
 
 You will get a message that prints out that actions the package took and information about your connection
 
-We can immediately check what database, schemas or tables we have access to with the `list_all_tables()` function
+We can check what all the  database, schemas or tables we have access to in our motherduck account with the `list_all_tables()` function
 
 ```{r}
 #| label: list-all
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 #| include: true
@@ -95,9 +112,30 @@ We can immediately check what database, schemas or tables we have access to with
 list_all_tables(con_md)
 ```
 
+
+```{r}
+#| label: list-all-hidden
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
+
+list_all_tables(con_md) |> 
+  collect() |> 
+  gt::gt() |> 
+  gt::tab_options(
+    ,ihtml.active = TRUE
+    ,ihtml.use_pagination = TRUE
+    ,ihtml.use_compact_mode = TRUE
+    ,ihtml.page_size_default = 5
+    )
+```
+
 Before uploading new data, it can be helpful to check "where" you are in your database
 
-You can do this with the `pwd()`^[Naming convention is inspired by linux commands] function that will print out the current database & schema that you are in. See @cau-con to understand why we start in a local database vs. motherduck
+You can do this with the `pwd()`^[Naming convention is inspired by linux commands] function that will print out the current database & schema that you are in.
+
 
 This would be the default location that you save your database unless you clarified a different database and schema.
 
@@ -114,7 +152,9 @@ pwd(con_md)
 ```
 By default, you will be in your local duckdb database even though you are connected to motherduck
 
-If we want to we can also navigate to a your motherduck database with the `cd()`command
+See @cau-con to understand why we start in a local database vs. motherduck
+
+If we want to we can also navigate to your motherduck database with the `cd()` command
 
 ```{r}
 #| label: cd
@@ -127,7 +167,9 @@ If we want to we can also navigate to a your motherduck database with the `cd()`
 cd(con_md,database = "contoso")
 ```
 
-For this example, we will want to create a new database and schema location to upload some existing data.  `create_table()` function will create a new database and save the table under the schema.
+I am now in my contoso database and if reference a schema or table it would be relative to this database.
+
+Next lets finally load data into a new database and schema location to upload some existing data.  `create_table()` function will create a new database and save the table under the schema.
 
 ```{r}
 #| label: create-table
@@ -155,7 +197,8 @@ ggplot2::diamonds |>  #<1>
 5. table name 
 6. Either overwrite or append the data
 
-Notice that we don't assign this object to anything, this just silently writes our data to our database and prints a message confirming the performed actions
+Notice that we don't assign this object to anything, this just silently writes our data to our database and prints a message confirming the performed actions as well as some summary of catalogs, schemas, tables and shares that you havea access
+
 
 To validate the data is in our database, we can do the following:
 
@@ -178,9 +221,9 @@ list_all_tables(con_md) |>
 
 After running these functions, we can see our table is ready to be queried.
 
-If you want to access your motherduck data, you can simply leverage` dplyr::tbl()` or `DBI::dbGetQuery()` functions with your motherduck connection to pull your data.
+If you want to access your motherduck data, you can simply leverage `dplyr::tbl()` or `DBI::dbGetQuery()` functions with your motherduck connection to pull your data.
 
-## organizing our data
+## Organizing our data
 
 Let's say we want to filter and summarize this table and save it to our database with a new table name -- no problem, we can repeat the steps and this time we will upload a DBI object instead of tibble.
 
@@ -210,6 +253,7 @@ diamonds_summary_tbl |> #<3>
     ,table_name = "diamonds_summary" 
     ,write_type = "overwrite"
 )
+
 ```
 1. You can directly call the full name or if you are already in your database / schema you can just call the table
 2. Perform your additional cleaning, transformation, or summarization steps
@@ -220,7 +264,7 @@ While its the same syntax, `create_table()` will work with an R object, duckplyr
 
 ## Create new schema
 
-Let's say we want to organize these existing tables into different schema, we can do this by first creating a new schema and then moving that table or alternatively loading a table directly with a new schema and table.  
+Let's say we want to organize these existing tables into a different schema, we can do this by first creating a new schema and then moving that table or alternatively loading a table directly with a new schema and table.  
 
 
 ```{r}
@@ -248,35 +292,58 @@ This will create a new schema if it doesn't exist but won't load any data.
 #| message: false
 #| include: true
 
-
-
 list_schemas(con_md)
 
 ```
 
 
-We can copy one of tables to our schema with `copy_tables_to_new_location`
+::: {.callout-note collapse="true"}
+## Default schemas
+
+When you create a database it will have a default schema "main", so even though we only created "raw" and "curated" schemas we see three schemas due to the default (that you can't delete)
+
+:::
+
+
+We can copy one of a series of tables to our new schema with `copy_tables_to_new_location`. This accepts a tibble or DBI object of objects with table_catalog,table_schema, table_name headers and will copy them into your new location.
+
+
+```{r}
+#| label: sys-sleep
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
+Sys.sleep(4)
+```
 
 
 ```{r}
 #| label: copy-table-to-location
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: true
 #| include: true
 
+
+
+list_all_tables(con_md) |> 
+  filter(
+    table_catalog=="vignette"
+  ) |> 
 md::copy_tables_to_new_location(
     .con = con_md
-    ,from_table_names = "diamonds_summary"
+    ,from_table_names = _
     ,to_database_name = "vignette"
-    ,to_schema_name = "raw"
+    ,to_schema_name = "curated"
     )
 ```
 
 There's a complimentary function called `create_or_repalce_schema` which will also create a schema the different is if there is already a schema with that name it will delete that schema and any tables saved under it.
 
-## drop databaes, schemas or tables
+## Drop databaes, schemas or tables
 
 Sometimes we need to delete databases, schemas or tables. 
 
@@ -284,7 +351,7 @@ Be careful when you do this as its irreversible -- there is no CTRL+Z to undo th
 
 
 ```{r}
-#| label: var
+#| label: delete-schema
 #| echo: true
 #| eval: true
 #| warning: false
@@ -294,17 +361,36 @@ Be careful when you do this as its irreversible -- there is no CTRL+Z to undo th
 delete_schema(con_md,database_name = "vignette",schema_name = "curated",cascade = TRUE)
 ```
 
+
 ```{r}
 #| label: list-all-tables-1
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: true
 #| include: true
 list_all_tables(con_md)
 ```
 
-## how to load data directly into motherduck
+```{r}
+#| label: list-all-tables-1-hidden
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: true
+#| include: true
+list_all_tables(con_md) |> 
+  collect() |> 
+  gt::gt() |> 
+  gt::tab_options(
+    ,ihtml.active = TRUE
+    ,ihtml.use_pagination = TRUE
+    ,ihtml.use_compact_mode = TRUE
+    ,ihtml.page_size_default = 5
+    )
+```
+
+## How to load data directly into motherduck
 
 For csv files we can leverage the existing duckdb function `duckdb::read_csv_duckdb()` to directly read the a csv file or a series of csv files^[as long as they have the same header structure] into your duckdb or motherduck database
 
@@ -328,7 +414,7 @@ write.csv(mtcars,"mtcars.csv")
 
 duckdb::duckdb_read_csv(conn = con_md,files = "mtcars.csv",name = "mtcars")
 
-fs::file_delete("mtcars.csv")
+
 ```
 
 For or excel, parquet or httpfs file formats, we can leverage md read_excel_duckdb, read_parquet_duckdb() or read_httpfs_duckdb() form the `md` package.
@@ -337,30 +423,37 @@ Similar to the `read_csv_auto` function, these leverage underlying duckdb extens
 
 You can view the default configuration tables with the md::config_* family of tables 
 
+```{r}
+#| label: delete
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
+fs::file_delete("mtcars.csv")
+```
 
 
 ```{r}
 #| label: read-xl
 #| echo: true
 #| eval: true
-#| warning: true
-#| message: true
+#| warning: false
+#| message: false
 #| include: true
     
-openxlsx::write.xlsx(starwars,"starwars.xlsx") #1
-
-# temp_con <- DBI::dbConnect(duckdb::duckdb())
+openxlsx::write.xlsx(starwars,"starwars.xlsx") #<1>
 
 read_excel_duckdb(
-    .con=con_md #2
-    ,to_database_name = "vignette" #3
-    ,to_schema_name = "main" #4
-    ,to_table_name = "starwars" #5
-    ,file_path = "starwars.xlsx" #6
-    ,header = TRUE #7
-    ,sheet = "Sheet 1" #8
-    ,all_varchar  = TRUE #9
-    ,write_type = "overwrite"  #10
+    .con=con_md #<2>
+    ,to_database_name = "vignette" #<3>
+    ,to_schema_name = "main" #<4>
+    ,to_table_name = "starwars" #<5>
+    ,file_path = "starwars.xlsx" #<6>
+    ,header = TRUE #<7>
+    ,sheet = "Sheet 1" #<8>
+    ,all_varchar  = TRUE #<9>
+    ,write_type = "overwrite"  #<10>
 )
 
 ```

@@ -171,12 +171,14 @@ create_table_tbl <- function(.data,.con,database_name,schema_name,table_name,wri
     if(md_con_indicator){
         # Create and connect to the database
         DBI::dbExecute(.con, glue::glue_sql("CREATE DATABASE IF NOT EXISTS {`database_name`};", .con = .con))
+      Sys.sleep(1)
         DBI::dbExecute(.con, glue::glue_sql("USE {`database_name`};", .con = .con))
 
     }
 
     # Create schema
     DBI::dbExecute(.con, glue::glue_sql("CREATE SCHEMA IF NOT EXISTS {`schema_name`};", .con = .con))
+    Sys.sleep(1)
     DBI::dbExecute(.con, glue::glue_sql("USE {`schema_name`};", .con = .con))
 
     # Add audit fields
@@ -271,11 +273,12 @@ create_table_dbi <- function(.data,.con,database_name,schema_name,table_name,wri
     DBI::dbExecute(.con, glue::glue_sql("USE {`database_name`};", .con = .con))
   }
 
+  Sys.sleep(1)
   # Create schema
   DBI::dbExecute(.con, glue::glue_sql("CREATE SCHEMA IF NOT EXISTS {`schema_name`};", .con = .con))
   DBI::dbExecute(.con, glue::glue_sql("USE {`schema_name`};", .con = .con))
 
-
+  Sys.sleep(1)
   date_vec <- Sys.Date()
   time_vec <- format(Sys.time(), "%H:%M:%S  %Z",tz = Sys.timezone())
 
@@ -302,6 +305,7 @@ create_table_dbi <- function(.data,.con,database_name,schema_name,table_name,wri
   if (write_type == "overwrite") {
 
     dbExecute(.con, glue::glue_sql("DROP TABLE IF EXISTS {table_name_id};",.con = .con))
+    Sys.sleep(1)
 
     dbExecute(.con,glue::glue_sql("CREATE TABLE {table_name_id} AS ",query_plan,.con = .con))
 
@@ -617,18 +621,27 @@ copy_tables_to_new_location <- function(.con, from_table_names, to_database_name
 
   # For local DuckDB, use the current database
   if (!md_con_indicator) {
-    to_database_name <- pwd(.con)$current_database
+    to_database_name <- pwd(.con) |> pull(current_database)
   }
 
+
+
   # Validate input
-  assertthat::assert_that(any(class(from_table_names) %in% c("data.frame")))
+  assertthat::assert_that(any(class(from_table_names) %in% c("data.frame","tbl_dbi")))
+
+  # convert to tibble because downstream depencencies on tibbles
+  from_table_names <- from_table_names |> dplyr::collect()
+
   required_cols <- c("table_catalog", "table_schema", "table_name")
+
   missing_cols  <- setdiff(required_cols, colnames(from_table_names))
+
   if (length(missing_cols)) {
+
     cli::cli_abort("`from_table_names` is missing required columns: {missing_cols}")
   }
 
-  table_names_vec <- unique(from_table_names$table_name)
+  table_names_vec <- unique(from_table_names |> dplyr::pull(table_name))
 
   # Build destination Ids
   to_ids <- purrr::map(
@@ -1038,7 +1051,7 @@ return_table_attributes <- function(.con, table_name) {
 #'
 convert_table_to_sql_id <- function(x) {
 
-  stopifnot(all(c("table_catalog", "table_schema", "table_name") %in% names(x)))
+  stopifnot(all(c("table_catalog", "table_schema", "table_name") %in% colnames(x)))
 
   out <- x |>
     dplyr::rowwise() |>

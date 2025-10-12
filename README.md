@@ -39,13 +39,13 @@ if you have any feedback.
 
 Below is a quick overview of the functions available in the package.
 
-### Functions that help you manage your connection and database metadata
+### Functions that help you manage your connection and duckdb specific extensions
 
 - `connect_to_motherduck()` will leverage your motherduck token to
   connect you to your motherduck instance (it will install the
   motherduck extension if not already present)
 - `install_extensions()` will install various duckdb extensions from the
-  official repository or if you set the flag, a community repository
+  official repository
 - `load_extensions()` will load a duckdb extensions either from an
   official repository
 - `validate_md_connection_statu()` will validate your motherduck
@@ -59,10 +59,11 @@ Below is a quick overview of the functions available in the package.
 
 - `pwd()` prints the current database that you are “in”
 - `cd()` will change your “root” database so any execution functions are
-  relative to that database
+  relative to that database (eg. CREATE SCHEMA)
 - `list_database()` list the databases and their metadata
 - `list_schema()`list the schemas and their metadata
 - `list_table()`list the tables and their metadata
+- `list_all_table()`list all tables across all databases
 - `list_view()`list the views and their metadata
 
 ### Functions that will help you read data into duckdb or motherduck
@@ -101,16 +102,9 @@ Below is a quick overview of the functions available in the package.
 
 - `summary()` will summarize your table or view’s data
 
-### Functions to help your read data
-
-- `read_excel()` will read an excel file formats directly to duckdb or
-  motherduck
-- `read_httpfs()` will read httpfs formats directly to duckdb or
-  motherduck
-
 ## What do I need to use this?
 
-- [duckdb](https://duckdb.org/) package installed on your computer
+- [duckdb](https://duckdb.org/) R package installed on your computer
 - A [motherduck](https://motherduck.com/) account
 - A motherduck access token which you you can be saved to your R
   environment file with `usethis::edit_r_environ()`
@@ -145,12 +139,16 @@ When creating a duckdb database, you have three options
 
 To create options 1 or 2 you can simply use either the
 [duckdb](https://duckdb.org/) or the
-[duckplyr](https://duckplyr.tidyverse.org/index.html)
+[duckplyr](https://duckplyr.tidyverse.org/index.html) packages.
 
-To connect to your motherduck account you can still reference the above
-packages but need to do few additional steps or alternatively you use
-the `connect_to_motherduck()` function and pass through your token
-variable name[^1] and optional configuration options
+To use option 3, you will need to create a motherudck account and
+generate an access token. Once created, save your access token to an
+your R enviorment with `usethis::edit_r_environ()`. I recommend using
+`MOTHERDUCK_TOKEN` as your variable name.
+
+Once completed, you can simply use the `connect_to_motherduck()`
+function and pass through your token variable name and optional
+configuration options.
 
 ``` r
 con_md <- connect_to_motherduck("MOTHERDUCK_TOKEN")
@@ -245,11 +243,15 @@ config$allow_community_extensions <- "true" #<2> change a default option
 con_md <- connect_to_motherduck("MOTHERDUCK_TOKEN",config = config) #<3> pass the modified list to your connection
 ```
 
+At any time you can see what configuration arguments are for your
+connection with `md::list_settings()`.
+
 ``` r
 list_setting(con_md)
 ```
 
-Congratulations, you’ve set up your motherduck database!
+Congratulations, you’ve set connected to your motherduck database from
+R!
 
 If you’re new to databases, it will be helpful to have a basic
 understanding of database management - don’t worry the basics are
@@ -267,5 +269,3 @@ I found helpful.
 
 Please see the {md} package down website to see additional documentation
 on how to use the functions and motherduck
-
-[^1]: recommend you use `MOTHERDUCK_TOKEN` as your variable name
