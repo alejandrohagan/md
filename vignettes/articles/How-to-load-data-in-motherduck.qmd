@@ -14,6 +14,8 @@ title: "How to load data into motherduck"
 library(md)
 library(tidyverse)
 load_all()
+old_hook <- fansi::set_knit_hooks(knitr::knit_hooks, which = c("output", "warning", "error", "message"))
+options(crayon.enabled = TRUE)
 ```
 
 
@@ -33,21 +35,20 @@ To save or reference data, you need to either fully qualify the name with `datab
 
 If you uploaded data without creating a table or schema first then duckdb will assign "temp" and "main" as the default names for your database and schema respectively.
 
-::: {.callout-note}
-## Duckdb vs. Motherduck
+:::{#nte-md .callout-note collapse="true"}
+## Teminology: Duckdb vs. Motherduck 
 
 While not technically correct, motherduck is a cloud based deployment of motherduck where you can have multiple databases, control access / permissions, and scale compute / storage as needed
 
 Duckdb is a essentially single database instance in your local computer where you can save the database to a file or create it in memory. 
 
-If you have a local file or in memory duckdb connection, then you can't create a new database but this function will still work but it will just ignore the database_name you supply it and instead take the name of your current connection.
+If you have a local file or in memory duckdb connection then you are limited to one database per connection. whatever the file name you assign to your connection will be the name of the connection.
 
-This is because a your local file / in memory connection is the database -- you can't create or replace a database on top of that. However in motherduck you can create multiple databases.
+When referencing md functions, simply ignore the database_name argument.
 
-Through out these write ups, I tend to use duckdb & motherduck interchangeably however some functions only work with motherduck and this is motherduck focused package however most functions can work with local instances of duckdb
+Through out these write ups, I tend to use duckdb & motherduck interchangeably however all functions will work motherduck database but most will still work with duckdb database.
 
 :::
-
 ## Let's upload some data
 
 Later on we will show examples of how to read data from a source file, eg. csv, parquet, or even excel directly into motherduck without loading the data into memory but for now let's assume you want to upload some data that you already have loaded in your R environment.
@@ -57,10 +58,11 @@ First let us connect to our motherduck database. In order to connect, you will n
 The `connect_to_motherduck()` function will take your token that is your environment file, install and load the extensions if needed and connect to your motherduck instance.
 
 
-::: {.callout-caution}
+::: {#cau-con .callout-caution collapse="true"}
 ## connecto-to-motherduck
 
 One limitation of the connecting to motherduck from R is that you first need to create a local motherduck instance which then allows the connection to motherduck which means you have access to both local (temporary) duckdb database and your cloud based motherduck databases. 
+
 :::
 
 
@@ -95,7 +97,7 @@ list_all_tables(con_md)
 
 Before uploading new data, it can be helpful to check "where" you are in your database
 
-You can do this with the `pwd()`^[Naming convention is inspired by linux commands] function that will print out the current database & schema that you are in. 
+You can do this with the `pwd()`^[Naming convention is inspired by linux commands] function that will print out the current database & schema that you are in. See @cau-con to understand why we start in a local database vs. motherduck
 
 This would be the default location that you save your database unless you clarified a different database and schema.
 
@@ -104,8 +106,8 @@ This would be the default location that you save your database unless you clarif
 #| label: pwd
 #| echo: true
 #| eval: true
-#| warning: false
-#| message: false
+#| warning: true
+#| message: true
 #| include: true
 
 pwd(con_md)
@@ -127,7 +129,6 @@ cd(con_md,database = "contoso")
 
 For this example, we will want to create a new database and schema location to upload some existing data.  `create_table()` function will create a new database and save the table under the schema.
 
-
 ```{r}
 #| label: create-table
 #| echo: true
@@ -137,7 +138,7 @@ For this example, we will want to create a new database and schema location to u
 #| include: true
 
 ggplot2::diamonds |>  #<1>
-    md::create_table(
+    create_table(
         .con = con_md #<2>
         ,database_name = "vignette" #<3>
         ,schema_name = "raw" #<4>
@@ -161,7 +162,6 @@ To validate the data is in our database, we can do the following:
 We can validate if we have successfully saved the table in our database by running `list_all_tables()`.
 
 
-
 ```{r}
 #| label: list-tables-example
 #| echo: true
@@ -178,29 +178,29 @@ list_all_tables(con_md) |>
 
 After running these functions, we can see our table is ready to be queried.
 
-If you want to access your motherduck data, you can simply leverage` dplyr::tbl()` function with your motherduck connection to pull your data and from there leverage the fantastic dbplyr or dplyr package respectively to use tidy verbs to perform additional functions.
+If you want to access your motherduck data, you can simply leverage` dplyr::tbl()` or `DBI::dbGetQuery()` functions with your motherduck connection to pull your data.
 
 ## organizing our data
 
-Let's say we want to filter and summarize this table and save to our database with a new tablename -- no problem, we can repeat the steps and this time we will upload a DBI object instead of tibble.
+Let's say we want to filter and summarize this table and save it to our database with a new table name -- no problem, we can repeat the steps and this time we will upload a DBI object instead of tibble.
 
 
 ```{r}
 #| label: organize
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: true
 #| include: true
 
-
 id_name <- DBI::Id("vignette","raw","diamonds") #<1>
 
-diamonds_summary_tbl <- tbl(con_md,id_name) |>  #<2>
-    summarise(
+diamonds_summary_tbl <- dplyr::tbl(con_md,id_name) |>  #<2>
+    dplyr::summarise(
         .by=c(color,cut,clarity)
         ,mean_price=mean(price,na.rm=TRUE)
     )
+
 
 diamonds_summary_tbl |> #<3>
     create_table(   
@@ -215,12 +215,12 @@ diamonds_summary_tbl |> #<3>
 2. Perform your additional cleaning, transformation, or summarization steps
 3. Pass the DBI object to create_table and it will still save the table!
 
-While its the same syntax, `create_table()` will work with an R object or DBI object to save that table into your database. 
+While its the same syntax, `create_table()` will work with an R object, duckplyr or DBI object to save that table into your database. 
 
 
-## create new schema
+## Create new schema
 
-Let's saw we want to organize these existing tables into different schema, we can do this by first creating a new schema and then moving that table or alternatively loading a table directly with a new schema and table 
+Let's say we want to organize these existing tables into different schema, we can do this by first creating a new schema and then moving that table or alternatively loading a table directly with a new schema and table.  
 
 
 ```{r}
@@ -253,15 +253,9 @@ This will create a new schema if it doesn't exist but won't load any data.
 list_schemas(con_md)
 
 ```
-::: {.callout-note}
-## default schemas
-Remember as default your duckdb will create a `main` schema even if you don't save any table to it
-If you are using duckdb then your database will default to "memory" or the file-path that you selected
 
-Also note that in duckdb you can't delete main schema either
-:::
 
-We can copy one of tables to our schema with 
+We can copy one of tables to our schema with `copy_tables_to_new_location`
 
 
 ```{r}
@@ -271,9 +265,6 @@ We can copy one of tables to our schema with
 #| warning: false
 #| message: true
 #| include: true
-
-
-
 
 md::copy_tables_to_new_location(
     .con = con_md
@@ -285,30 +276,11 @@ md::copy_tables_to_new_location(
 
 There's a complimentary function called `create_or_repalce_schema` which will also create a schema the different is if there is already a schema with that name it will delete that schema and any tables saved under it.
 
-```{r}
-list_schemas(con_md)
-```
-
 ## drop databaes, schemas or tables
 
 Sometimes we need to delete databases, schemas or tables. 
 
 Be careful when you do this as its irreversible -- there is no CTRL+Z to undo this. 
-
-::: {.callout-note}
-## sql commands
-
-Behind the scenes, the code is just executing the following SQL commands
-
-
-```{sql}
-#--eval: false
-
-if exists drop `table_name` cascade
-
-```
-
-:::
 
 
 ```{r}
@@ -319,7 +291,7 @@ if exists drop `table_name` cascade
 #| message: true
 #| include: true
 
-delete_schema(con_md,database_name = "vignette",schema_name = "raw",cascade = TRUE)
+delete_schema(con_md,database_name = "vignette",schema_name = "curated",cascade = TRUE)
 ```
 
 ```{r}
@@ -331,7 +303,6 @@ delete_schema(con_md,database_name = "vignette",schema_name = "raw",cascade = TR
 #| include: true
 list_all_tables(con_md)
 ```
-
 
 ## how to load data directly into motherduck
 
@@ -372,125 +343,97 @@ You can view the default configuration tables with the md::config_* family of ta
 #| label: read-xl
 #| echo: true
 #| eval: true
-#| warning: false
+#| warning: true
 #| message: true
 #| include: true
     
-openxlsx::write.xlsx(starwars,"starwars.xlsx")
+openxlsx::write.xlsx(starwars,"starwars.xlsx") #1
 
 # temp_con <- DBI::dbConnect(duckdb::duckdb())
 
 read_excel_duckdb(
-    .con=con_md
-    ,to_database_name = "vignette"
-    ,to_schema_name = "main"
-    ,to_table_name = "starwars"
-    ,file_path = "starwars.xlsx"
-    ,header = TRUE
-    ,sheet = "Sheet 1"
-    ,range="automatically inferred"
-    ,all_varchar  = TRUE
+    .con=con_md #2
+    ,to_database_name = "vignette" #3
+    ,to_schema_name = "main" #4
+    ,to_table_name = "starwars" #5
+    ,file_path = "starwars.xlsx" #6
+    ,header = TRUE #7
+    ,sheet = "Sheet 1" #8
+    ,all_varchar  = TRUE #9
+    ,write_type = "overwrite"  #10
 )
 
+```
+
+1. Create a excel file
+2. Pass through our connection
+3. Select the database we want the table to be saved in
+4. Select the schema we want the table to be saved in
+5. Select the table name
+6. Select the filepath to the excel file  
+7. Clarify if we want the first line to be used as headers
+8. Clarify the sheet name to read
+9. Clarify if all columns types be read in as characters
+10. Select if we should overwrite to an existing table or append
+
+Below are the list of configuration options available to be passed through to respective read_* functions.
+
+```{r}
+#| label: delete-excel
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| include: false
 fs::file_delete("starwars.xlsx")
-
-tbl(temp_con,"starwars")
 ```
 
-We can add the following options directly to function to help with uploading the excel files. Note these are available in the documentation and via the build in datasets
+::: {.callout-note collapse="true"}
+## Configuration options
 
 
+
+:::{.panel-tabset}
+## CSV
 
 ```{r}
+#| label: config-csv
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
+md::config_csv |> 
+  gt::gt()
 
-  
-arrow::write_parquet(x = iris,sink = "iris.parquet")
-
-read_parquet_duckdb(temp_con,to_table_name = "iris",file_path =  "iris.parquet")
-usethis::use_data_raw("config_parquet")
-
-list_all_tables(temp_con)
-
-md::config_parquet
 ```
-
-
-Underneath the hood, these functions will install and load the required duckdb extension and then go through the standard workflow of creating a table (and associated database / schema if not created) for your work
-
-
-tabset -- configuration options 
-
-## config options
+## Excel
 
 ```{r}
+#| label: config-excel
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
 
-config_parquet <- tribble(
-    ~name,               ~description,                                                                                 ~type,   ~default,
-    "binary_as_string",  "Parquet files generated by legacy writers do not correctly set the UTF8 flag for strings, causing string columns to be loaded as BLOB instead. Set this to true to load binary columns as strings.", "BOOL", "false",
-    "encryption_config", "Configuration for Parquet encryption.",                                                     "STRUCT", "-",
-    "filename",          "Whether or not an extra filename column should be included in the result. Since DuckDB v1.3.0, the filename column is added automatically as a virtual column and this option is only kept for compatibility reasons.", "BOOL", "false",
-    "file_row_number",   "Whether or not to include the file_row_number column.",                                       "BOOL", "false",
-    "hive_partitioning", "Whether or not to interpret the path as a Hive partitioned path.",                          "BOOL", "(auto-detected)",
-    "union_by_name",     "Whether the columns of multiple schemas should be unified by name, rather than by position.", "BOOL", "false"
-)
-
-config_parquet
+md::config_excel |> 
+  gt::gt()
 ```
+## Parquet
 
 ```{r}
+#| label: config-parquet
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
 
-config_excel <- tribble(
-    ~option,            ~type,     ~default,                  ~description,
-    "header",           "BOOLEAN", "automatically inferred",  "Whether to treat the first row as containing the names of the resulting columns.",
-    "sheet",            "VARCHAR", "automatically inferred",  "The name of the sheet in the xlsx file to read. Default is the first sheet.",
-    "all_varchar",      "BOOLEAN", "false",                   "Whether to read all cells as containing VARCHARs.",
-    "ignore_errors",    "BOOLEAN", "false",                   "Whether to ignore errors and silently replace cells that can't be cast to the corresponding inferred column type with NULLs.",
-    "range",            "VARCHAR", "automatically inferred",  "The range of cells to read, in spreadsheet notation. For example, A1:B2 reads the cells from A1 to B2. If not specified, the resulting range will be inferred as the rectangular region of cells between the first row of consecutive non-empty cells and the first empty row spanning the same columns.",
-    "stop_at_empty",    "BOOLEAN", "automatically inferred",  "Whether to stop reading the file when an empty row is encountered. If an explicit range option is provided, this is false by default; otherwise, true.",
-    "empty_as_varchar", "BOOLEAN", "false",                   "Whether to treat empty cells as VARCHAR instead of DOUBLE when trying to automatically infer column types."
-)
+
+md::config_parquet |> 
+  gt::gt()
 ```
+:::
 
-
-
-
-```{r}
-
-
-
-md_con <- connect_to_motherduck(config=list(autoload_known_extensions="true"))
-Sys.setenv(MOTHERDUCK_TOKEN = "your_motherduck_token_here")
-
-# Connect to DuckDB in memory only (no local file created)
-con <- dbConnect(
-  duckdb::duckdb(config=list(autoload_known_extensions="true"))
-  ,dbdir = ":md"
-  ,motherduck_token=Sys.setenv(MOTHERDUCK_TOKEN = "your_motherduck_token_here")
-  )
-
-# Install and load the Motherduck extension
-dbExecute(con, "INSTALL motherduck;")
-dbExecute(con, "LOAD motherduck;")
-
-# Attach Motherduck (empty catalog = default)
-dbExecute(md_con, "ATTACH 'md:' AS md;")
-
-# Now query something from your MD environment
-dbGetQuery(con, "SELECT catalog_name FROM schemata;")
-
-DBI::dbDisconnect(md_con)
-
-
-con <- dbConnect(duckdb::duckdb(), dbdir = "md:",motherduck_token=Sys.getenv( "MOTHERDUCK_TOKEN"))
-
-dbGetQuery(con, "SELECT table_schema, table_name FROM information_schema.tables;")
-
-
-dbExecute(con, "ATTACH 'md:';")
-
-dbExecute(md_con, "ATTACH 'md:';")
-   
-
-   
-```
-
+:::

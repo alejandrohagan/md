@@ -16,33 +16,36 @@ read_excel_duckdb(
   ignore_errors,
   range,
   stop_at_empty,
-  empty_as_varchar
+  empty_as_varchar,
+  write_type
 )
 }
 \arguments{
 \item{.con}{A valid `DBI` connection (DuckDB / MotherDuck).}
 
-\item{to_database_name}{Target database name.}
+\item{to_database_name}{Target database name}
 
-\item{to_schema_name}{Target schema name.}
+\item{to_schema_name}{Target schema name}
 
-\item{to_table_name}{Target table name to create.}
+\item{to_table_name}{Target table name to create}
 
-\item{file_path}{Path to the Excel file (`.xlsx`).}
+\item{file_path}{Path to the Excel file (`.xlsx`)}
 
-\item{header}{Logical; if `TRUE`, first row is header.}
+\item{header}{Logical; if `TRUE`, first row is header}
 
-\item{sheet}{Character; sheet name or index (as character) to read.}
+\item{sheet}{Character; sheet name or index (as character) to read}
 
-\item{all_varchar}{Logical; coerce all columns to `VARCHAR`.}
+\item{all_varchar}{Logical; coerce all columns to `VARCHAR`}
 
-\item{ignore_errors}{Logical; continue on cell/row errors.}
+\item{ignore_errors}{Logical; continue on cell/row errors}
 
-\item{range}{Character; Excel range like `"A1"` or `"A1:C100"`.}
+\item{range}{Character; Excel range like `"A1"` or `"A1:C100"`}
 
-\item{stop_at_empty}{Logical; stop at first completely empty row.}
+\item{stop_at_empty}{Logical; stop at first completely empty row}
 
-\item{empty_as_varchar}{Logical; treat empty columns as `VARCHAR`.}
+\item{empty_as_varchar}{Logical; treat empty columns as `VARCHAR`}
+
+\item{write_type}{Logical, will drop previous table and replace with new table}
 }
 \value{
 Invisibly returns `NULL`.
