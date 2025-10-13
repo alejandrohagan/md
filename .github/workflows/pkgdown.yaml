@@ -31,6 +31,13 @@ jobs:
         with:
           use-public-rspm: true
 
+          
+      # Install the necessary R packages (including quarto and pkgdown)
+      - name: Install R dependencies
+        run: |
+          install.packages("quarto")  # Install the quarto R package
+          install.packages("pkgdown")  # Make sure pkgdown is installed
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::pkgdown, local::.
