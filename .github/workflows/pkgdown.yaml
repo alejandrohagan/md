@@ -34,7 +34,7 @@ jobs:
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
         with:
-          version: latest   # or pin like "1.6.40"
+          version: "1.6.40"    # or pin like "1.6.40"
 
       - name: Check Quarto
         run: quarto --version
