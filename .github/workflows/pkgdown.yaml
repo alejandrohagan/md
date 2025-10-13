@@ -35,8 +35,8 @@ jobs:
       # Install the necessary R packages (including quarto and pkgdown)
       - name: Install R dependencies
         run: |
-          install.packages("quarto")  # Install the quarto R package
-          install.packages("pkgdown")  # Make sure pkgdown is installed
+          Rscript -e "install.packages('quarto')"   # Install quarto R package
+          Rscript -e "install.packages('pkgdown')"  # Install pkgdown R package
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
