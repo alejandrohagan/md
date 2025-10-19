@@ -264,11 +264,11 @@ create_table_dbi <- function(.data,.con,database_name,schema_name,table_name,wri
 
   md_con_indicator <- validate_md_connection_status(.con,return_type="arg")
 
-  if(!rlang::is_missing(database_name)){
+  if(rlang::is_missing(database_name)){
     database_name <- pwd(.con) |> pull(current_database)
   }
 
-  if(!rlang::is_missing(schema_name)){
+  if(rlang::is_missing(schema_name)){
     schema_name <- pwd(.con) |> pull(current_schema)
   }
 
@@ -311,15 +311,15 @@ create_table_dbi <- function(.data,.con,database_name,schema_name,table_name,wri
   # Write table
   if (write_type == "overwrite") {
 
-    dbExecute(.con, glue::glue_sql("DROP TABLE IF EXISTS {table_name_id};",.con = .con))
+    DBI::dbExecute(.con, glue::glue_sql("DROP TABLE IF EXISTS {table_name_id};",.con = .con))
 
     Sys.sleep(1)
 
-    dbExecute(.con,glue::glue_sql("CREATE TABLE IF NOT EXISTS {table_name_id} AS ",query_plan,.con = .con))
+    DBI::dbExecute(.con,glue::glue_sql("CREATE TABLE IF NOT EXISTS {table_name_id} AS ",query_plan,.con = .con))
 
   } else if (write_type == "append") {
 
-    dbExecute(.con,glue::glue_sql("INSERT INTO {table_name_id} ",query_plan,.con = .con))
+    DBI::dbExecute(.con,glue::glue_sql("INSERT INTO {table_name_id} ",query_plan,.con = .con))
 
   }
 
