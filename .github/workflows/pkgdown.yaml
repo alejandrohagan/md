@@ -46,7 +46,6 @@ jobs:
             any::pkgdown
             any::quarto
             local::.
-          needs: website
 
       - name: Build site
         shell: Rscript {0}
