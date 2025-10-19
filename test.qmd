@@ -1,0 +1,163 @@
+---
+title: "test"
+format: html
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+library(tidyverse)
+library(md)
+```
+
+```{r}
+con_md <- md::connect_to_motherduck()
+```
+
+
+```{r}
+ggplot2::diamonds 
+```
+
+```{r}
+#| label: long-form
+#| eval: true
+    # Validate the connection (assume this is a custom function)
+.data <- ggplot2::diamonds
+
+.con <- con_md
+
+database_name <- "vignette"
+schema_name <- "raw"
+table_name <- "diamonds"
+write_type="overwrite"
+
+    # Validate write_type
+    write_type <- rlang::arg_match(write_type,values = c("overwrite","append"))
+
+    # Validate the connection (assume this is a custom function)
+
+    md_con_indicator <- validate_md_connection_status(.con,return_type="arg")
+
+    if(rlang::is_missing(database_name)){
+      database_name <- pwd(.con) |> pull(current_database)
+    }
+
+
+    if(rlang::is_missing(schema_name)){
+      schema_name <- pwd(.con) |> pull(current_schema)
+    }
+
+      Sys.sleep(1)
+      
+    # if(md_con_indicator){
+        
+        # Create and connect to the database
+        # DBI::dbExecute(.con, glue::glue_sql("CREATE DATABASE IF NOT EXISTS {database_name};", .con = .con))
+        
+        Sys.sleep(1)
+        
+        # DBI::dbExecute(.con, glue::glue_sql("USE {`database_name`};", .con = .con))
+
+    # }
+ Sys.sleep(1)
+    # Create schema
+    # DBI::dbExecute(.con, glue::glue_sql("CREATE SCHEMA IF NOT EXISTS {`schema_name`};", .con = .con))
+    Sys.sleep(1)
+    # DBI::dbExecute(.con, glue::glue_sql("USE {`schema_name`};", .con = .con))
+
+    # DBI::dbExecute(.con, glue::glue_sql("CREATE TABLE IF NOT EXISTS {`table_name`}", .con = .con))
+
+    # Add audit fields
+    # out <- .data |>
+    #     dplyr::mutate(
+    #         upload_date = Sys.Date(),
+    #         upload_time = format(Sys.time(), "%H:%M:%S  %Z",tz = Sys.timezone())
+    #     )
+    # 
+    # # Use DBI::Id to ensure schema is used explicitly
+    # 
+    # if(!md_con_indicator){
+    # 
+    #     database_name <- pwd(.con)$current_database
+    # }
+
+    # table_id <- DBI::Id(database=database_name,schema = schema_name, table = table_name)
+    # table_id <- DBI::Id(table = table_name)
+    # 
+    # # Write table
+    # if (write_type == "overwrite") {
+    #     
+    # # 
+    #     DBI::dbWriteTable(.con, name = table_id, value = out, overwrite = TRUE)
+    #     # DBI::dbWriteTable(.con, name = "vignette.raw.diamonds", value = out, overwrite = TRUE)
+    # # 
+    # } else if (write_type == "append") {
+    # # 
+    #     DBI::dbWriteTable(.con, name = table_id, value = out, append = TRUE)
+    # # 
+    # }
+    # 
+
+    
+```
+
+
+```{r}
+#| eval: false
+#| label: create
+
+
+ggplot2::diamonds |>  #<1>
+    md::create_table(
+        .con = con_md #<2>
+        ,database_name = "vignette" #<3>
+        ,schema_name = "raw" #<4>
+        ,table_name = "diamonds" #<5>
+        ,write_type="overwrite"  #<6>
+        )
+
+DBI::dbDisconnect(con_md, shutdown = TRUE)
+```
+
+
+
+```{r}
+#| label: local
+#| eval: false
+
+library(DBI)
+# Create in-memory DuckDB connection
+.con <- dbConnect(duckdb::duckdb(), dbdir = ":memory:")
+
+# Use built-in diamonds dataset
+out <- ggplot2::diamonds
+
+ schema_name <- "raw"
+table_name <- "diamonds"
+
+ table_id <- DBI::Id(schema = "raw", table = "diamonds")
+
+    DBI::dbExecute(.con, glue::glue_sql("CREATE SCHEMA IF NOT EXISTS {`schema_name`};", .con = .con))
+    Sys.sleep(1)
+    DBI::dbExecute(.con, glue::glue_sql("USE {`schema_name`};", .con = .con))
+
+ 
+
+# Write the data to DuckDB
+dbWriteTable(.con, name = table_id, value = out, overwrite = TRUE)
+
+# Check the table exists and view some data
+dbListTables(.con)
+tbl(.con,table_id)
+
+# Clean up
+dbDisconnect(.con, shutdown = TRUE)
+```
+

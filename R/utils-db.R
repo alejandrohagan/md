@@ -155,31 +155,41 @@ create_table_tbl <- function(.data,.con,database_name,schema_name,table_name,wri
     write_type <- rlang::arg_match(write_type,values = c("overwrite","append"))
 
     # Validate the connection (assume this is a custom function)
-    validate_con(.con)
 
     md_con_indicator <- validate_md_connection_status(.con,return_type="arg")
 
     if(rlang::is_missing(database_name)){
-      database_name <- pwd(.con) |> pull(current_database)
+      database_name <- pwd(.con) |> dplyr::pull(current_database)
     }
 
 
     if(rlang::is_missing(schema_name)){
-      schema_name <- pwd(.con) |> pull(current_schema)
+      schema_name <- pwd(.con) |> dplyr::pull(current_schema)
     }
 
+    database_name <- DBI::dbQuoteIdentifier(conn = .con,x = database_name)
+#
     if(md_con_indicator){
-        # Create and connect to the database
-        DBI::dbExecute(.con, glue::glue_sql("CREATE DATABASE IF NOT EXISTS {`database_name`};", .con = .con))
-      Sys.sleep(1)
-        DBI::dbExecute(.con, glue::glue_sql("USE {`database_name`};", .con = .con))
+
+#         # Create and connect to the database
+        DBI::dbExecute(.con, glue::glue_sql("CREATE DATABASE IF NOT EXISTS {database_name};", .con = .con))
+        Sys.sleep(1)
+        DBI::dbExecute(.con, glue::glue_sql("USE {database_name};", .con = .con))
 
     }
 
-    # Create schema
-    DBI::dbExecute(.con, glue::glue_sql("CREATE SCHEMA IF NOT EXISTS {`schema_name`};", .con = .con))
+    # # Create schema
     Sys.sleep(1)
-    DBI::dbExecute(.con, glue::glue_sql("USE {`schema_name`};", .con = .con))
+
+    schema_name <- DBI::dbQuoteIdentifier(conn = .con,x=schema_name)
+
+    #
+    DBI::dbExecute(.con, glue::glue_sql("CREATE SCHEMA IF NOT EXISTS {schema_name}; USE {schema_name};", .con = .con))
+    #
+    Sys.sleep(1)
+    #
+    # DBI::dbExecute(.con, glue::glue_sql("USE {schema_name};", .con = .con))
+
 
     # Add audit fields
     out <- .data |>
@@ -188,15 +198,11 @@ create_table_tbl <- function(.data,.con,database_name,schema_name,table_name,wri
             upload_time = format(Sys.time(), "%H:%M:%S  %Z",tz = Sys.timezone())
         )
 
+
+
     # Use DBI::Id to ensure schema is used explicitly
 
-    if(!md_con_indicator){
-
-        database_name <- pwd(.con)$current_database
-    }
-
-
-    table_id <- DBI::Id(database=database_name,schema = schema_name, table = table_name)
+    table_id <- DBI::Id(table = table_name)
 
     # Write table
     if (write_type == "overwrite") {
@@ -208,6 +214,7 @@ create_table_tbl <- function(.data,.con,database_name,schema_name,table_name,wri
         DBI::dbWriteTable(.con, name = table_id, value = out, append = TRUE)
 
     }
+
 
 
 }
@@ -251,11 +258,9 @@ create_table_tbl <- function(.data,.con,database_name,schema_name,table_name,wri
 #' @seealso [DBI::dbExecute()], [dbplyr::remote_query()]
 create_table_dbi <- function(.data,.con,database_name,schema_name,table_name,write_type="overwrite"){
 
+
   # Validate write_type
   write_type <- rlang::arg_match(write_type,values = c("overwrite","append"))
-
-  # Validate the connection (assume this is a custom function)
-  validate_con(.con)
 
   md_con_indicator <- validate_md_connection_status(.con,return_type="arg")
 
@@ -276,12 +281,13 @@ create_table_dbi <- function(.data,.con,database_name,schema_name,table_name,wri
   Sys.sleep(1)
   # Create schema
   DBI::dbExecute(.con, glue::glue_sql("CREATE SCHEMA IF NOT EXISTS {`schema_name`};", .con = .con))
+
+
   DBI::dbExecute(.con, glue::glue_sql("USE {`schema_name`};", .con = .con))
 
-  Sys.sleep(1)
+
   date_vec <- Sys.Date()
   time_vec <- format(Sys.time(), "%H:%M:%S  %Z",tz = Sys.timezone())
-
 
   # Add audit fields
   query_plan <- .data |>
@@ -298,17 +304,18 @@ create_table_dbi <- function(.data,.con,database_name,schema_name,table_name,wri
     database_name <- pwd(.con)$current_database
   }
 
-  table_id <- DBI::Id(database=database_name,schema = schema_name, table = table_name)
+  # table_id <- DBI::Id(database=database_name,schema = schema_name, table = table_name)
+  # table_id <- DBI::Id(table = table_name)
 
   table_name_id <- DBI::dbQuoteIdentifier(.con,table_name)
   # Write table
   if (write_type == "overwrite") {
 
     dbExecute(.con, glue::glue_sql("DROP TABLE IF EXISTS {table_name_id};",.con = .con))
+
     Sys.sleep(1)
 
-    dbExecute(.con,glue::glue_sql("CREATE TABLE {table_name_id} AS ",query_plan,.con = .con))
-
+    dbExecute(.con,glue::glue_sql("CREATE TABLE IF NOT EXISTS {table_name_id} AS ",query_plan,.con = .con))
 
   } else if (write_type == "append") {
 

@@ -1,5 +1,6 @@
 ---
 title: "How to load data into motherduck"
+code-annotations: below
 ---
 
 
@@ -11,20 +12,13 @@ title: "How to load data into motherduck"
 #| message: false
 #| include: false
 
-library(md)
+# library(md)
 library(tidyverse)
-load_all()
+library(md)
 
-con_md <- connect_to_motherduck()
-md::delete_database(con_md,"vignette")
+# hook <- fansi::set_knit_hooks(knitr::knit_hooks, which = c("output", "warning", "error", "message"))
 
-Sys.sleep(4)
-
-# 
-
-hook <- fansi::set_knit_hooks(knitr::knit_hooks, which = c("output", "warning", "error", "message"))
-
-options(crayon.enabled = TRUE)
+# options(crayon.enabled = TRUE)
 ```
 
 
@@ -91,9 +85,7 @@ Check which database you are "in" with the `pwd()` command
 #| message: true
 #| include: true
 
-con_md <- connect_to_motherduck(
-  motherduck_token = "MOTHERDUCK_TOKEN"  #<1>
-  )
+con_md <- connect_to_motherduck(motherduck_token = "MOTHERDUCK_TOKEN") #<1>
 ```
 1. Pass your token name from your R environment file
 
@@ -121,15 +113,15 @@ list_all_tables(con_md)
 #| message: false
 #| include: true
 
-list_all_tables(con_md) |> 
-  collect() |> 
-  gt::gt() |> 
-  gt::tab_options(
-    ,ihtml.active = TRUE
-    ,ihtml.use_pagination = TRUE
-    ,ihtml.use_compact_mode = TRUE
-    ,ihtml.page_size_default = 5
-    )
+  md::list_all_tables(con_md) |> 
+    gt::gt() |>
+    gt::tab_options(
+      ,ihtml.active = TRUE
+      ,ihtml.use_pagination = TRUE
+      ,ihtml.use_compact_mode = TRUE
+      ,ihtml.page_size_default = 5
+      )
+
 ```
 
 Before uploading new data, it can be helpful to check "where" you are in your database
@@ -159,7 +151,7 @@ If we want to we can also navigate to your motherduck database with the `cd()` c
 ```{r}
 #| label: cd
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: true
 #| include: true
@@ -171,16 +163,18 @@ I am now in my contoso database and if reference a schema or table it would be r
 
 Next lets finally load data into a new database and schema location to upload some existing data.  `create_table()` function will create a new database and save the table under the schema.
 
+
+
 ```{r}
 #| label: create-table
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: true
 #| message: true
 #| include: true
 
 ggplot2::diamonds |>  #<1>
-    create_table(
+    md::create_table(
         .con = con_md #<2>
         ,database_name = "vignette" #<3>
         ,schema_name = "raw" #<4>
@@ -197,35 +191,19 @@ ggplot2::diamonds |>  #<1>
 5. table name 
 6. Either overwrite or append the data
 
-Notice that we don't assign this object to anything, this just silently writes our data to our database and prints a message confirming the performed actions as well as some summary of catalogs, schemas, tables and shares that you havea access
-
+Notice that we don't assign this object to anything, this just silently writes our data to our database and prints a message confirming the performed actions as well as some summary of catalogs, schemas, tables and shares that you haves access
 
 To validate the data is in our database, we can do the following:
 
 We can validate if we have successfully saved the table in our database by running `list_all_tables()`.
 
 
-```{r}
-#| label: list-tables-example
-#| echo: true
-#| eval: false
-#| warning: false
-#| message: false
-#| include: true
-
-list_all_tables(con_md) |> 
-  filter(
-    table_catalog=="vignette"
-  )
-```
-
-After running these functions, we can see our table is ready to be queried.
-
 If you want to access your motherduck data, you can simply leverage `dplyr::tbl()` or `DBI::dbGetQuery()` functions with your motherduck connection to pull your data.
 
 ## Organizing our data
 
 Let's say we want to filter and summarize this table and save it to our database with a new table name -- no problem, we can repeat the steps and this time we will upload a DBI object instead of tibble.
+
 
 
 ```{r}
@@ -270,7 +248,7 @@ Let's say we want to organize these existing tables into a different schema, we 
 ```{r}
 #| label: new-schema
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: true
 #| include: true
@@ -308,21 +286,11 @@ When you create a database it will have a default schema "main", so even though 
 We can copy one of a series of tables to our new schema with `copy_tables_to_new_location`. This accepts a tibble or DBI object of objects with table_catalog,table_schema, table_name headers and will copy them into your new location.
 
 
-```{r}
-#| label: sys-sleep
-#| echo: false
-#| eval: true
-#| warning: false
-#| message: false
-#| include: true
-Sys.sleep(4)
-```
-
 
 ```{r}
 #| label: copy-table-to-location
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: true
 #| include: true
@@ -353,7 +321,7 @@ Be careful when you do this as its irreversible -- there is no CTRL+Z to undo th
 ```{r}
 #| label: delete-schema
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: true
 #| include: true
@@ -362,33 +330,6 @@ delete_schema(con_md,database_name = "vignette",schema_name = "curated",cascade 
 ```
 
 
-```{r}
-#| label: list-all-tables-1
-#| echo: true
-#| eval: false
-#| warning: false
-#| message: true
-#| include: true
-list_all_tables(con_md)
-```
-
-```{r}
-#| label: list-all-tables-1-hidden
-#| echo: false
-#| eval: true
-#| warning: false
-#| message: true
-#| include: true
-list_all_tables(con_md) |> 
-  collect() |> 
-  gt::gt() |> 
-  gt::tab_options(
-    ,ihtml.active = TRUE
-    ,ihtml.use_pagination = TRUE
-    ,ihtml.use_compact_mode = TRUE
-    ,ihtml.page_size_default = 5
-    )
-```
 
 ## How to load data directly into motherduck
 
@@ -444,6 +385,7 @@ fs::file_delete("mtcars.csv")
     
 openxlsx::write.xlsx(starwars,"starwars.xlsx") #<1>
 
+
 read_excel_duckdb(
     .con=con_md #<2>
     ,to_database_name = "vignette" #<3>
@@ -496,7 +438,7 @@ fs::file_delete("starwars.xlsx")
 #| warning: false
 #| message: false
 #| include: true
-md::config_csv |> 
+config_csv |> 
   gt::gt()
 
 ```
@@ -510,9 +452,11 @@ md::config_csv |>
 #| message: false
 #| include: true
 
-md::config_excel |> 
+config_excel |> 
   gt::gt()
 ```
+
+
 ## Parquet
 
 ```{r}
@@ -524,7 +468,7 @@ md::config_excel |>
 #| include: true
 
 
-md::config_parquet |> 
+config_parquet |> 
   gt::gt()
 ```
 :::

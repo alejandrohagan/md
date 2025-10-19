@@ -22,6 +22,7 @@
 #' @param stop_at_empty Logical; stop at first completely empty row
 #' @param empty_as_varchar Logical; treat empty columns as `VARCHAR`
 #' @param write_type Logical, will drop previous table and replace with new table
+#' @export
 #'
 #' @return Invisibly returns `NULL`.
 #' Side effect: creates `<database>.<schema>.<table>` with the Excel data.
