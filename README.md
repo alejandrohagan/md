@@ -165,6 +165,8 @@ con_md <- connect_to_motherduck("MOTHERDUCK_TOKEN")
     See <https://duckdb.org/docs/stable/extensions/overview.html> for more
     information
 
+    ── Connection Status Report: ──
+
     ✔ You are connected to MotherDuck
 
 This will return a connection and print statement indicating if
@@ -176,6 +178,8 @@ At any time you can validate your connection status with
 ``` r
 validate_md_connection_status(con_md)
 ```
+
+    ── Connection Status Report: ──
 
     ✔ You are connected to MotherDuck
 
@@ -235,12 +239,12 @@ alternatively you can use `list_settings()` to see your current
 configuration options.
 
 ``` r
-config <- md::db_config #<1> get list of default configuration options
+config <- md::db_config # <1> get list of default configuration options
 
 
-config$allow_community_extensions <- "true" #<2> change a default option
+config$allow_community_extensions <- "true" # <2> change a default option
 
-con_md <- connect_to_motherduck("MOTHERDUCK_TOKEN",config = config) #<3> pass the modified list to your connection
+con_md <- connect_to_motherduck("MOTHERDUCK_TOKEN",config = config) # <3> pass the modified list to your connection
 ```
 
 At any time you can see what configuration arguments are for your

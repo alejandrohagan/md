@@ -196,12 +196,12 @@ You can see the full list of duckdb configuration options [here](https://duckdb.
 #| message: true
 #| include: true
 
-config <- md::db_config #<1> get list of default configuration options
+config <- md::db_config # <1> get list of default configuration options
 
 
-config$allow_community_extensions <- "true" #<2> change a default option
+config$allow_community_extensions <- "true" # <2> change a default option
 
-con_md <- connect_to_motherduck("MOTHERDUCK_TOKEN",config = config) #<3> pass the modified list to your connection
+con_md <- connect_to_motherduck("MOTHERDUCK_TOKEN",config = config) # <3> pass the modified list to your connection
 
 ```
 
