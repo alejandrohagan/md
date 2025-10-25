@@ -15,7 +15,6 @@ validate_con <- function(.con){
 
     dbIsValid_poss <- purrr::possibly(DBI::dbIsValid)
 
-
     valid_test <- is.null(dbIsValid_poss(.con))
 
     if(valid_test){
@@ -127,18 +126,9 @@ connect_to_motherduck <- function(motherduck_token="MOTHERDUCK_TOKEN",config){
 
     if(!missing(config)){
 
-    .con <- DBI::dbConnect(
-        duckdb::duckdb(
-            dbdir = tempfile()
-            ,config=config
-        )
-    )
+    .con <- DBI::dbConnect(duckdb::duckdb(dbdir = tempfile(),config=config))
     }else{
-        .con <-DBI::dbConnect(
-            duckdb::duckdb(
-                dbdir = tempfile()
-            )
-        )
+        .con <-DBI::dbConnect(duckdb::duckdb(dbdir = tempfile()))
     }
 
     if(!validate_extension_load_status(.con,"motherduck",return_type="arg")){
