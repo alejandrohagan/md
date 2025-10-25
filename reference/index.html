@@ -16,12 +16,6 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/How-to-load-data-in-motherduck.html">How to load data in motherduck</a></li>
-    <li><a class="dropdown-item" href="../articles/How-to-manage-settings-and-extensions.html">How to manage settings and extensions</a></li>
-    <li><a class="dropdown-item" href="../articles/How-to-manage-users-tokens-and-service-accounts.html">How to manage users, tokens and service accounts</a></li>
-  </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -49,6 +43,12 @@
 
       <dl><dt>
 
+          <code><a href="alter_table_schema.html">alter_table_schema()</a></code>
+
+        </dt>
+        <dd>Move Tables from One Schema to Another</dd>
+      </dl><dl><dt>
+
           <code><a href="cd.html">cd()</a></code>
 
         </dt>
@@ -59,6 +59,30 @@
 
         </dt>
         <dd>Check resp status and tidy output to a tibble</dd>
+      </dl><dl><dt>
+
+          <code><a href="cli_create_obj.html">cli_create_obj()</a></code>
+
+        </dt>
+        <dd>Database, Schema, and Table Creator</dd>
+      </dl><dl><dt>
+
+          <code><a href="cli_delete_obj.html">cli_delete_obj()</a></code>
+
+        </dt>
+        <dd>CLI print deleted objects</dd>
+      </dl><dl><dt>
+
+          <code><a href="cli_show_db.html">cli_show_db()</a></code>
+
+        </dt>
+        <dd>Catalog Report Generator</dd>
+      </dl><dl><dt>
+
+          <code><a href="cli_show_user.html">cli_show_user()</a></code>
+
+        </dt>
+        <dd>User Information Report</dd>
       </dl><dl><dt>
 
           <code><a href="configure_md_user_settings.html">configure_md_user_settings()</a></code>
@@ -73,10 +97,34 @@
         <dd>Create connection to motherduck</dd>
       </dl><dl><dt>
 
+          <code><a href="convert_table_to_sql_id.html">convert_table_to_sql_id()</a></code>
+
+        </dt>
+        <dd>Convert Table Metadata to SQL Identifiers</dd>
+      </dl><dl><dt>
+
           <code><a href="convert_to_seconds.html">convert_to_seconds()</a></code>
 
         </dt>
         <dd>Convert units to seconds</dd>
+      </dl><dl><dt>
+
+          <code><a href="copy_tables_to_new_location.html">copy_tables_to_new_location()</a></code>
+
+        </dt>
+        <dd>Copy Tables to a New Database/Schema</dd>
+      </dl><dl><dt>
+
+          <code><a href="create_if_not_exists_database.html">create_if_not_exists_database()</a></code>
+
+        </dt>
+        <dd>Create (If Not Exists) and Switch to a Database</dd>
+      </dl><dl><dt>
+
+          <code><a href="create_if_not_exists_share.html">create_if_not_exists_share()</a></code>
+
+        </dt>
+        <dd>Create a MD share of a database</dd>
       </dl><dl><dt>
 
           <code><a href="create_md_access_token.html">create_md_access_token()</a></code>
@@ -91,16 +139,52 @@
         <dd>Create a new motherduck token</dd>
       </dl><dl><dt>
 
-          <code><a href="create_or_replace_database.html">create_or_replace_database()</a></code>
+          <code><a href="create_or_replace_share.html">create_or_replace_share()</a></code>
 
         </dt>
-        <dd>Overwrite or append tibble to motherduck database</dd>
+        <dd>@title Create or replace a motherduck share</dd>
+      </dl><dl><dt>
+
+          <code><a href="create_schema.html">create_schema()</a></code>
+
+        </dt>
+        <dd>Create a Schema in a Database if It Does Not Exist</dd>
+      </dl><dl><dt>
+
+          <code><a href="create_table.html">create_table()</a></code>
+
+        </dt>
+        <dd>Create or Append a Table from a Tibble or DBI-Backed Table</dd>
+      </dl><dl><dt>
+
+          <code><a href="create_table_dbi.html">create_table_dbi()</a></code>
+
+        </dt>
+        <dd>Create a Database Table from a DBI Object</dd>
+      </dl><dl><dt>
+
+          <code><a href="create_table_tbl.html">create_table_tbl()</a></code>
+
+        </dt>
+        <dd>Overwrite or Append a Local Tibble to a Database Table</dd>
+      </dl><dl><dt>
+
+          <code><a href="delete_and_create_schema.html">delete_and_create_schema()</a></code>
+
+        </dt>
+        <dd>Drop and Recreate a Schema in a MotherDuck / DuckDB Database</dd>
+      </dl><dl><dt>
+
+          <code><a href="delete_database.html">delete_database()</a></code>
+
+        </dt>
+        <dd>Drop a Database</dd>
       </dl><dl><dt>
 
           <code><a href="delete_md_access_token.html">delete_md_access_token()</a></code>
 
         </dt>
-        <dd>Title</dd>
+        <dd>Delete MD user's access token</dd>
       </dl><dl><dt>
 
           <code><a href="delete_md_user.html">delete_md_user()</a></code>
@@ -109,16 +193,52 @@
         <dd>Delete a motherduck user</dd>
       </dl><dl><dt>
 
+          <code><a href="delete_schema.html">delete_schema()</a></code>
+
+        </dt>
+        <dd>Drop a Schema from a Database</dd>
+      </dl><dl><dt>
+
+          <code><a href="delete_table.html">delete_table()</a></code>
+
+        </dt>
+        <dd>Drop a Table</dd>
+      </dl><dl><dt>
+
+          <code><a href="describe_share.html">describe_share()</a></code>
+
+        </dt>
+        <dd>Describe share</dd>
+      </dl><dl><dt>
+
+          <code><a href="drop_share.html">drop_share()</a></code>
+
+        </dt>
+        <dd>Drop a MD share name</dd>
+      </dl><dl><dt>
+
           <code><a href="install_extensions.html">install_extensions()</a></code>
 
         </dt>
         <dd>Install motherduck extensions</dd>
       </dl><dl><dt>
 
-          <code><a href="list_database.html">list_database()</a></code>
+          <code><a href="list_all_tables.html">list_all_tables()</a></code>
 
         </dt>
-        <dd>list database objects</dd>
+        <dd>List All Tables Visible to the Connection</dd>
+      </dl><dl><dt>
+
+          <code><a href="list_current_tables.html">list_current_tables()</a></code>
+
+        </dt>
+        <dd>List Tables in the Current Database and Schema</dd>
+      </dl><dl><dt>
+
+          <code><a href="list_databases.html">list_databases()</a></code>
+
+        </dt>
+        <dd>List Databases Visible to the Connection</dd>
       </dl><dl><dt>
 
           <code><a href="list_extensions.html">list_extensions()</a></code>
@@ -130,13 +250,13 @@
           <code><a href="list_fns.html">list_fns()</a></code>
 
         </dt>
-        <dd>List database functions</dd>
+        <dd>List Database Functions (DuckDB/MotherDuck)</dd>
       </dl><dl><dt>
 
           <code><a href="list_md_active_accounts.html">list_md_active_accounts()</a></code>
 
         </dt>
-        <dd>List activee motherduck accounts</dd>
+        <dd>List active motherduck accounts</dd>
       </dl><dl><dt>
 
           <code><a href="list_md_user_instance.html">list_md_user_instance()</a></code>
@@ -151,10 +271,16 @@
         <dd>List a motherduck user's tokens</dd>
       </dl><dl><dt>
 
-          <code><a href="list_schema.html">list_schema()</a></code>
+          <code><a href="list_owned_shares.html">list_owned_shares()</a></code>
 
         </dt>
-        <dd>list database objects</dd>
+        <dd>List all owned shares</dd>
+      </dl><dl><dt>
+
+          <code><a href="list_schemas.html">list_schemas()</a></code>
+
+        </dt>
+        <dd>List Schemas in the Current Database</dd>
       </dl><dl><dt>
 
           <code><a href="list_settings.html">list_setting()</a></code>
@@ -163,10 +289,16 @@
         <dd>List database settings</dd>
       </dl><dl><dt>
 
-          <code><a href="list_table.html">list_table()</a></code>
+          <code><a href="list_shared_with_me_shares.html">list_shared_with_me_shares()</a></code>
 
         </dt>
-        <dd>list database objects</dd>
+        <dd>List all shares that are shared with you</dd>
+      </dl><dl><dt>
+
+          <code><a href="list_shares.html">list_shares()</a></code>
+
+        </dt>
+        <dd>Title</dd>
       </dl><dl><dt>
 
           <code><a href="load_extensions.html">load_extensions()</a></code>
@@ -181,6 +313,12 @@
         <dd>Print current databases</dd>
       </dl><dl><dt>
 
+          <code><a href="read_excel_duckdb.html">read_excel_duckdb()</a></code>
+
+        </dt>
+        <dd>Read an Excel file into a DuckDB/MotherDuck table</dd>
+      </dl><dl><dt>
+
           <code><a href="read_httpfs.html">read_csv_auto()</a></code> <code><a href="read_httpfs.html">read_httpfs()</a></code>
 
         </dt>
@@ -191,6 +329,12 @@
 
         </dt>
         <dd>read httpfs files</dd>
+      </dl><dl><dt>
+
+          <code><a href="return_table_attributes.html">return_table_attributes()</a></code>
+
+        </dt>
+        <dd>Retrieve Metadata for One or More Tables</dd>
       </dl><dl><dt>
 
           <code><a href="show_current_user.html">show_current_user()</a></code>
@@ -220,7 +364,7 @@
           <code><a href="upload_database_to_md.html">upload_database_to_md()</a></code>
 
         </dt>
-        <dd>Upload a local database to motherduck</dd>
+        <dd>Upload a Local Database to MotherDuck</dd>
       </dl><dl><dt>
 
           <code><a href="validate_and_print_database_loction.html">validate_and_print_database_loction()</a></code>
@@ -247,6 +391,18 @@
         <dd>Validate Motherduck extensions are correctly loaded</dd>
       </dl><dl><dt>
 
+          <code><a href="validate_flock_size.html">validate_flock_size()</a></code>
+
+        </dt>
+        <dd>Validate flock size args</dd>
+      </dl><dl><dt>
+
+          <code><a href="validate_instance_size.html">validate_instance_size()</a></code>
+
+        </dt>
+        <dd>Validate instance size args</dd>
+      </dl><dl><dt>
+
           <code><a href="validate_md_connection_status.html">validate_md_connection_status()</a></code>
 
         </dt>
@@ -262,7 +418,7 @@
           <code><a href="validate_token_type.html">validate_token_type()</a></code>
 
         </dt>
-        <dd>Validate MD token type input</dd>
+        <dd>Validate MD token type args</dd>
       </dl></div>
   </main></div>
 
