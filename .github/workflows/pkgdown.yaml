@@ -8,7 +8,7 @@ on:
     types: [published]
   workflow_dispatch:
 
-name: pkgdown.yaml
+name: pkgdown
 
 permissions: read-all
 
@@ -31,30 +31,31 @@ jobs:
         with:
           use-public-rspm: true
 
-
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          # Force install the package itself
-          extra-packages: any::rcmdcheck, local::., any::pkgdown, any::quarto, any::tidyverse
-          needs: check
-
-     - name: Set up Quarto
+      # Set up Quarto *before* installing R deps if you use qmd vignettes/articles
+      - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          # To install LaTeX to build PDF book
-          tinytex: true
+          tinytex: true  # only needed if you render PDFs
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          # Force install the package itself + pkgdown (and any extras you truly need)
+          extra-packages: any::rcmdcheck, local::., any::pkgdown, any::quarto
+          needs: check
 
       - name: Install libcurl on Linux
         if: runner.os == 'Linux'
-        run: sudo apt-get update -y && sudo apt-get install -y libcurl4-openssl-dev
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y libcurl4-openssl-dev
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
 
-      - name: Deploy to GitHub pages 🚀
+      - name: Deploy to GitHub Pages 🚀
         if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4.5.0
         with:
