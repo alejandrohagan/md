@@ -34,7 +34,7 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           # Force install the package itself
-          extra-packages: any::rcmdcheck, local::., any::pkgdown
+          extra-packages: any::rcmdcheck, local::., any::pkgdown, any::quarto, any::tidyverse
           needs: check
 
       - name: Build site
