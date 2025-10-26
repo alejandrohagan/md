@@ -39,6 +39,10 @@ jobs:
         with:
           tinytex: true  # only needed if you render PDFs
 
+
+      - name: Add Quarto to PATH for R
+        run: echo "$(dirname $(which quarto))" >> $GITHUB_PATH
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           # Force install the package itself + pkgdown (and any extras you truly need)
