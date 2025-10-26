@@ -281,8 +281,6 @@ create_table_dbi <- function(.data,.con,database_name,schema_name,table_name,wri
   Sys.sleep(1)
   # Create schema
   DBI::dbExecute(.con, glue::glue_sql("CREATE SCHEMA IF NOT EXISTS {`schema_name`};", .con = .con))
-
-
   DBI::dbExecute(.con, glue::glue_sql("USE {`schema_name`};", .con = .con))
 
 

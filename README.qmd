@@ -46,7 +46,7 @@ Below is a quick overview of the functions available in the package.
 -   `connect_to_motherduck()` will leverage your motherduck token to connect you to your motherduck instance (it will install the motherduck extension if not already present)
 -   `install_extensions()` will install various duckdb extensions from the official repository
 -   `load_extensions()` will load a duckdb extensions either from an official repository 
--   `validate_md_connection_statu()` will validate your motherduck connection status
+-   `validate_md_connection_status()` will validate your motherduck connection status
 -   `validate_extension_install_status()` will validate if an extension has been successfully installed
 -   `validate_extension_load_status()` will validate if an extension has been successfully loaded
 
@@ -120,12 +120,6 @@ To create options 1 or 2 you can simply use either the [duckdb](https://duckdb.o
 To use option 3, you will need to create a motherudck account and generate an access token. Once created, save your access token to an your R enviorment with `usethis::edit_r_environ()`. I recommend using  `MOTHERDUCK_TOKEN` as your variable name.
 
 Once completed, you can simply use the `connect_to_motherduck()` function and pass through your token variable name and optional configuration options.
-
-
-```{r}
-
-```
-
 
 
 ```{r}
@@ -235,8 +229,6 @@ list_setting(con_md) |>
     head(10) 
 
 ```
-
-
 Congratulations, you've set connected to your motherduck database from R!
 
 If you're new to databases, it will be helpful to have a basic understanding of database management - don't worry the basics are straight forward and won't overwhelm you, below are a list of resources I found helpful.

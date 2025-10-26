@@ -50,7 +50,6 @@ read_excel_duckdb <- function(.con,to_database_name,to_schema_name,to_table_name
 
     # cell range validation
 
-
     if(!missing(range)){
 
     assertthat::assert_that(is.character(range))
@@ -94,7 +93,6 @@ read_excel_duckdb <- function(.con,to_database_name,to_schema_name,to_table_name
     }
 
 
-
     # header args
 
     if(!missing(header)){
@@ -109,7 +107,6 @@ read_excel_duckdb <- function(.con,to_database_name,to_schema_name,to_table_name
 
         header_vec <- ''
     }
-
 
     # empty as varcar
 
@@ -126,7 +123,6 @@ read_excel_duckdb <- function(.con,to_database_name,to_schema_name,to_table_name
         empty_as_varchar_vec <- ''
     }
 
-
     # ignore errors
 
     if(!missing(ignore_errors)){
@@ -142,7 +138,6 @@ read_excel_duckdb <- function(.con,to_database_name,to_schema_name,to_table_name
         ignore_errors_vec <- ''
     }
 
-
     # sheet args
 
     if(!missing(sheet)){
@@ -157,9 +152,6 @@ read_excel_duckdb <- function(.con,to_database_name,to_schema_name,to_table_name
         sheet_vec <- ''
     }
 
-
-
-# .con <- con_md
 # need to convert logic values to lowercase chracter
 
     md::load_extensions(.con,"excel")
@@ -185,7 +177,6 @@ read_excel_duckdb <- function(.con,to_database_name,to_schema_name,to_table_name
             ,.con = .con
         )
 
-
     }
 
     if(write_type=="append"){
@@ -205,7 +196,6 @@ read_excel_duckdb <- function(.con,to_database_name,to_schema_name,to_table_name
 
 
     }
-
 
 
     md:::cli_create_obj(.con,database_name = to_database_name,schema_name = to_schema_name,table_name = to_table_name,write_type = write_type)

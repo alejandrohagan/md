@@ -35,3 +35,5 @@ Depends:
     R (>= 3.5)
 URL: https://alejandrohagan.github.io/md/
 Config/Needs/website: rmarkdown
+VignetteBuilder:
+    quarto
