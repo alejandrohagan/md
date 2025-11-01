@@ -378,7 +378,7 @@ fs::file_delete("mtcars.csv")
 ```{r}
 #| label: read-xl
 #| echo: true
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 #| include: true
@@ -416,7 +416,7 @@ Below are the list of configuration options available to be passed through to re
 ```{r}
 #| label: delete-excel
 #| echo: false
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 #| include: false

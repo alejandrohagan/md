@@ -2,41 +2,140 @@ project:
   type: website
   output-dir: ../docs/
 
-# Note: freeze functionality can be set at a project level or for individual .qmd files
-# execute:
-#   freeze: false
-
 website:
-  title: "$ALTDOC_PACKAGE_NAME"
+  title: md
   code-links: true
   navbar:
     search: true
     right:
       - icon: github
-        href: $ALTDOC_PACKAGE_URL_GITHUB
-        aria-label: $ALTDOC_PACKAGE_NAME GitHub
+        href: https://github.com/usrbinr/md/
+        aria-label: md GitHub
+      - text: Reference
+        menu:
+          - text: alter_table_schema
+            href: man/alter_table_schema.qmd
+          - text: cd
+            href: man/cd.qmd
+          - text: check_resp_status_and_tidy_response
+            href: man/check_resp_status_and_tidy_response.qmd
+          - text: create_schema
+            href: man/create_schema.qmd
+          - text: create_table
+            href: man/create_table.qmd
+          - text: create_table_dbi
+            href: man/create_table_dbi.qmd
+          - text: create_table_tbl
+            href: man/create_table_tbl.qmd
+          - text: copy_tables_to_new_location
+            href: man/copy_tables_to_new_location.qmd
+          - text: return_table_attributes
+            href: man/return_table_attributes.qmd
+          - text: delete_and_create_schema
+            href: man/delete_and_create_schema.qmd
+          - text: delete_schema
+            href: man/delete_schema.qmd
+          - text: delete_table
+            href: man/delete_table.qmd
+          - text: cli_create_obj
+            href: man/cli_create_obj.qmd
+          - text: cli_delete_obj
+            href: man/cli_delete_obj.qmd
+          - text: cli_show_db
+            href: man/cli_show_db.qmd
+          - text: cli_show_user
+            href: man/cli_show_user.qmd
+          - text: configure_md_user_settings
+            href: man/configure_md_user_settings.qmd
+          - text: connect_to_motherduck
+            href: man/connect_to_motherduck.qmd
+          - text: create_if_not_exists_database
+            href: man/create_if_not_exists_database.qmd
+          - text: create_if_not_exists_share
+            href: man/create_if_not_exists_share.qmd
+          - text: create_or_replace_share
+            href: man/create_or_replace_share.qmd
+          - text: delete_database
+            href: man/delete_database.qmd
+          - text: describe_share
+            href: man/describe_share.qmd
+          - text: drop_share
+            href: man/drop_share.qmd
+          - text: list_all_tables
+            href: man/list_all_tables.qmd
+          - text: list_current_tables
+            href: man/list_current_tables.qmd
+          - text: list_databases
+            href: man/list_databases.qmd
+          - text: list_fns
+            href: man/list_fns.qmd
+          - text: list_extensions
+            href: man/list_extensions.qmd
+          - text: list_schemas
+            href: man/list_schemas.qmd
+          - text: list_settings
+            href: man/list_settings.qmd
+          - text: list_shared_with_me_shares
+            href: man/list_shared_with_me_shares.qmd
+          - text: list_shares
+            href: man/list_shares.qmd
+          - text: list_md_active_accounts
+            href: man/list_md_active_accounts.qmd
+          - text: list_md_user_instance
+            href: man/list_md_user_instance.qmd
+          - text: list_md_user_tokens
+            href: man/list_md_user_tokens.qmd
+          - text: list_owned_shares
+            href: man/list_owned_shares.qmd
+          - text: install_extensions
+            href: man/install_extensions.qmd
+          - text: load_extensions
+            href: man/load_extensions.qmd
+          - text: show_duckdb_settings
+            href: man/show_duckdb_settings.qmd
+          - text: pwd
+            href: man/pwd.qmd
+          - text: read_excel_duckdb
+            href: man/read_excel_duckdb.qmd
+          - text: read_httpfs
+            href: man/read_httpfs.qmd
+          - text: read_parquet
+            href: man/read_parquet.qmd
+          - text: upload_database_to_md
+            href: man/upload_database_to_md.qmd
+          - text: validate_con
+            href: man/validate_con.qmd
+          - text: validate_extension_install_status
+            href: man/validate_extension_install_status.qmd
+          - text: validate_extension_load_status
+            href: man/validate_extension_load_status.qmd
+          - text: validate_flock_size
+            href: man/validate_flock_size.qmd
+          - text: validate_instance_size
+            href: man/validate_instance_size.qmd
+          - text: validate_md_connection_status
+            href: man/validate_md_connection_status.qmd
+          - text: validate_motherduck_token_env
+            href: man/validate_motherduck_token_env.qmd
+          - text: validate_token_type
+            href: man/validate_token_type.qmd
+      - text: Vignettes
+        menu:
+          - text: How to load data in MotherDuck
+            href: vignettes/articles/How-to-load-data-in-motherduck.qmd
+
   sidebar:
     collapse-level: 1
     contents:
       - text: Home
         file: index.md
-      - section: $ALTDOC_VIGNETTE_BLOCK
-      - section: $ALTDOC_MAN_BLOCK
       - text: News
-        file: $ALTDOC_NEWS
-      - text: Changelog
-        file: $ALTDOC_CHANGELOG
+        file: NEWS.md
       - text: License
-        file: $ALTDOC_LICENSE
-      - text: Licence
-        file: $ALTDOC_LICENCE
-      - text: Code of conduct
-        file: $ALTDOC_CODE_OF_CONDUCT
+        file: LICENSE.md
       - text: Citation
-        file: $ALTDOC_CITATION
+        file: CITATION.md
 
 format:
   html:
     code-link: true
-#     theme: cosmo
-#     number-sections: false
