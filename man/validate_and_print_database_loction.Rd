@@ -7,7 +7,7 @@
 validate_and_print_database_loction(.con)
 }
 \arguments{
-\item{.con}{duckdb connection}
+\item{.con}{connection}
 }
 \value{
 print message

@@ -154,7 +154,7 @@ read_excel_duckdb <- function(.con,to_database_name,to_schema_name,to_table_name
 
 # need to convert logic values to lowercase chracter
 
-    md::load_extensions(.con,"excel")
+    load_extensions(.con,"excel")
 
     #need this to be create if not exists and then use
     DBI::dbExecute(conn = .con,glue::glue_sql("CREATE DATABASE IF NOT EXISTS {`to_database_name`}; USE {`to_database_name`};",.con=.con))
@@ -198,6 +198,6 @@ read_excel_duckdb <- function(.con,to_database_name,to_schema_name,to_table_name
     }
 
 
-    md:::cli_create_obj(.con,database_name = to_database_name,schema_name = to_schema_name,table_name = to_table_name,write_type = write_type)
+    cli_create_obj(.con,database_name = to_database_name,schema_name = to_schema_name,table_name = to_table_name,write_type = write_type)
 }
 

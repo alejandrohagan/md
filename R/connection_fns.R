@@ -90,7 +90,10 @@ validate_md_connection_status <- function(.con,return_type="msg"){
 
 #' Create connection to motherduck
 #' @name  connect_to_motherduck
+#'
+#' @param config list of configuration options
 #' @param motherduck_token motherduck token saved in your environment file
+#'
 #' @description
 #' creates a DuckDB connection, installs and loads the motherduck extension and finally
 #' executes  `DBI::dbExecute(con, "PRAGMA MD_CONNECT")` to connect to motherduck through your
@@ -164,7 +167,7 @@ connect_to_motherduck <- function(motherduck_token="MOTHERDUCK_TOKEN",config){
 
 #' Title
 #'
-#' @param .con duckdb connection
+#' @param .con connection
 #'
 #' @returns print message
 #'

@@ -10,6 +10,8 @@ cd(.con, database, schema)
 \item{.con}{connection}
 
 \item{database}{database name}
+
+\item{schema}{schema name}
 }
 \value{
 message

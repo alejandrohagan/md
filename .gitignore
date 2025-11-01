@@ -24,6 +24,8 @@ md_logo.png
 docs
 /renv
 renv.lock
+_quarto/
+vignettes/.quarto/_freeze/
 
 altdoc/freeze.rds
 _quarto/*

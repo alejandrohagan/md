@@ -1,6 +1,10 @@
 ---
 title: "How to load data into motherduck"
 code-annotations: below
+vignette: >
+  %\VignetteIndexEntry{How to load data in MotherDuck}
+  %\VignetteEngine{quarto::quarto}
+  %\VignetteEncoding{UTF-8}
 ---
 
 

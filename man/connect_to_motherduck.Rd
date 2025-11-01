@@ -8,6 +8,8 @@ connect_to_motherduck(motherduck_token = "MOTHERDUCK_TOKEN", config)
 }
 \arguments{
 \item{motherduck_token}{motherduck token saved in your environment file}
+
+\item{config}{list of configuration options}
 }
 \value{
 connection

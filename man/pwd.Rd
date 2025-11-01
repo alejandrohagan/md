@@ -7,7 +7,7 @@
 pwd(.con)
 }
 \arguments{
-\item{.con}{}
+\item{.con}{motherdudck connection}
 }
 \value{
 tibble

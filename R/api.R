@@ -1,10 +1,12 @@
 
 #' @title Show current user
 #' @name show_current_user
+#'
 #' @param motherduck_token motherduck token
 #'
 #' @param return msg or arg
 #'
+#' @param .con connection
 #'
 #' @returns tibble or print statement
 #' @export
@@ -58,12 +60,11 @@ check_resp_status_and_tidy_response <- function(resp,json_response,column_name1,
 
     # column_name1="test1"
     # column_name2="test2"
-    print(resp)
 
     if (all(resp$status_code == 200)){
 
         # If the 'accounts' field in the response is empty, return the whole JSON response
-        if (all(json_response |> pluck(1) |> length()==0)) {
+        if (all(json_response |> purrr::pluck(1) |> length()==0)) {
 
             return(json_response)
         }
@@ -78,6 +79,8 @@ check_resp_status_and_tidy_response <- function(resp,json_response,column_name1,
                 !!column_name1:= ind,
                 !!column_name2:= values
             )
+
+
 
         # Return the formatted output
         return(out)
@@ -183,7 +186,7 @@ list_md_user_tokens <- function(user_name,motherduck_token="MOTHERDUCK_TOKEN"){
         httr2::req_perform()
 
     # Parse the response JSON
-    json_response <- resp_body_json(resp)
+    json_response <- httr2::resp_body_json(resp)
 
     out <- check_resp_status_and_tidy_response(resp,json_response,column_name1 = "token_settings",column_name2="token_values")
 
@@ -404,7 +407,7 @@ create_md_access_token <- function(user_name,token_type,token_name,token_expirat
         httr2::req_perform()
 
     # Parse the JSON response
-    json_response <- resp_body_json(resp)
+    json_response <- httr2::resp_body_json(resp)
 
     out <- check_resp_status_and_tidy_response(
         resp = resp
@@ -444,7 +447,7 @@ delete_md_access_token <- function(user_name,token_name,motherduck_token="MOTHER
         httr2::req_error(is_error = function(resp) FALSE) |>  # Optional: prevent automatic errors
         httr2::req_perform()
 
-    json_response <- resp_body_json(resp)
+    json_response <- httr2::resp_body_json(resp)
 
     out <- check_resp_status_and_tidy_response(
         resp = resp
@@ -510,7 +513,7 @@ configure_md_user_settings <- function(
         httr2::req_perform()
 
 
-    json_response <- resp_body_json(resp)
+    json_response <- httr::resp_body_json(resp)
 
     out <- check_resp_status_and_tidy_response(
         resp = resp
@@ -600,8 +603,6 @@ validate_token_type <- function(token_type){
 
     return(token_type_vec)
 
-
-
 }
 
 #' @title Validate instance size args
@@ -624,8 +625,6 @@ validate_instance_size <- function(instance_size){
     return(instance_size_vec)
 
 }
-
-
 
 #' @title Validate flock size args
 #' @name validate_flock_size
@@ -791,9 +790,6 @@ create_if_not_exists_share <- function(.con,
 
 
 
-
-
-
 #' @title Describe share
 #' @name describe_share
 #' @param .con connection
@@ -804,7 +800,7 @@ create_if_not_exists_share <- function(.con,
 #'
 describe_share <- function(.con, share_path) {
 
-    assertthat::asserthat(
+    assertthat::assert_that(
         is.character(share_name)
     )
 
@@ -833,7 +829,7 @@ drop_share <- function(.con, share_name) {
   # .con <- con_md
   # share_name <- "test"
     #validate inputs
-    md::validate_md_connection_status(.con,return_type = "arg")
+    validate_md_connection_status(.con,return_type = "arg")
 
     assertthat::assert_that(
         is.character(share_name)
@@ -843,7 +839,7 @@ drop_share <- function(.con, share_name) {
     share_name_quoted <- DBI::dbQuoteIdentifier(.con, share_name)
 
     suppressWarnings(
-    valid_share_name <- unique(md::list_shares(.con)$name)
+    valid_share_name <- unique(list_shares(.con)$name)
     )
 
     if(any(share_name %in% valid_share_name)){

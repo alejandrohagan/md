@@ -7,6 +7,8 @@
 show_current_user(.con, motherduck_token = "MOTHERDUCK_TOKEN", return = "msg")
 }
 \arguments{
+\item{.con}{connection}
+
 \item{motherduck_token}{motherduck token}
 
 \item{return}{msg or arg}

@@ -49,10 +49,10 @@ delete_and_create_schema <- function(.con,database_name,schema_name){
 
     # print report
     cli::cli_h1("Status:")
-    md:::validate_md_connection_status(.con)
-    md:::cli_show_user(.con)
-    md:::cli_show_db(.con)
-    md:::cli_create_obj(.con,database_name = database_name,schema_name = schema_name)
+    validate_md_connection_status(.con)
+    cli_show_user(.con)
+    cli_show_db(.con)
+    cli_create_obj(.con,database_name = database_name,schema_name = schema_name)
 
 }
 
@@ -103,10 +103,10 @@ create_schema <- function(.con,database_name,schema_name){
 
 
     cli::cli_h1("Status:")
-    md:::validate_md_connection_status(.con)
-    md:::cli_show_user(.con)
-    md:::cli_show_db(.con)
-    md:::cli_create_obj(.con,database_name = database_name,schema_name = schema_name)
+    validate_md_connection_status(.con)
+    cli_show_user(.con)
+    cli_show_db(.con)
+    cli_create_obj(.con,database_name = database_name,schema_name = schema_name)
 
     suppressMessages(
     # Create schema
@@ -159,7 +159,9 @@ create_table_tbl <- function(.data,.con,database_name,schema_name,table_name,wri
     md_con_indicator <- validate_md_connection_status(.con,return_type="arg")
 
     if(rlang::is_missing(database_name)){
+
       database_name <- pwd(.con) |> dplyr::pull(current_database)
+
     }
 
 
@@ -265,11 +267,11 @@ create_table_dbi <- function(.data,.con,database_name,schema_name,table_name,wri
   md_con_indicator <- validate_md_connection_status(.con,return_type="arg")
 
   if(rlang::is_missing(database_name)){
-    database_name <- pwd(.con) |> pull(current_database)
+    database_name <- pwd(.con) |> dplyr::pull(current_database)
   }
 
   if(rlang::is_missing(schema_name)){
-    schema_name <- pwd(.con) |> pull(current_schema)
+    schema_name <- pwd(.con) |> dplyr::pull(current_schema)
   }
 
   if(md_con_indicator){
@@ -384,10 +386,10 @@ create_table <- function(.data,.con,database_name,schema_name,table_name,write_t
 
 
   cli::cli_h1("Status:")
-  md:::validate_md_connection_status(.con)
-  md:::cli_show_user(.con)
-  md:::cli_show_db(.con)
-  md:::cli_create_obj(.con,database_name = database_name,schema_name = schema_name,write_type = write_type)
+  validate_md_connection_status(.con)
+  cli_show_user(.con)
+  cli_show_db(.con)
+  cli_create_obj(.con,database_name = database_name,schema_name = schema_name,write_type = write_type)
 
 
 
@@ -445,10 +447,10 @@ create_if_not_exists_database <- function(.con,database_name){
   }
 
   cli::cli_h1("Status:")
-  md:::validate_md_connection_status(.con)
-  md:::cli_show_user(.con)
-  md:::cli_show_db(.con)
-  md:::cli_create_obj(.con,database_name = database_name,schema_name = schema_name,write_type = write_type)
+  validate_md_connection_status(.con)
+  cli_show_user(.con)
+  cli_show_db(.con)
+  cli_create_obj(.con,database_name = database_name,schema_name = schema_name,write_type = write_type)
 
 
 }
@@ -496,9 +498,9 @@ alter_table_schema <- function(.con, from_table_names, new_schema) {
     DBI::dbExecute(.con, sql)
 
     cli::cli_h1("Status:")
-    md:::validate_md_connection_status(.con)
-    md:::cli_show_user(.con)
-    md:::cli_show_db(.con)
+    validate_md_connection_status(.con)
+    cli_show_user(.con)
+    cli_show_db(.con)
     cli::cli_h2("Action Report:")
     cli::cli_li("Change {from_table_names} schema to {new_schema}")
 
@@ -543,7 +545,7 @@ cd(.con,database_name)
 )
 
   table_count <-  list_all_tables(.con) |>
-    filter(
+    dplyr::filter(
       table_catalog==database_name
       ,table_schema==schema_name
     ) |>
@@ -552,9 +554,9 @@ cd(.con,database_name)
 
 
   cli::cli_h1("Status:")
-  md:::validate_md_connection_status(.con)
-  md:::cli_show_user(.con)
-  md:::cli_show_db(.con)
+  validate_md_connection_status(.con)
+  cli_show_user(.con)
+  cli_show_db(.con)
   cli::cli_h2("Action Report:")
   cli::cli_ul("Deleted {.val {schema_name}} schema and {.val {table_count}} tables")
 
@@ -568,9 +570,9 @@ cd(.con,database_name)
     DBI::dbExecute(.con, drop_schema_sql)
 
     cli::cli_h1("Status:")
-    md:::validate_md_connection_status(.con)
-    md:::cli_show_user(.con)
-    md:::cli_show_db(.con)
+    validate_md_connection_status(.con)
+    cli_show_user(.con)
+    cli_show_db(.con)
     cli::cli_h2("Action Report:")
     cli::cli_ul("Deleted {.val {schema_name}} schema and {.val {table_count}} tables")
 
@@ -672,9 +674,9 @@ copy_tables_to_new_location <- function(.con, from_table_names, to_database_name
 
   # Status / report
   cli::cli_h1("Status:")
-  try(md:::validate_md_connection_status(.con), silent = TRUE)
-  try(md:::cli_show_user(.con), silent = TRUE)
-  try(md:::cli_show_db(.con), silent = TRUE)
+  try(validate_md_connection_status(.con), silent = TRUE)
+  try(cli_show_user(.con), silent = TRUE)
+  try(cli_show_db(.con), silent = TRUE)
 
 
   cli::cli_h2("Action Report:")
@@ -728,9 +730,9 @@ upload_database_to_md <- function(.con, from_db_name, to_db_name) {
   )
 
   cli::cli_h1("Status:")
-  try(md:::validate_md_connection_status(.con), silent = TRUE)
-  try(md:::cli_show_user(.con), silent = TRUE)
-  try(md:::cli_show_db(.con), silent = TRUE)
+  try(validate_md_connection_status(.con), silent = TRUE)
+  try(cli_show_user(.con), silent = TRUE)
+  try(cli_show_db(.con), silent = TRUE)
 
   cli::cli_h2("Action Report:")
   cli::cli_li("Copied local database {.val {from_db_name}} to MotherDuck as {.val {to_db_name}}")
@@ -971,10 +973,10 @@ delete_database <- function(.con,database_name) {
 
   # Status output
   cli::cli_h1("Status:")
-  md:::validate_md_connection_status(.con)
-  md:::cli_show_user(.con)
-  md:::cli_show_db(.con)
-  md:::cli_delete_obj(.con = .con, database_name = database_name)
+  validate_md_connection_status(.con)
+  cli_show_user(.con)
+  cli_show_db(.con)
+  cli_delete_obj(.con = .con, database_name = database_name)
 
 
   if(DBI::dbExecute(.con, glue::glue_sql("DROP DATABASE IF EXISTS {`database_name`} CASCADE;",.con = .con))!=0){
@@ -1070,7 +1072,7 @@ convert_table_to_sql_id <- function(x) {
     dplyr::ungroup() |>
     purrr::pluck(1)
 
-  out
+  return(out)
 }
 
 #' @title Drop a Table
@@ -1105,9 +1107,9 @@ delete_table <- function(.con, database_name, schema_name, table_name, cascade =
   DBI::dbExecute(.con, drop_sql)
 
   cli::cli_h1("Status:")
-  try(md:::validate_md_connection_status(.con), silent = TRUE)
-  try(md:::cli_show_user(.con), silent = TRUE)
-  try(md:::cli_show_db(.con), silent = TRUE)
+  try(validate_md_connection_status(.con), silent = TRUE)
+  try(cli_show_user(.con), silent = TRUE)
+  try(cli_show_db(.con), silent = TRUE)
   cli::cli_h3("Action Report:")
   cli::cli_ul("Deleted {.val {table_name}} from {.val [database_name]} in {.val {schema_name}}")
 

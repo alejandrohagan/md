@@ -586,7 +586,7 @@ SELECT * FROM read_parquet('",file_path,"');"
 #' @description
 #' Prints the current database that you are in (adopts language from linux)
 #'
-#' @param .con
+#' @param .con motherdudck connection
 #'
 #' @returns tibble
 #' @export
@@ -609,10 +609,10 @@ pwd <- function(.con){
 
   role_vec <- DBI::dbGetQuery(.con,"select current_role();") |>
     tibble::as_tibble(.name_repair = janitor::make_clean_names) |>
-    pull(current_role)
+    dplyr::pull(current_role)
 
 
-  out <- bind_cols(database_tbl,schema_tbl)
+  out <- dplyr::bind_cols(database_tbl,schema_tbl)
 
   cli::cli_alert("Current role: {.envvar {role_vec}}")
 
@@ -624,6 +624,7 @@ pwd <- function(.con){
 #'
 #' @param .con connection
 #' @param database database name
+#' @param schema schema name
 #'
 #' @returns message
 #' @export
@@ -687,8 +688,8 @@ cd <- function(.con,database,schema){
 
 
   cli::cli_h1("Status:")
-  md:::cli_show_user(.con)
-  md:::cli_show_db(.con)
+  cli_show_user(.con)
+  cli_show_db(.con)
 
 
 }
