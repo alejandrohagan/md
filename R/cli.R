@@ -79,7 +79,7 @@ cli_create_obj <- function(.con, database_name, schema_name, table_name, write_t
 
         # Step 8: Report whether a new schema is created or an existing schema is used
         cli::cli_text(
-            dpdlyr::if_else(!schema_count > 0,
+            dplyr::if_else(!schema_count > 0,
                     "{cli::symbol$tick} Created new schema {.val {schema_name}}",
                     "{cli::symbol$tick} Using existing schema {.val {schema_name}}")
         )
