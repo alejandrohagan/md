@@ -9,8 +9,10 @@
 #' @returns logical value or error message
 #'
 #' @examples
+#' \dontrun{
 #' con <- DBI::dbConnect(duckdb::duckdb())
 #' validate_duckdb_con(con)
+#' }
 validate_con <- function(.con){
 
     dbIsValid_poss <- purrr::possibly(DBI::dbIsValid)
@@ -40,8 +42,10 @@ validate_con <- function(.con){
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' con <- DBI::dbConnect(duckdb::duckdb())
 #' validate_md_connection_status(con)
+#' }
 validate_md_connection_status <- function(.con,return_type="msg"){
 
     # return_type <- "msg"

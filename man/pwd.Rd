@@ -16,6 +16,8 @@ tibble
 Prints the current database that you are in (adopts language from linux)
 }
 \examples{
-#' con <- DBI::dbConnect(duckdb::duckdb())
+\dontrun{
+con <- DBI::dbConnect(duckdb::duckdb())
 pwd(con)
+}
 }

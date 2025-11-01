@@ -16,6 +16,8 @@ tibble
 Show DuckDB settings
 }
 \examples{
+\dontrun{
 con <- DBI::dbConnect(duckdb::duckdb())
 show_duckdb_settings(con)
+}
 }

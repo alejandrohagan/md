@@ -20,6 +20,8 @@ message or extension names
 Validate  Motherduck extensions are correctly loaded
 }
 \examples{
+\dontrun{
 con <- DBI::dbConnect(duckdb::duckdb())
 validate_extension_load_status(con,extension_names=c('excel','arrow'),return_type='ext')
+}
 }

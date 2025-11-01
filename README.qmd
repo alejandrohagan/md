@@ -1,6 +1,5 @@
 ---
 title: "My Project"
-format: gfm
 ---
 
 
@@ -17,6 +16,7 @@ library(tidyverse)
 library(DBI)
 library(duckdb)
 library(md)
+
 
 ```
 
@@ -120,6 +120,8 @@ To create options 1 or 2 you can simply use either the [duckdb](https://duckdb.o
 To use option 3, you will need to create a motherudck account and generate an access token. Once created, save your access token to an your R enviorment with `usethis::edit_r_environ()`. I recommend using  `MOTHERDUCK_TOKEN` as your variable name.
 
 Once completed, you can simply use the `connect_to_motherduck()` function and pass through your token variable name and optional configuration options.
+
+
 
 
 ```{r}

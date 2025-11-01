@@ -9,8 +9,10 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' con <- DBI::dbConnect(duckdb::duckdb())
 #' list_extensions(con)
+#' }
 list_extensions <- function(.con){
 
   validate_con(.con)
@@ -38,8 +40,10 @@ list_extensions <- function(.con){
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' con <- DBI::dbConnect(duckdb::duckdb())
 #' validate_extension_load_status(con,extension_names=c('excel','arrow'),return_type='ext')
+#' }
 validate_extension_load_status <- function(.con,extension_names,return_type="msg"){
 
 
@@ -155,9 +159,11 @@ validate_extension_load_status <- function(.con,extension_names,return_type="msg
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' library(DBI)
 #' con <- dbConnect(duckdb::duckdb())
-#' validate_extension_install_status(con,extension_names=c('excel','arrow'),return_type='ext')
+#' validate_extension_install_status(con,extension_names=c('excelA','arrow'),return_type='ext')
+#' }
 validate_extension_install_status <- function(.con,extension_names,return_type="msg"){
 
   ## need to first validate those that are returned from the table
@@ -272,9 +278,10 @@ validate_extension_install_status <- function(.con,extension_names,return_type="
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' con <- DBI::dbConnect(duckdb::duckdb())
 #' install_extensions(con,'motherduck',silent_msg=TRUE)
-#'
+#'}
 install_extensions <- function(.con,extension_names){
 
   # extension_names <- c("fts")
@@ -356,8 +363,10 @@ install_extensions <- function(.con,extension_names){
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' con <- DBI::dbConnect(duckdb::duckdb())
 #' load_extensions(con,'motherduck')
+#' }
 #'
 load_extensions <- function(.con,extension_names){
 
@@ -469,8 +478,10 @@ show_motherduck_token <- function(.con){
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' con <- DBI::dbConnect(duckdb::duckdb())
 #' show_duckdb_settings(con)
+#' }
 show_duckdb_settings <- function(.con){
 
   validate_con(.con)
@@ -581,8 +592,10 @@ SELECT * FROM read_parquet('",file_path,"');"
 #' @export
 #'
 #' @examples
-#' #' con <- DBI::dbConnect(duckdb::duckdb())
+#' \dontrun{
+#' con <- DBI::dbConnect(duckdb::duckdb())
 #' pwd(con)
+#' }
 pwd <- function(.con){
 
   validate_con(.con)

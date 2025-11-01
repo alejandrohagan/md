@@ -29,7 +29,7 @@ cli_create_obj <- function(.con, database_name, schema_name, table_name, write_t
 
 
     # Step 2: If no database name is provided, get the current database from the connection
-    if (is_missing(database_name)) {
+    if (missing(database_name)) {
         database_name <- pwd(.con) |> dplyr::pull(current_database)
     }
 
@@ -49,19 +49,19 @@ cli_create_obj <- function(.con, database_name, schema_name, table_name, write_t
 
     # Step 5: Report whether a new database is created or an existing database is used
     cli::cli_text(
-        if_else(!db_count > 0,
+        dplyr::if_else(!db_count > 0,
                 "{cli::symbol$tick} Created new database {.val {database_name}}",
                 "{cli::symbol$tick} Inserted into existing database {.val {database_name}}"
                 )
     )
 
     # Step 6: If no schema name is provided, get the current schema from the connection
-    if (rlang::is_missing(schema_name)) {
-        schema_name <- pwd(.con) |> pull(current_schema)
+    if (missing(schema_name)) {
+        schema_name <- pwd(.con) |> dplyr::pull(current_schema)
     }
 
     # Step 7: If schema name is provided, check how many tables exist in the schema
-    if (!rlang::is_missing(schema_name)) {
+    if (!missing(schema_name)) {
 
         schema_name_vec <- schema_name
 
@@ -79,18 +79,18 @@ cli_create_obj <- function(.con, database_name, schema_name, table_name, write_t
 
         # Step 8: Report whether a new schema is created or an existing schema is used
         cli::cli_text(
-            if_else(!schema_count > 0,
+            dpdlyr::if_else(!schema_count > 0,
                     "{cli::symbol$tick} Created new schema {.val {schema_name}}",
                     "{cli::symbol$tick} Using existing schema {.val {schema_name}}")
         )
     }
 
     # Step 9: If a table name is provided, check how many times the table exists in the schema
-    if (!rlang::is_missing(table_name)) {
+    if (!missing(table_name)) {
         table_name_vec <- table_name   # Convert table_name to vector (it could be a single name or multiple)
 
         table_count <- all_table_tbl |>
-            filter(
+            dplyr::filter(
                 table_catalog %in% database_name  # Filter by database
                 , table_schema %in% schema_name   # Filter by schema
                 , table_name %in% table_name_vec  # Filter by table name
@@ -99,7 +99,7 @@ cli_create_obj <- function(.con, database_name, schema_name, table_name, write_t
 
         # Step 10: Report whether a new table is created or an existing table is used (based on write_type)
         cli::cli_text(
-            if_else(!table_count > 0,
+            dplyr::if_else(!table_count > 0,
                     "{cli::symbol$tick} Created new table {.val {table_name_vec}}",
                     "{cli::symbol$tick} {str_to_sentence(write_type)} existing table {.val {table_name_vec}}")
         )
@@ -259,11 +259,11 @@ cli_delete_obj <- function(.con, database_name, schema_name, table_name) {
     # database_name <- "test"
     all_table_tbl <- list_all_tables(.con) |> dplyr::collect()
 
-    if (is_missing(database_name)) {
+    if (missing(database_name)) {
         database_name <- pwd(.con) |> dplyr::pull(current_database)
     }
 
-    if(!rlang::is_missing(database_name)){
+    if(!missing(database_name)){
 
 
         db_tbl <-
@@ -273,7 +273,7 @@ cli_delete_obj <- function(.con, database_name, schema_name, table_name) {
             )
     }
 
-    if(!rlang::is_missing(schema_name)){
+    if(!missing(schema_name)){
 
         schema_tbl <-
             all_table_tbl |>
@@ -285,7 +285,7 @@ cli_delete_obj <- function(.con, database_name, schema_name, table_name) {
     }
 
 
-    if(!rlang::is_missing(table_name)){
+    if(!missing(table_name)){
 
         table_name_vec <- table_name
 
@@ -300,7 +300,7 @@ cli_delete_obj <- function(.con, database_name, schema_name, table_name) {
 
     cli::cli_h2("Action Report:")
 
-    if(!rlang::is_missing(database_name)){
+    if(!missing(database_name)){
 
 
             schema_count <- db_tbl |> pull(table_schema) |> unique() |> length()
@@ -310,7 +310,7 @@ cli_delete_obj <- function(.con, database_name, schema_name, table_name) {
             cli::cli_li("Deleted {.val {database_name}} database with {.val {schema_count}} schemas and {.val {table_count}} tables")
     }
 
-    if(!rlang::is_missing(schema_name)){
+    if(!missing(schema_name)){
 
         if(nrow(schema_tbl)>0){
 
@@ -320,7 +320,7 @@ cli_delete_obj <- function(.con, database_name, schema_name, table_name) {
         }
     }
 
-    if(!rlang::is_missing(table_name)){
+    if(!missing(table_name)){
 
         if(nrow(table_tbl)>0){
 

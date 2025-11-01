@@ -22,4 +22,9 @@ test.R
 md_logo.png
 .Rproj.user
 docs
+/renv
+renv.lock
 
+altdoc/freeze.rds
+_quarto/*
+!_quarto/_freeze/

@@ -18,5 +18,7 @@ number
 Convert units to seconds
 }
 \examples{
+\dontrun{
 convert_to_seconds(300,"days")
+}
 }

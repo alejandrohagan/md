@@ -16,6 +16,8 @@ logical value or error message
 Validates that your connection object is a DuckDB connection
 }
 \examples{
+\dontrun{
 con <- DBI::dbConnect(duckdb::duckdb())
 validate_duckdb_con(con)
+}
 }

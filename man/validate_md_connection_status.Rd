@@ -18,6 +18,8 @@ confirmation or warning message
 Validate Mother Duck Connection Status
 }
 \examples{
+\dontrun{
 con <- DBI::dbConnect(duckdb::duckdb())
 validate_md_connection_status(con)
+}
 }

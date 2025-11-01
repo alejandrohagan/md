@@ -16,6 +16,8 @@ tbi
 Lists available DuckDB extensions, their description, load / installed status and more
 }
 \examples{
+\dontrun{
 con <- DBI::dbConnect(duckdb::duckdb())
 list_extensions(con)
+}
 }

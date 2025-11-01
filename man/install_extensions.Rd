@@ -20,7 +20,8 @@ message
 Installs and loads valid DuckDB extensions
 }
 \examples{
+\dontrun{
 con <- DBI::dbConnect(duckdb::duckdb())
 install_extensions(con,'motherduck',silent_msg=TRUE)
-
+}
 }

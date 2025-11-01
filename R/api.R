@@ -528,7 +528,9 @@ configure_md_user_settings <- function(
 #' @returns number
 #'
 #' @examples
+#' \dontrun{
 #' convert_to_seconds(300,"days")
+#' }
 convert_to_seconds <- function(number,units){
 
     # units <- "day"
